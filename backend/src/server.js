@@ -3,6 +3,8 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import authRoute from './routes/authRoute.js'
 import userRoute from './routes/userRoute.js'
+import questionRoute from './routes/questionRoute.js'
+import answerRoute from './routes/answerRoute.js'
 import { connectDB } from "./lib/db.js";
 import { protectedRoute } from "./middlewares/authMiddleware.js";
 import cors from "cors";
@@ -31,6 +33,8 @@ app.use(cors({
 
 // Public Routes
 app.use('/api/auth', authRoute);
+app.use('/api/questions', questionRoute);
+app.use('/api/answers', answerRoute);
 
 // Private Routes
 app.use(protectedRoute);
