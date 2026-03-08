@@ -1,0 +1,33 @@
+import jwt from 'jsonwebtoken'
+import User from '../models/User.js'
+
+export const protectedRoute = async (req, res, next) => {
+    try {
+        const authHeader = req.headers["authorization"];
+        const accessToken = authHeader && authHeader.split(" ")[1];
+
+        if (!accessToken) {
+            return res.status(401).json({ message: "Access Token không tồn tại hoặc hết hạn" })
+        }
+
+        jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, async (err, decodedPayload) => {
+            if (err) {
+                console.log(err)
+                return res.status(403).json({ message: "Access Token hết hạn hoặc không tồn tại" })
+            }
+
+            const user = await User.findById(decodedPayload.userId).select('-hashedPassword');
+
+            if (!user) {
+                return res.status(404).json({ message: "Người dùng không tồn tại hoặc đã đăng xuất" })
+            }
+
+            req["user"] = user;
+            next();
+        });
+
+    } catch (error) {
+        console.log("Lỗi khi xác minh jwt", error);
+        return res.status(500).json({ message: "Lỗi hệ thống" })
+    }
+}
