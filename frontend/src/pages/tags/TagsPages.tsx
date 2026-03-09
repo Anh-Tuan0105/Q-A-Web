@@ -105,11 +105,11 @@ const TagsPages: React.FC = () => {
 
         <main className="flex-1 ml-8 pr-8 pb-12 w-full">
           {/* Page Title */}
-          <h1 className="text-4xl font-bold mb-6">Thể Tags</h1>
+          <h1 className="text-4xl font-bold mb-6">Thẻ Tags</h1>
 
           {/* Description */}
           <p className="text-gray-700 mb-8 leading-relaxed">
-            Thể tag là từ khóa hoặc nhãn phân loại câu hỏi của bạn với các câu hỏi tương tự khác. Sử dụng thể tag giúp người khác dễ dàng tìm thấy và trả lời câu hỏi của bạn hơn.
+            Thẻ tag là từ khóa hoặc nhãn phân loại câu hỏi của bạn với các câu hỏi tương tự khác. Sử dụng thể tag giúp người khác dễ dàng tìm thấy và trả lời câu hỏi của bạn hơn.
           </p>
 
           {/* Search and Filter Bar */}
