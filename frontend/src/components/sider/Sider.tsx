@@ -5,7 +5,7 @@ const Sider = () => {
     const location = useLocation();
 
     const menuItems = [
-        { name: "Trang chủ", icon: Home, path: "/" },
+        { name: "Trang chủ", icon: Home, path: "/home" },
         { type: "divider", name: "CỘNG ĐỒNG" },
         { name: "Câu hỏi", icon: MessageSquare, path: "/questions" },
         { name: "Tags", icon: Tags, path: "/tags" },
@@ -24,7 +24,10 @@ const Sider = () => {
                         );
                     }
 
-                    const isActive = location.pathname === item.path;
+                    let isActive = location.pathname === item.path;
+                    if (item.path === "/questions" && location.pathname.startsWith("/questions")) {
+                        isActive = true;
+                    }
 
                     return (
                         <Link

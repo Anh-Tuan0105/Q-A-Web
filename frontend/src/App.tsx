@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
 import SignUpPages from './pages/auth/SignUpPages'
 import SignInPages from './pages/auth/SignInPages'
-import UserPages from './pages/users/UserPages'
+import Home from './pages/home/Home'
+import QuestionDetail from './pages/question/QuestionDetail'
+import CreateQuestion from './pages/question/CreateQuestion'
 import { Toaster } from 'sonner'
 import { useAuthStore } from './stores/useAuthStore'
 
@@ -30,6 +32,7 @@ function App() {
       <Toaster richColors />
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Navigate to="/home" replace />} />
           {/* Public Route */}
           <Route
             path='/signup'
@@ -40,8 +43,16 @@ function App() {
             element={<SignInPages />}
           />
           <Route
-            path='/'
-            element={<UserPages />}
+            path='/home'
+            element={<Home />}
+          />
+          <Route
+            path='/questions/:id'
+            element={<QuestionDetail />}
+          />
+          <Route
+            path='/ask'
+            element={<CreateQuestion />}
           />
           {/* Private Route example - Keep ProtectedRoute for future private pages */}
           {/* <Route element={<ProtectedRoute />}>
