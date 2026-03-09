@@ -2,17 +2,46 @@ import { Search, Bell, User, Settings, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { useNotificationStore } from '../../stores/useNotificationStore';
+import { useSocketStore } from '../../stores/useSocketStore';
 
 const Header: React.FC = () => {
     const { user, logout } = useAuthStore();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isNotifOpen, setIsNotifOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const notifDropdownRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+
+    const { notifications, unreadCount, fetchNotifications, markAsRead, markAllAsRead, isLoading } = useNotificationStore();
+    const { socket } = useSocketStore();
+
+    useEffect(() => {
+        if (user) {
+            fetchNotifications();
+        }
+    }, [user, fetchNotifications]);
+
+    useEffect(() => {
+        if (socket) {
+            const handleNewNotification = (notification: any) => {
+                useNotificationStore.getState().addNotification(notification);
+            };
+            socket.on("new_notification", handleNewNotification);
+            
+            return () => {
+                socket.off("new_notification", handleNewNotification);
+            };
+        }
+    }, [socket]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsDropdownOpen(false);
+            }
+            if (notifDropdownRef.current && !notifDropdownRef.current.contains(event.target as Node)) {
+                setIsNotifOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -55,10 +84,78 @@ const Header: React.FC = () => {
                     {user ? (
                         <>
                             {/* Notification */}
-                            <button className="relative p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors">
-                                <Bell className="w-6 h-6" />
-                                <span className="absolute top-2 right-2 w-3 h-3 bg-red-500 border-2 border-white rounded-full"></span>
-                            </button>
+                            <div className="relative" ref={notifDropdownRef}>
+                                <button 
+                                    onClick={() => setIsNotifOpen(!isNotifOpen)}
+                                    className="relative p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors"
+                                >
+                                    <Bell className="w-6 h-6" />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute top-1.5 right-1.5 min-w-4 h-4 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center px-1 border-2 border-white rounded-full">
+                                            {unreadCount > 9 ? '9+' : unreadCount}
+                                        </span>
+                                    )}
+                                </button>
+
+                                {/* Notification Dropdown */}
+                                {isNotifOpen && (
+                                    <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.06)] border border-slate-100 z-50 flex flex-col">
+                                        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 sticky top-0 bg-white">
+                                            <span className="font-bold text-slate-800">Thông báo</span>
+                                            {unreadCount > 0 && (
+                                                <button 
+                                                    onClick={() => markAllAsRead()}
+                                                    className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                                                >
+                                                    Đánh dấu đã đọc
+                                                </button>
+                                            )}
+                                        </div>
+                                        
+                                        <div className="flex-1 overflow-y-auto">
+                                            {isLoading && notifications.length === 0 ? (
+                                                <div className="p-4 text-center text-slate-500 text-sm">Đang tải...</div>
+                                            ) : notifications.length > 0 ? (
+                                                notifications.map(notif => (
+                                                    <div 
+                                                        key={notif._id} 
+                                                        onClick={() => {
+                                                            if (!notif.isRead) markAsRead(notif._id);
+                                                            setIsNotifOpen(false);
+                                                            navigate(notif.link);
+                                                        }}
+                                                        className={`flex gap-3 p-3 border-b border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors ${!notif.isRead ? 'bg-blue-50/30' : ''}`}
+                                                    >
+                                                        <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shrink-0 mt-1">
+                                                            {notif.senderId?.avatarUrl ? (
+                                                                <img src={notif.senderId.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                <img src={`https://ui-avatars.com/api/?name=${notif.senderId?.displayName || notif.senderId?.userName || "U"}&background=random`} alt="Avatar" className="w-full h-full object-cover" />
+                                                            )}
+                                                        </div>
+                                                        <div className="flex-1 flex flex-col justify-center">
+                                                            <p className="text-sm text-slate-800 leading-tight">
+                                                                <span className="font-semibold">{notif.senderId?.displayName || notif.senderId?.userName}</span> {notif.message}
+                                                            </p>
+                                                            <span className="text-xs text-slate-500 mt-1">
+                                                                {new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(notif.createdAt))}
+                                                            </span>
+                                                        </div>
+                                                        {!notif.isRead && (
+                                                            <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 shrink-0"></div>
+                                                        )}
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="p-6 text-center text-slate-500 text-sm flex flex-col items-center">
+                                                    <Bell className="w-8 h-8 text-slate-300 mb-2" />
+                                                    <p>Bạn chưa có thông báo nào</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
 
                             {/* Divider */}
                             <div className="h-8 w-px bg-slate-200"></div>
