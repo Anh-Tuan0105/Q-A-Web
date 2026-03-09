@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router'
 import SignUpPages from './pages/auth/SignUpPages'
 import SignInPages from './pages/auth/SignInPages'
 import UserPages from './pages/users/UserPages'
+import AnswerPage from './pages/questions/AnswerPage'
+import TagsPages from './pages/tags/TagsPages'
 import { Toaster } from 'sonner'
 import { useAuthStore } from './stores/useAuthStore'
 
@@ -42,6 +44,14 @@ function App() {
           <Route
             path='/'
             element={<UserPages />}
+          />
+          <Route
+            path='/answer'
+            element={<AnswerPage />}
+          />
+          <Route
+            path='/tags'
+            element={<TagsPages />}
           />
           {/* Private Route example - Keep ProtectedRoute for future private pages */}
           {/* <Route element={<ProtectedRoute />}>
