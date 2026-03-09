@@ -12,3 +12,4 @@ export const authMe = async (req, res) => {
 export const test = async (req, res) => {
     return res.sendStatus(204);
 }
+

@@ -63,7 +63,7 @@ export const getAnswersByQuestion = async (req, res) => {
         // Sắp xếp: ưu tiên isAccepted = true lên đầu, sau đó sắp xếp theo vote (cao xuống thấp), rồi đến thời gian
         const answers = await Answer.find({ quesId })
             .sort({ isAccepted: -1, upvoteCount: -1, createdAt: 1 })
-            .populate("userId", "username profilePicture"); // Lấy thông tin người trả lời
+            .populate("userId", "userName displayName avatarUrl"); // Lấy thông tin người trả lời
 
         res.status(200).json({
             success: true,
@@ -188,39 +188,11 @@ export const voteAnswer = async (req, res) => {
         });
 
         if (existingVote) {
-            // Toggle nếu vote giống lần trước
-            if (existingVote.value === value) {
-                await Vote.findByIdAndDelete(existingVote._id);
-                // Giảm biến đếm tương ứng ở Answer
-                if (value === 1) answer.upvoteCount -= 1;
-                if (value === -1) answer.downvoteCount -= 1;
-
-                await answer.save();
-                return res.status(200).json({
-                    success: true,
-                    message: "Đã hủy bỏ vote",
-                    answer
-                });
-            } else {
-                // Sửa vote từ up -> down hoặc ngược lại
-                existingVote.value = value;
-                await existingVote.save();
-
-                if (value === 1) {
-                    answer.upvoteCount += 1;
-                    answer.downvoteCount -= 1;
-                } else {
-                    answer.upvoteCount -= 1;
-                    answer.downvoteCount += 1;
-                }
-
-                await answer.save();
-                return res.status(200).json({
-                    success: true,
-                    message: "Đã cập nhật vote thành công",
-                    answer
-                });
-            }
+            // Đã vote rồi thì không được vote lại (kể cả Upvote hay Downvote)
+            return res.status(400).json({
+                success: false,
+                message: "Bạn đã vote cho câu trả lời này rồi, không thể thay đổi hoặc vote thêm"
+            });
         } else {
             // Chưa vote
             const newVote = new Vote({
@@ -281,12 +253,12 @@ export const acceptAnswer = async (req, res) => {
 
         // Bỏ chọn câu trả lời cũ (nếu có) thuộc về câu hỏi này
         await Answer.updateMany(
-            { quesId: question._id, isAccepted: true },
+            { quesId: question._id, _id: { $ne: answerToAccept._id } },
             { $set: { isAccepted: false } }
         );
 
-        // Chấp nhận câu trả lời này
-        answerToAccept.isAccepted = true;
+        // Toggle trạng thái của câu trả lời được click
+        answerToAccept.isAccepted = !answerToAccept.isAccepted;
         await answerToAccept.save();
 
         // Đánh dấu id câu hỏi là đã được giải quyết (Tuỳ chọn: nếu muốn Question có status 'resolved')

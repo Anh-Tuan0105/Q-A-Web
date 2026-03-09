@@ -114,9 +114,9 @@ export const getQuestions = async (req, res) => {
             .sort(sortOptions)
             .skip(skip)
             .limit(parseInt(limit))
-            .populate("userId", "username profilePicture") // Lấy thông tin cơ bản của user
+            .populate("userId", "userName displayName avatarUrl") // Lấy thông tin cơ bản của user
             .populate("tags", "name") // Lấy tên các tag
-            .populate("lastActivityUser", "username profilePicture"); // Lấy user tương tác cuối
+            .populate("lastActivityUser", "userName displayName avatarUrl"); // Lấy user tương tác cuối
 
         res.status(200).json({
             success: true,
@@ -146,7 +146,7 @@ export const getQuestionById = async (req, res) => {
             { $inc: { viewCount: 1 } },
             { new: true } // Trả về document sau khi update
         )
-            .populate("userId", "username profilePicture")
+            .populate("userId", "userName displayName avatarUrl")
             .populate("tags", "name description");
 
         if (!question) {
@@ -317,40 +317,11 @@ export const voteQuestion = async (req, res) => {
         });
 
         if (existingVote) {
-            // Nếu vote giống lần trước (ví dụ đã upvote, bấm thêm lần nữa) -> Xóa vote (toggle)
-            if (existingVote.value === value) {
-                await Vote.findByIdAndDelete(existingVote._id);
-                // Giảm biến đếm tương ứng ở Question
-                if (value === 1) question.upvoteCount -= 1;
-                if (value === -1) question.downvoteCount -= 1;
-
-                await question.save();
-                return res.status(200).json({
-                    success: true,
-                    message: "Đã hủy bỏ vote",
-                    question
-                });
-            } else {
-                // Nếu lần trước upvote (1), giờ downvote (-1)
-                // Hoặc lần trước downvote (-1), giờ upvote (1)
-                existingVote.value = value;
-                await existingVote.save();
-
-                if (value === 1) {
-                    question.upvoteCount += 1;
-                    question.downvoteCount -= 1;
-                } else {
-                    question.upvoteCount -= 1;
-                    question.downvoteCount += 1;
-                }
-
-                await question.save();
-                return res.status(200).json({
-                    success: true,
-                    message: "Đã cập nhật vote thành công",
-                    question
-                });
-            }
+            // Đã vote rồi thì không được vote lại (kể cả Upvote hay Downvote)
+            return res.status(400).json({
+                success: false,
+                message: "Bạn đã vote cho câu hỏi này rồi, không thể thay đổi hoặc vote thêm"
+            });
         } else {
             // Nếu chưa vote bao giờ, tạo mới
             const newVote = new Vote({
