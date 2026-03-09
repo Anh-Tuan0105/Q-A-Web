@@ -144,7 +144,7 @@ export const getQuestionById = async (req, res) => {
         const question = await Question.findByIdAndUpdate(
             id,
             { $inc: { viewCount: 1 } },
-            { new: true } // Trả về document sau khi update
+            { returnDocument: 'after' } // Trả về document sau khi update
         )
             .populate("userId", "userName displayName avatarUrl")
             .populate("tags", "name description");

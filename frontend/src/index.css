@@ -18,3 +18,22 @@
   font-family: "Lexend", sans-serif;
   box-sizing: border-box;
 }
+
+/* Override default EasyMDE styles */
+.prose-mde .editor-toolbar {
+  border: none;
+  border-bottom: 1px solid #e2e8f0;
+  border-radius: 0;
+  background-color: #f8fafc;
+  opacity: 1 !important;
+}
+.prose-mde .CodeMirror {
+  border: none;
+  font-family: inherit;
+  font-size: 15px;
+  color: #1e293b;
+  min-height: 250px;
+}
+.prose-mde .editor-statusbar {
+  display: none;
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router";
 import { useQuestionDetailStore } from "../../stores/useQuestionDetailStore";
 import { useAuthStore } from "../../stores/useAuthStore";
@@ -7,6 +7,9 @@ import Sider from "../../components/sider/Sider";
 import Footer from "../../components/footer/Footer";
 import PopularTags from "../../components/popular-tags/PopularTags";
 import { ChevronUp, ChevronDown, CheckCircle2 } from "lucide-react";
+import MarkdownViewer from "../../components/markdown/MarkdownViewer";
+import SimpleMdeReact from "react-simplemde-editor";
+import "easymde/dist/easymde.min.css";
 
 // Tái sử dụng hàm helper từ Home
 const getRelativeTime = (dateString: string) => {
@@ -34,6 +37,15 @@ const QuestionDetail = () => {
     const { user } = useAuthStore();
     const [answerContent, setAnswerContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const mdeOptions = useMemo(() => {
+        return {
+            spellChecker: false,
+            placeholder: user ? "Viết câu trả lời của bạn ở đây..." : "Bạn cần đăng nhập để trả lời...",
+            hideIcons: ["guide", "fullscreen", "side-by-side"],
+            status: false
+        } as any;
+    }, [user]);
 
     const handleVoteQuestion = (value: 1 | -1) => {
         if (!user) {
@@ -162,9 +174,7 @@ const QuestionDetail = () => {
 
                             {/* Content Column */}
                             <div className="flex-1 flex flex-col">
-                                <div className="text-[16px] text-slate-800 leading-relaxed mb-6 whitespace-pre-wrap">
-                                    {question.content}
-                                </div>
+                                <MarkdownViewer content={question.content} className="mb-6" />
 
                                 {/* Tags */}
                                 <div className="flex gap-2 flex-wrap mb-6">
@@ -264,9 +274,7 @@ const QuestionDetail = () => {
 
                                     {/* Answer Content Column */}
                                     <div className="flex-1 flex flex-col pt-4">
-                                        <div className="text-[15px] text-slate-800 leading-relaxed mb-6 whitespace-pre-wrap">
-                                            {answer.content}
-                                        </div>
+                                        <MarkdownViewer content={answer.content} className="mb-6" />
 
                                         <div className="flex items-start justify-between mt-auto">
                                             <div className="flex gap-4 text-[13px] text-slate-500 font-medium">
@@ -297,20 +305,12 @@ const QuestionDetail = () => {
                         {/* Your Answer Input Area */}
                         <div className="mt-8 relative">
                             <h3 className="text-[20px] font-bold text-slate-800 mb-4">Câu trả lời của bạn</h3>
-                            <div className={`border border-slate-300 rounded-xl overflow-hidden mb-6 bg-white transition-all ${!user ? 'opacity-50 pointer-events-none select-none' : 'focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500'}`}>
-                                <div className="bg-slate-50 border-b border-slate-300 px-4 py-2 flex gap-4 text-slate-600">
-                                    <button className="font-bold hover:text-slate-900">B</button>
-                                    <button className="italic font-serif hover:text-slate-900">I</button>
-                                    <button className="font-mono hover:text-slate-900">{"<>"}</button>
-                                    <button className="hover:text-slate-900">O</button>
-                                </div>
-                                <textarea
-                                    className="w-full h-[200px] p-4 text-[15px] text-slate-800 outline-none resize-y min-h-[150px]"
-                                    placeholder={user ? "Viết câu trả lời của bạn tại đây..." : "Bạn cần đăng nhập để trả lời..."}
-                                    disabled={!user || isSubmitting}
+                            <div className={`rounded-xl overflow-hidden mb-6 bg-white transition-all prose-mde ${!user ? 'opacity-50 pointer-events-none select-none border border-slate-300' : 'border border-slate-300 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500'}`}>
+                                <SimpleMdeReact
                                     value={answerContent}
-                                    onChange={(e) => setAnswerContent(e.target.value)}
-                                ></textarea>
+                                    onChange={(val) => setAnswerContent(val)}
+                                    options={mdeOptions}
+                                />
                             </div>
                             {user ? (
                                 <button

@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
 import Header from "../../components/header/Header";
 import Footer from "../../components/footer/Footer";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { questionService } from "../../services/questionService";
-import { X, Eye } from "lucide-react";
+import { X } from "lucide-react";
+import SimpleMdeReact from "react-simplemde-editor";
+import "easymde/dist/easymde.min.css";
 
 const CreateQuestion = () => {
     const navigate = useNavigate();
@@ -16,6 +18,15 @@ const CreateQuestion = () => {
     const [tags, setTags] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const mdeOptions = useMemo(() => {
+        return {
+            spellChecker: false,
+            placeholder: "Viết câu hỏi của bạn ở đây...",
+            hideIcons: ["guide", "fullscreen", "side-by-side"],
+            status: false
+        } as any;
+    }, []);
 
     const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter" || e.key === ",") {
@@ -108,31 +119,12 @@ const CreateQuestion = () => {
                             <span className="text-[12px] text-slate-400">Hỗ trợ Markdown</span>
                         </div>
 
-                        <div className="border border-slate-300 rounded-lg overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
-                            {/* Toolbar (Visual Only) */}
-                            <div className="bg-slate-50 border-b border-slate-300 px-4 py-2 flex gap-4 text-slate-600">
-                                <button className="font-bold hover:text-slate-900 cursor-pointer">B</button>
-                                <button className="italic font-serif hover:text-slate-900 cursor-pointer">I</button>
-                                <button className="hover:text-slate-900 cursor-pointer">🔗</button>
-                                <button className="font-mono hover:text-slate-900 cursor-pointer">{"<>"}</button>
-                                <button className="font-mono font-bold hover:text-slate-900 cursor-pointer">{"{}"}</button>
-                                <button className="hover:text-slate-900 cursor-pointer">🖼️</button>
-                                <button className="font-bold hover:text-slate-900 cursor-pointer">☰</button>
-                            </div>
-                            <textarea
-                                className="w-full h-[250px] p-4 text-[15px] text-slate-800 outline-none resize-y"
-                                placeholder="Viết câu hỏi của bạn ở đây..."
+                        <div className="rounded-lg overflow-hidden border border-slate-300 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all bg-white prose-mde">
+                            <SimpleMdeReact
                                 value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                disabled={isSubmitting}
-                            ></textarea>
-                            {/* Preview Footer */}
-                            <div className="bg-slate-50 border-t border-slate-300 px-4 py-2.5 flex justify-between items-center text-[13px]">
-                                <span className="text-slate-500">Hỗ trợ Markdown cơ bản</span>
-                                <button className="text-blue-600 font-bold flex items-center gap-1 hover:text-blue-700 transition-colors cursor-pointer">
-                                    <Eye size={16} /> Xem trước
-                                </button>
-                            </div>
+                                onChange={(val) => setContent(val)}
+                                options={mdeOptions}
+                            />
                         </div>
                     </div>
 

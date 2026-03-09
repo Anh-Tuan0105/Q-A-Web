@@ -169,7 +169,7 @@ const Home = () => {
                                                 {question.title}
                                             </Link>
                                             <p className="text-slate-600 text-[15px] leading-relaxed mb-4 line-clamp-2">
-                                                {question.content}
+                                                {question.content.replace(/[#*`>\[\]]/g, '')}
                                             </p>
 
                                             {/* Tags and Author */}
