@@ -1,3 +1,4 @@
+import { app, server } from "./lib/socket.js";
 import express from "express";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
@@ -21,7 +22,6 @@ dns.setServers([
 
 
 dotenv.config();
-const app = express();
 const PORT = process.env.PORT || 5000;
 
 // middlewares
@@ -43,7 +43,7 @@ app.use(protectedRoute);
 app.use('/api/users', userRoute);
 
 connectDB().then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
         console.log(`Server đang khởi chạy ở ${PORT}`);
     });
 });

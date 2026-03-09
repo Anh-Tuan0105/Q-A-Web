@@ -30,7 +30,7 @@ const Header: React.FC = () => {
             {/* Main Wrapper matching the layout width */}
             <div className="flex items-center w-full max-w-[1400px]">
                 {/* Combined Logo and Search Bar Area */}
-                <div className="flex items-center gap-8 ml-8 flex-1">
+                <Link to="/" className="flex items-center gap-8 ml-8 flex-1">
                     {/* Logo Section */}
                     <div className="flex items-center gap-3 shrink-0 cursor-pointer">
                         <img src="/logo.svg" alt="DevCommunity Logo" className="w-[28px] h-[28px]" />
@@ -48,7 +48,7 @@ const Header: React.FC = () => {
                             />
                         </div>
                     </div>
-                </div>
+                </Link>
 
                 {/* Right Section: Actions & Profile */}
                 <div className="flex items-center gap-6 mr-8">

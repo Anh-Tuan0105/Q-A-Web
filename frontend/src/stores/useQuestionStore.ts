@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { questionService } from '../services/questionService';
 import type { QuestionStore } from '../types/store';
+import type { QuestionType } from '../types/question';
 
 
 
@@ -47,5 +48,17 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
         if (page < 1 || page > get().totalPages) return;
         set({ currentPage: page });
         get().fetchQuestions(page, get().activeTab);
+    },
+
+    addNewQuestion: (newQuestion: QuestionType) => {
+        const { questions } = get();
+        // Kiểm tra xem đã tồn tại chưa (trường hợp user hiện tại là người tạo thì socket có thể trả về sau)
+        const exists = questions.find(q => q._id === newQuestion._id);
+        if (!exists) {
+            set({
+                questions: [newQuestion, ...questions].slice(0, 4), // Mặc định chỉ hiển thị 4 câu hỏi trên HomePage
+                totalQuestions: get().totalQuestions + 1
+            });
+        }
     }
 }));

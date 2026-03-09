@@ -2,6 +2,7 @@ import Answer from "../models/Answer.js";
 import Question from "../models/Question.js";
 import Vote from "../models/Vote.js";
 import mongoose from "mongoose";
+import { io } from "../lib/socket.js";
 
 // Tạo câu trả lời mới
 export const createAnswer = async (req, res) => {
@@ -39,10 +40,15 @@ export const createAnswer = async (req, res) => {
         question.lastActivityUser = userId;
         await question.save();
 
+        const populatedAnswer = await Answer.findById(newAnswer._id)
+            .populate("userId", "userName displayName avatarUrl");
+
+        io.to(`room_question_${quesId}`).emit("new_answer", populatedAnswer);
+
         res.status(201).json({
             success: true,
             message: "Tạo câu trả lời thành công",
-            answer: newAnswer,
+            answer: populatedAnswer,
         });
     } catch (error) {
         console.error("Lỗi trong createAnswer:", error);

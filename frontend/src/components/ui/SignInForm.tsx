@@ -29,12 +29,14 @@ const SignInForm = () => {
         resolver: zodResolver(signInSchema),
     })
 
-    const {signin} = useAuthStore();
+    const { signin } = useAuthStore();
 
     const onSubmit = async (data: SignInSchema) => {
-        const {username, password} = data;
-        await signin(username, password);
-        navigate("/");
+        const { username, password } = data;
+        const success = await signin(username, password);
+        if (success) {
+            navigate("/");
+        }
     }
     return (
         <>

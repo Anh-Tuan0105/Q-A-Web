@@ -8,6 +8,9 @@ import PopularTags from "../../components/popular-tags/PopularTags";
 import { Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
+import { useSocketStore } from "../../stores/useSocketStore";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 // Helper function to format relative time
 const getRelativeTime = (dateString: string) => {
@@ -44,11 +47,35 @@ const TABS = [
 const Home = () => {
     const user = useAuthStore((s) => s.user);
     const navigate = useNavigate();
-    const { questions, isLoading, activeTab, fetchQuestions, setActiveTab, currentPage, totalPages, setPage } = useQuestionStore();
+    const { questions, isLoading, activeTab, fetchQuestions, setActiveTab, currentPage, totalPages, setPage, addNewQuestion } = useQuestionStore();
+    const { connect, socket } = useSocketStore();
 
     useEffect(() => {
         fetchQuestions(currentPage, activeTab);
-    }, []);
+    }, [activeTab, currentPage]); // Re-fetch khi tab hoặc trang thay đổi thay vì gọi bằng tay
+
+    useEffect(() => {
+        if (!socket) {
+            connect();
+        }
+
+        const handleNewQuestion = (newQuestion: any) => {
+            // Chỉ thêm nếu đang ở trang 1 và đang xem tab mới nhất hoặc thú vị
+            if (currentPage === 1 && (activeTab === 'interesting' || activeTab === 'hot')) {
+                addNewQuestion(newQuestion);
+            }
+        };
+
+        if (socket) {
+            socket.on("new_question", handleNewQuestion);
+        }
+
+        return () => {
+            if (socket) {
+                socket.off("new_question", handleNewQuestion);
+            }
+        };
+    }, [socket, currentPage, activeTab, addNewQuestion]);
 
     const handleAskQuestion = () => {
         if (!user) {
@@ -129,9 +156,29 @@ const Home = () => {
                         {/* Questions List */}
                         <div className="flex flex-col gap-4">
                             {isLoading ? (
-                                <div className="flex justify-center py-10">
-                                    <span className="text-slate-500 font-medium">Đang tải danh sách câu hỏi...</span>
-                                </div>
+                                Array(4).fill(0).map((_, idx) => (
+                                    <div key={idx} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex gap-6">
+                                        <div className="flex flex-col items-end gap-3 shrink-0 w-[80px]">
+                                            <Skeleton width={40} height={20} />
+                                            <Skeleton width={60} height={35} className="rounded-lg" />
+                                            <Skeleton width={50} height={15} />
+                                        </div>
+                                        <div className="flex flex-col flex-1">
+                                            <Skeleton width="80%" height={24} className="mb-2" />
+                                            <Skeleton count={2} className="mb-4" />
+                                            <div className="flex items-center justify-between mt-auto">
+                                                <div className="flex gap-2">
+                                                    <Skeleton width={50} height={24} borderRadius={12} />
+                                                    <Skeleton width={60} height={24} borderRadius={12} />
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Skeleton circle width={24} height={24} />
+                                                    <Skeleton width={80} height={16} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
                             ) : questions.length === 0 ? (
                                 <div className="flex justify-center py-10 bg-white border border-slate-200 rounded-xl">
                                     <span className="text-slate-500 font-medium">Không tìm thấy câu hỏi nào.</span>
@@ -169,7 +216,7 @@ const Home = () => {
                                                 {question.title}
                                             </Link>
                                             <p className="text-slate-600 text-[15px] leading-relaxed mb-4 line-clamp-2">
-                                                {question.content}
+                                                {question.content.replace(/[#*`>\[\]]/g, '')}
                                             </p>
 
                                             {/* Tags and Author */}
@@ -245,7 +292,11 @@ const Home = () => {
                     </main>
 
                     {/* Right Sidebar */}
-                    <PopularTags className="" />
+                    <div className="w-[300px] shrink-0 xl:block hidden">
+                        <div className="sticky top-24">
+                            <PopularTags className="" />
+                        </div>
+                    </div>
                 </div>
             </div>
 

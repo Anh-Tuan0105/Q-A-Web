@@ -13,7 +13,7 @@ const Sider = () => {
     ];
 
     return (
-        <aside className="w-[176px] shrink-0 sticky top-[80px] h-fit ml-8">
+        <aside className="w-[176px] shrink-0 sticky top-[90px] h-fit ml-8">
             <nav className="flex flex-col gap-1">
                 {menuItems.map((item, index) => {
                     if (item.type === "divider") {
