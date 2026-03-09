@@ -9,7 +9,7 @@ const Sider = () => {
         { type: "divider", name: "CỘNG ĐỒNG" },
         { name: "Câu hỏi", icon: MessageSquare, path: "/questions" },
         { name: "Tags", icon: Tags, path: "/tags" },
-        { name: "Thành viên", icon: Users, path: "/users" },
+        { name: "Thành viên", icon: Users, path: "/members" },
     ];
 
     return (

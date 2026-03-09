@@ -1,10 +1,11 @@
-import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router'
-import SignUpPages from './pages/auth/SignUpPages'
-import SignInPages from './pages/auth/SignInPages'
-import UserPages from './pages/users/UserPages'
-import { Toaster } from 'sonner'
-import { useAuthStore } from './stores/useAuthStore'
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router";
+import SignUpPages from "./pages/auth/SignUpPages";
+import SignInPages from "./pages/auth/SignInPages";
+import UserPages from "./pages/users/UserPages";
+import MemberList from "./pages/member/memberlist";
+import { Toaster } from "sonner";
+import { useAuthStore } from "./stores/useAuthStore";
 
 function App() {
   const { accessToken, user, refresh, fetchMe } = useAuthStore();
@@ -31,25 +32,17 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public Route */}
-          <Route
-            path='/signup'
-            element={<SignUpPages />}
-          />
-          <Route
-            path='/signin'
-            element={<SignInPages />}
-          />
-          <Route
-            path='/'
-            element={<UserPages />}
-          />
+          <Route path="/signup" element={<SignUpPages />} />
+          <Route path="/signin" element={<SignInPages />} />
+          <Route path="/members" element={<MemberList />} />
+          <Route path="/" element={<UserPages />} />
           {/* Private Route example - Keep ProtectedRoute for future private pages */}
           {/* <Route element={<ProtectedRoute />}>
           </Route> */}
         </Routes>
       </BrowserRouter>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
