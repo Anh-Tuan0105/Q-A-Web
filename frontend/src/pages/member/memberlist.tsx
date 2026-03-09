@@ -90,8 +90,7 @@ const MemberList: React.FC = () => {
   ]);
 
   return (
-    <div className="p-8 bg-white min-h-screen border border-dashed border-blue-400 m-4 rounded-md">
-       {/* Border Dashed just for illustration of the bounding box based on image, can be removed in production */}
+    <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm w-full">
       <div className="max-w-[1200px] mx-auto">
         {/* Header Section */}
         <h1 className="text-2xl font-bold text-gray-800 mb-6">

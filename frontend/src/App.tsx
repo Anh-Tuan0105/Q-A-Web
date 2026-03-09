@@ -4,6 +4,7 @@ import SignUpPages from "./pages/auth/SignUpPages";
 import SignInPages from "./pages/auth/SignInPages";
 import UserPages from "./pages/users/UserPages";
 import MemberList from "./pages/member/memberlist";
+import MainLayout from "./components/layout/MainLayout";
 import { Toaster } from "sonner";
 import { useAuthStore } from "./stores/useAuthStore";
 
@@ -31,11 +32,16 @@ function App() {
       <Toaster richColors />
       <BrowserRouter>
         <Routes>
-          {/* Public Route */}
+          {/* Auth Routes */}
           <Route path="/signup" element={<SignUpPages />} />
           <Route path="/signin" element={<SignInPages />} />
-          <Route path="/members" element={<MemberList />} />
-          <Route path="/" element={<UserPages />} />
+
+          {/* Main Layout Routes */}
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<UserPages />} />
+            <Route path="/members" element={<MemberList />} />
+          </Route>
+
           {/* Private Route example - Keep ProtectedRoute for future private pages */}
           {/* <Route element={<ProtectedRoute />}>
           </Route> */}
