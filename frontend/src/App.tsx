@@ -11,7 +11,6 @@ import SettingProfile from './pages/profile/SettingProfile'
 import Security from './pages/securities/Security'
 import EmailChange from './pages/securities/emailchange'
 import EmailAuth from './pages/securities/EmailAuth'
-import AnswerPage from './pages/questions/AnswerPage'
 import TagsPages from './pages/tags/TagsPages'
 import { Toaster } from 'sonner'
 import { useAuthStore } from './stores/useAuthStore'  
@@ -96,10 +95,6 @@ function App() {
           <Route
             path='/security/email-auth'
             element={<EmailAuth />}
-          />
-          <Route
-            path='/answer'
-            element={<AnswerPage />}
           />
           <Route
             path='/tags'

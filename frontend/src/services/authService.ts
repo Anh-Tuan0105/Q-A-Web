@@ -37,6 +37,21 @@ export const authService = {
     refresh: async () => {
         const res = await api.post("/auth/refresh", {}, { withCredentials: true });
         return res.data;
+    },
+
+    changePassword: async (currentPassword: string, newPassword: string) => {
+        const res = await api.post("/auth/change-password", { currentPassword, newPassword }, { withCredentials: true });
+        return res.data;
+    },
+
+    requestEmailChange: async (newEmail: string) => {
+        const res = await api.post("/auth/request-email-change", { newEmail }, { withCredentials: true });
+        return res.data;
+    },
+
+    verifyEmailChange: async (newEmail: string, otp: string) => {
+        const res = await api.post("/auth/verify-email-change", { newEmail, otp }, { withCredentials: true });
+        return res.data;
     }
 }
 

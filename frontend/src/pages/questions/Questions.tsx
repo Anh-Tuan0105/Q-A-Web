@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useQuestionStore } from "../../stores/useQuestionStore";
 import { useAuthStore } from "../../stores/useAuthStore";
 import Header from "../../components/header/Header";
@@ -8,6 +8,8 @@ import PopularTags from "../../components/popular-tags/PopularTags";
 import { Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 // Helper function to format relative time
 const getRelativeTime = (dateString: string) => {
@@ -35,20 +37,33 @@ const getRelativeTime = (dateString: string) => {
 };
 
 const TABS = [
-    { id: "interesting", label: "Mới nhất" },
-    { id: "hot", label: "Chưa trả lời" },
-    { id: "week", label: "Xem nhiều" },
-    { id: "month", label: "Bình chọn" },
+    { id: "newest", label: "Mới nhất" },
+    { id: "unanswered", label: "Chưa trả lời" },
+    { id: "most-viewed", label: "Xem nhiều" },
+    { id: "most-voted", label: "Bình chọn" },
 ];
 
 const Questions = () => {
     const user = useAuthStore((s) => s.user);
     const navigate = useNavigate();
     const { questions, isLoading, activeTab, fetchQuestions, setActiveTab, currentPage, totalPages, setPage } = useQuestionStore();
+    const [searchTag, setSearchTag] = useState("");
+    const [appliedTag, setAppliedTag] = useState("");
 
     useEffect(() => {
-        fetchQuestions(currentPage, activeTab);
-    }, []);
+        fetchQuestions(currentPage, activeTab, appliedTag);
+    }, [activeTab, currentPage, appliedTag]);
+
+    const handleFilterTag = () => {
+        setAppliedTag(searchTag);
+        setPage(1); // Reset page to 1 when applying a new tag
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            handleFilterTag();
+        }
+    };
 
     const handleAskQuestion = () => {
         if (!user) {
@@ -136,10 +151,16 @@ const Questions = () => {
                                     <input
                                         type="text"
                                         placeholder="Lọc theo tag..."
+                                        value={searchTag}
+                                        onChange={(e) => setSearchTag(e.target.value)}
+                                        onKeyDown={handleKeyDown}
                                         className="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder:text-slate-400"
                                     />
                                 </div>
-                                <button className="flex items-center gap-2 px-4 py-2 text-blue-600 font-medium text-sm hover:bg-blue-50 rounded-lg transition-colors">
+                                <button
+                                    onClick={handleFilterTag}
+                                    className="flex items-center gap-2 px-4 py-2 text-blue-600 font-medium text-sm hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                                >
                                     <Filter className="w-4 h-4" />
                                     Lọc
                                 </button>
@@ -149,9 +170,29 @@ const Questions = () => {
                         {/* Questions List */}
                         <div className="flex flex-col gap-4">
                             {isLoading ? (
-                                <div className="flex justify-center py-10">
-                                    <span className="text-slate-500 font-medium">Đang tải danh sách câu hỏi...</span>
-                                </div>
+                                Array(4).fill(0).map((_, idx) => (
+                                    <div key={idx} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex gap-6">
+                                        <div className="flex flex-col items-end gap-3 shrink-0 w-[80px]">
+                                            <Skeleton width={40} height={20} />
+                                            <Skeleton width={60} height={35} className="rounded-lg" />
+                                            <Skeleton width={50} height={15} />
+                                        </div>
+                                        <div className="flex flex-col flex-1">
+                                            <Skeleton width="80%" height={24} className="mb-2" />
+                                            <Skeleton count={2} className="mb-4" />
+                                            <div className="flex items-center justify-between mt-auto">
+                                                <div className="flex gap-2">
+                                                    <Skeleton width={50} height={24} borderRadius={12} />
+                                                    <Skeleton width={60} height={24} borderRadius={12} />
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Skeleton circle width={24} height={24} />
+                                                    <Skeleton width={80} height={16} />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
                             ) : questions.length === 0 ? (
                                 <div className="flex justify-center py-10 bg-white border border-slate-200 rounded-xl">
                                     <span className="text-slate-500 font-medium">Không tìm thấy câu hỏi nào.</span>
@@ -265,7 +306,7 @@ const Questions = () => {
                     </main>
 
                     {/* Right Sidebar */}
-                    <PopularTags className="" />
+                    <PopularTags className="sticky top-25" />
                 </div>
             </div>
 

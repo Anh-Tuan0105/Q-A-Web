@@ -94,6 +94,32 @@ export const useAuthStore = create<AuthState>()(
             } finally {
                 set({ loading: false });
             }
+        },
+
+        requestEmailChange: async (newEmail: string) => {
+            try {
+                set({ loading: true });
+                const res = await authService.requestEmailChange(newEmail);
+                return res;
+            } catch (error: any) {
+                console.error(error);
+                throw error;
+            } finally {
+                set({ loading: false });
+            }
+        },
+
+        verifyEmailChange: async (newEmail: string, otp: string) => {
+            try {
+                set({ loading: true });
+                const res = await authService.verifyEmailChange(newEmail, otp);
+                return res;
+            } catch (error: any) {
+                console.error(error);
+                throw error;
+            } finally {
+                set({ loading: false });
+            }
         }
     }), {
         name: "auth-storage",

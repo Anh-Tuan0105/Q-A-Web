@@ -67,9 +67,17 @@ export const createQuestion = async (req, res) => {
 export const getQuestions = async (req, res) => {
     try {
         // Cập nhật limit mặc định thành 4 để lấy tối đa 4 câu hỏi hiển thị
-        const { page = 1, limit = 4, sort = "interesting", tag } = req.query;
+        const { page = 1, limit = 4, sort = "interesting", tag, keyword } = req.query;
         let query = {};
         let sortOptions = {};
+
+        // 0. Xử lý Search keyword
+        if (keyword) {
+            query.$or = [
+                { title: { $regex: keyword, $options: "i" } },
+                { content: { $regex: keyword, $options: "i" } }
+            ];
+        }
 
         // 1. Xử lý filter theo tag
         if (tag) {
@@ -88,9 +96,22 @@ export const getQuestions = async (req, res) => {
             }
         }
 
-        // 2. Xử lý sort (thú vị, nóng, tuần, tháng)
+        // 2. Xử lý sort
         const now = new Date();
         switch (sort) {
+            case "newest":
+                sortOptions = { createdAt: -1 };
+                break;
+            case "unanswered":
+                query.answersCount = 0;
+                sortOptions = { createdAt: -1 };
+                break;
+            case "most-viewed":
+                sortOptions = { viewCount: -1, createdAt: -1 };
+                break;
+            case "most-voted":
+                sortOptions = { upvoteCount: -1, viewCount: -1, createdAt: -1 };
+                break;
             case "hot":
                 sortOptions = { viewCount: -1, upvoteCount: -1, createdAt: -1 };
                 break;

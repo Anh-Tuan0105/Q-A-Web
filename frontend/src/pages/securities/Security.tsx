@@ -1,12 +1,70 @@
 import Header from "../../components/header/Header";
-import { Mail, CheckCircle, User, Lock } from "lucide-react";
+import { Mail, CheckCircle, User, Lock, Loader2 } from "lucide-react";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { useNavigate, useLocation } from "react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { authService } from "../../services/authService";
 
 const Security = () => {
-  const user = useAuthStore((s) => s.user);
+  const { user, requestEmailChange } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+
+  const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error("Vui lòng điền đầy đủ các trường");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error("Mật khẩu mới và xác nhận mật khẩu không khớp");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast.error("Mật khẩu mới phải có ít nhất 6 ký tự");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const res = await authService.changePassword(currentPassword, newPassword);
+      if (res.success) {
+        toast.success("Đổi mật khẩu thành công!");
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Đổi mật khẩu thất bại");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendCurrentEmailAuth = async () => {
+    if (!user?.email) return;
+
+    setIsResending(true);
+    try {
+      const res = await requestEmailChange(user.email);
+      if (res.success) {
+        toast.success("Mã xác nhận đã được gửi đến email hiện tại của bạn");
+        navigate('/security/email-auth', { state: { email: user.email } });
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Lạc mất yêu cầu, vui lòng thử lại");
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   return (
     <div className="min-h-[100vh] bg-white flex flex-col">
@@ -34,16 +92,15 @@ const Security = () => {
 
             {/* Navigation Menu */}
             <nav className="flex flex-col gap-2">
-              <div 
+              <div
                 onClick={() => navigate('/settings/profile')}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-bold text-[14px] transition-colors ${
-                  location.pathname === '/settings/profile' ? 'bg-[#F0F5FF] text-blue-600' : 'text-slate-600 hover:bg-slate-50'
-                }`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-bold text-[14px] transition-colors ${location.pathname === '/settings/profile' ? 'bg-[#F0F5FF] text-blue-600' : 'text-slate-600 hover:bg-slate-50'
+                  }`}
               >
                 <User className="w-[18px] h-[18px]" strokeWidth={2.5} />
                 Hồ Sơ Cá Nhân
               </div>
-              <div 
+              <div
                 className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-bold text-[14px] transition-colors bg-[#F0F5FF] text-blue-600"
               >
                 <Lock className="w-[18px] h-[18px] text-blue-600" strokeWidth={2.5} />
@@ -56,7 +113,7 @@ const Security = () => {
         {/* Main Content Area */}
         <main className="flex-1 px-8 md:px-12 lg:px-16 py-8 md:py-10 max-w-[900px]">
           <div className="mb-8">
-            <h1 className="text-[32px] font-bold text-slate-800 mb-1 tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>Bảo mật & Đăng nhập</h1>
+            <h1 className="text-[32px] font-bold text-slate-800 mb-1 tracking-tight">Bảo mật & Đăng nhập</h1>
             <p className="text-slate-400 text-[14px] mt-1 font-medium">Quản lý các thiết lập bảo mật và bảo vệ tài khoản của bạn.</p>
           </div>
 
@@ -74,6 +131,8 @@ const Security = () => {
                     <label className="block text-[13px] text-slate-400 font-medium mb-2">Mật khẩu hiện tại</label>
                     <input
                       type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="••••••••"
                       className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-200 text-[14px]"
                     />
@@ -82,6 +141,8 @@ const Security = () => {
                     <label className="block text-[13px] text-slate-400 font-medium mb-2">Mật khẩu mới</label>
                     <input
                       type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="••••••••"
                       className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-200 text-[14px]"
                     />
@@ -90,6 +151,8 @@ const Security = () => {
                     <label className="block text-[13px] text-slate-400 font-medium mb-2">Xác nhận mật khẩu mới</label>
                     <input
                       type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••"
                       className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-200 text-[14px]"
                     />
@@ -97,7 +160,12 @@ const Security = () => {
                 </div>
 
                 <div className="flex justify-end border-t border-slate-100 pt-6 mt-2">
-                  <button className="px-6 py-2.5 bg-[#1877F2] hover:bg-blue-600 text-white font-bold rounded-lg transition-colors shadow-sm text-[14px]">
+                  <button
+                    onClick={handleChangePassword}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-[#1877F2] hover:bg-blue-600 disabled:bg-blue-300 text-white font-bold rounded-lg transition-colors shadow-sm text-[14px]"
+                  >
+                    {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                     Cập nhật mật khẩu
                   </button>
                 </div>
@@ -135,13 +203,18 @@ const Security = () => {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3 shrink-0">
-                    <button 
+                    <button
                       onClick={() => navigate('/security/email-change')}
                       className="flex-1 lg:flex-none px-5 py-[9px] bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-700 font-bold transition-colors text-[13px] whitespace-nowrap shadow-sm"
                     >
                       Thay đổi email
                     </button>
-                    <button className="px-5 py-[9px] bg-[#1C1E21] hover:bg-black text-white rounded-lg font-bold transition-colors text-[13px] shadow-sm whitespace-nowrap">
+                    <button
+                      onClick={handleResendCurrentEmailAuth}
+                      disabled={isResending}
+                      className="flex items-center gap-2 px-5 py-[9px] bg-[#1C1E21] hover:bg-black disabled:bg-slate-400 text-white rounded-lg font-bold transition-colors text-[13px] shadow-sm whitespace-nowrap"
+                    >
+                      {isResending && <Loader2 className="w-4 h-4 animate-spin" />}
                       Gửi lại mã xác thực
                     </button>
                   </div>

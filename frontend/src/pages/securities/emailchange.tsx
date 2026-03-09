@@ -1,11 +1,53 @@
 import Header from "../../components/header/Header";
-import { ChevronRight, Lock, Mail, Info } from "lucide-react";
+import { ChevronRight, Lock, Mail, Info, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useAuthStore } from "../../stores/useAuthStore";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const emailSchema = z.object({
+  newEmail: z.string().min(1, "Vui lòng nhập địa chỉ email mới").email("Vui lòng nhập định dạng email hợp lệ"),
+});
+
+type EmailFormValues = z.infer<typeof emailSchema>;
 
 const EmailChange = () => {
-  const user = useAuthStore((s) => s.user);
+  const { user, requestEmailChange } = useAuthStore();
   const navigate = useNavigate();
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Setup form 1: newEmail
+  const {
+    register: registerEmail,
+    handleSubmit: handleEmailSubmit,
+    formState: { errors: emailErrors },
+  } = useForm<EmailFormValues>({
+    resolver: zodResolver(emailSchema),
+  });
+
+  const onEmailSubmit = async (data: EmailFormValues) => {
+    if (data.newEmail === user?.email) {
+      toast.error("Email mới không được trùng với email hiện tại");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const res = await requestEmailChange(data.newEmail);
+      if (res.success) {
+        toast.success("Mã xác nhận đã được gửi đến email của bạn");
+        navigate('/security/email-auth', { state: { email: data.newEmail } });
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Lỗi khi yêu cầu đổi email");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -34,7 +76,7 @@ const EmailChange = () => {
 
           {/* Main Card */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 md:p-12 mb-8">
-            <div className="space-y-8">
+            <form onSubmit={handleEmailSubmit(onEmailSubmit)} className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
               {/* Current Email Field */}
               <div>
                 <label className="block text-[14px] font-bold text-slate-700 mb-3">Email hiện tại</label>
@@ -56,31 +98,42 @@ const EmailChange = () => {
                   <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-500" strokeWidth={2.5} />
                   <input
                     type="email"
+                    {...registerEmail("newEmail")}
                     placeholder="Nhập email mới của bạn"
-                    className="w-full pl-14 pr-5 py-4 bg-white border-2 border-blue-100 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all text-slate-800 font-medium text-[15px] placeholder:text-slate-300"
+                    className={`w-full pl-14 pr-5 py-4 bg-white border-2 rounded-xl focus:outline-none focus:ring-4 transition-all text-slate-800 font-medium text-[15px] placeholder:text-slate-300 ${emailErrors.newEmail
+                      ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
+                      : "border-blue-100 focus:border-blue-500 focus:ring-blue-500/10"
+                      }`}
                   />
                 </div>
-                <p className="mt-3 text-[13px] text-slate-400 font-medium">
-                  Chúng tôi sẽ gửi mã xác nhận đến địa chỉ email mới này.
-                </p>
+                {emailErrors.newEmail ? (
+                  <p className="mt-2 text-[13px] text-red-500 font-medium">{emailErrors.newEmail.message}</p>
+                ) : (
+                  <p className="mt-3 text-[13px] text-slate-400 font-medium">
+                    Chúng tôi sẽ gửi mã xác nhận gồm 6 số đến địa chỉ email mới này.
+                  </p>
+                )}
               </div>
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <button 
-                  onClick={() => navigate('/security/email-auth')}
-                  className="flex-1 py-4 bg-[#1877F2] hover:bg-blue-600 text-white font-bold rounded-xl shadow-[0_4px_14px_rgba(24,119,242,0.3)] transition-all text-[15px]"
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="flex items-center justify-center gap-2 flex-1 py-4 bg-[#1877F2] hover:bg-blue-600 disabled:bg-blue-300 text-white font-bold rounded-xl shadow-[0_4px_14px_rgba(24,119,242,0.3)] transition-all text-[15px]"
                 >
-                  Xác nhận thay đổi
+                  {isLoading && <Loader2 className="w-5 h-5 animate-spin" />}
+                  Tiếp tục
                 </button>
-                <button 
+                <button
+                  type="button"
                   onClick={() => navigate('/security')}
                   className="flex-1 py-4 bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold rounded-xl transition-all text-[15px]"
                 >
                   Hủy bỏ
                 </button>
               </div>
-            </div>
+            </form>
           </div>
 
           {/* Important Note Box */}

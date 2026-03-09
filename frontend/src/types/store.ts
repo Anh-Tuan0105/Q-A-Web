@@ -14,6 +14,8 @@ export interface AuthState {
     logout: () => Promise<void>;
     fetchMe: () => Promise<void>;
     refresh: () => Promise<void>;
+    requestEmailChange: (newEmail: string) => Promise<any>;
+    verifyEmailChange: (newEmail: string, otp: string) => Promise<any>;
 }
 
 

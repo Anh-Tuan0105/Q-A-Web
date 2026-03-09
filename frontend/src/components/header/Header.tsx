@@ -1,7 +1,9 @@
-import { Search, Bell, User, Settings, LogOut } from 'lucide-react';
+import { Search, Bell, User, Settings, LogOut, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { questionService } from '../../services/questionService';
+import type { QuestionType } from '../../types/question';
 
 const Header: React.FC = () => {
     const { user, logout } = useAuthStore();
@@ -9,10 +11,50 @@ const Header: React.FC = () => {
     const dropdownRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
 
+    // Search state
+    const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedTerm, setDebouncedTerm] = useState('');
+    const [searchResults, setSearchResults] = useState<QuestionType[]>([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const searchRef = useRef<HTMLDivElement>(null);
+
+    // Debounce search term
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedTerm(searchTerm), 300);
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
+
+    // Fetch search results
+    useEffect(() => {
+        const fetchSearch = async () => {
+            if (!debouncedTerm.trim()) {
+                setSearchResults([]);
+                return;
+            }
+            setIsSearching(true);
+            try {
+                const data = await questionService.searchQuestions(debouncedTerm);
+                if (data.success) {
+                    setSearchResults(data.questions);
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                setSearchResults([]);
+            } finally {
+                setIsSearching(false);
+            }
+        };
+        fetchSearch();
+    }, [debouncedTerm]);
+
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsDropdownOpen(false);
+            }
+            if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+                setIsSearchOpen(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -30,25 +72,73 @@ const Header: React.FC = () => {
             {/* Main Wrapper matching the layout width */}
             <div className="flex items-center w-full max-w-[1400px]">
                 {/* Combined Logo and Search Bar Area */}
-                <Link to="/" className="flex items-center gap-8 ml-8 flex-1">
+                <div className="flex items-center gap-8 ml-8 flex-1">
                     {/* Logo Section */}
-                    <div className="flex items-center gap-3 shrink-0 cursor-pointer">
+                    <Link to="/" className="flex items-center gap-3 shrink-0 cursor-pointer">
                         <img src="/logo.svg" alt="DevCommunity Logo" className="w-[28px] h-[28px]" />
                         <span className="text-[20px] font-bold text-slate-800">DevCommunity</span>
-                    </div>      
+                    </Link>
 
-                     {/* Search Bar Section */}
-                    <div className="w-[384px] shrink-0">
+                    {/* Search Bar Section */}
+                    <div className="relative w-[384px] shrink-0" ref={searchRef}>
                         <div className="relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                             <input
                                 type="text"
+                                value={searchTerm}
+                                onChange={(e) => {
+                                    setSearchTerm(e.target.value);
+                                    setIsSearchOpen(true);
+                                }}
+                                onFocus={() => setIsSearchOpen(true)}
                                 placeholder="Tìm kiếm câu hỏi, tags..."
-                                className="w-full bg-slate-50 border-none rounded-full py-2.5 pl-12 pr-4 text-sm focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all outline-none"
+                                className="w-full bg-slate-50 border-none rounded-full py-2.5 pl-12 pr-10 text-sm focus:ring-2 focus:ring-blue-500/20 focus:bg-white transition-all outline-none"
                             />
+                            {isSearching && (
+                                <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-500 w-4 h-4 animate-spin" />
+                            )}
                         </div>
+
+                        {/* Search Dropdown */}
+                        {isSearchOpen && searchTerm.trim() !== '' && (
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.12)] border border-slate-100 py-2 z-50 overflow-hidden flex flex-col max-h-[400px]">
+                                {isSearching && searchResults.length === 0 ? (
+                                    <div className="px-4 py-4 text-sm text-slate-500 text-center">Đang tìm kiếm...</div>
+                                ) : searchResults.length > 0 ? (
+                                    <div className="overflow-y-auto">
+                                        <div className="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider bg-slate-50 border-b border-slate-100 mb-1">
+                                            Câu hỏi liên quan
+                                        </div>
+                                        {searchResults.map((q) => (
+                                            <Link
+                                                key={q._id}
+                                                to={`/questions/${q._id}`}
+                                                onClick={() => {
+                                                    setIsSearchOpen(false);
+                                                    setSearchTerm("");
+                                                }}
+                                                className="px-4 py-3 hover:bg-slate-50 transition-colors flex flex-col gap-1.5 border-b border-slate-50 last:border-0"
+                                            >
+                                                <span className="text-sm font-bold text-slate-700 line-clamp-2 leading-snug">{q.title}</span>
+                                                <div className="flex items-center gap-3 text-[12px] text-slate-500 mt-1">
+                                                    <span className="flex items-center gap-1 font-medium bg-slate-100 px-2 py-0.5 rounded-full"><span className="text-blue-600 font-bold">{q.upvoteCount - q.downvoteCount}</span> phiếu</span>
+                                                    <span className="flex items-center gap-1 font-medium bg-slate-100 px-2 py-0.5 rounded-full"><span className={q.answersCount > 0 ? "text-green-600 font-bold" : "text-slate-500 font-bold"}>{q.answersCount}</span> trả lời</span>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="px-4 py-8 text-sm text-slate-500 text-center flex flex-col items-center gap-3">
+                                        <div className="w-12 h-12 rounded-full bg-slate-50 flex flex-col justify-center items-center">
+                                            <Search className="w-6 h-6 text-slate-300" />
+                                        </div>
+                                        <span className="font-medium text-slate-600">Không tìm thấy câu hỏi nào phù hợp.</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
-                </Link>
+                </div>
 
                 {/* Right Section: Actions & Profile */}
                 <div className="flex items-center gap-6 mr-8">

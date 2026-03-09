@@ -2,7 +2,10 @@ import bcrypt from 'bcrypt'
 import User from '../models/User.js'
 import jwt from 'jsonwebtoken'
 import Session from '../models/Session.js';
+import EmailVerification from '../models/EmailVerification.js';
 import crypto from 'crypto'
+import { generateOTP } from '../helpers/generateOTP.js';
+import { sendMail } from '../helpers/mailSend.js';
 
 
 const ACCESS_TOKEN_TTL = "30m";
@@ -149,8 +152,132 @@ export const refreshToken = async (req, res) => {
         return res.status(200).json({ accessToken });
 
     } catch (error) {
-        console.log("Lỗi khi gọi refreshToken", error);
         return res.status(500).json({ message: "Lỗi hệ thống" });
     }
 }
 
+export const changePassword = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: "Vui lòng nhập đầy đủ mật khẩu hiện tại và mật khẩu mới" });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "Không tìm thấy người dùng" });
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.hashedPassword);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Mật khẩu hiện tại không chính xác" });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.hashedPassword = hashedPassword;
+        await user.save();
+
+        return res.status(200).json({ success: true, message: "Đổi mật khẩu thành công" });
+    } catch (error) {
+        console.error("Lỗi khi đổi mật khẩu:", error);
+        return res.status(500).json({ message: "Lỗi hệ thống" });
+    }
+}
+
+export const requestEmailChange = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { newEmail } = req.body;
+
+        if (!newEmail) {
+            return res.status(400).json({ message: "Vui lòng nhập địa chỉ email mới" });
+        }
+
+        const emailExists = await User.findOne({ email: newEmail });
+        if (emailExists && emailExists._id.toString() !== userId.toString()) {
+            return res.status(409).json({ message: "Email này đã được sử dụng bởi tài khoản khác" });
+        }
+
+        // Tạo mã OTP 6 số ngẫu nhiên từ helper
+        const otp = generateOTP();
+        const expiresAt = new Date(Date.now() + 1 * 60 * 1000); // 1 phút
+
+        // Xóa các OTP cũ nếu có
+        await EmailVerification.deleteMany({ userId });
+
+        // Lưu OTP vào DB
+        const verification = new EmailVerification({
+            userId,
+            newEmail,
+            otp,
+            expiresAt
+        });
+        await verification.save();
+
+        // Trong thực tế, bạn sẽ dùng nodemailer để gửi email ở đây.
+        // Tạm thời trả về qua API để test Frontend dễ dàng.
+        // console.log(`[OTP cho đổi email của ${userId}]: ${otp}`);
+        await sendMail(newEmail, "Xác thực đổi email", `Mã OTP của bạn là: ${otp}`);
+
+
+        return res.status(200).json({
+            success: true,
+            message: "Mã xác nhận đã được gửi đến email của bạn",
+        });
+
+    } catch (error) {
+        console.error("Lỗi khi yêu cầu đổi email:", error);
+        return res.status(500).json({ message: "Lỗi hệ thống" });
+    }
+};
+
+export const verifyEmailChange = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { newEmail, otp } = req.body;
+
+        if (!newEmail || !otp) {
+            return res.status(400).json({ message: "Vui lòng nhập địa chỉ email mới và mã OTP" });
+        }
+
+        // Tìm record chứa OTP chưa hết hạn
+        const verificationRecord = await EmailVerification.findOne({
+            userId,
+            newEmail,
+            otp,
+            expiresAt: { $gt: new Date() }
+        });
+
+        if (!verificationRecord) {
+            return res.status(400).json({ message: "Mã OTP không hợp lệ, không đúng email, hoặc đã hết hạn" });
+        }
+
+        // OTP đúng, cập nhật email trong User
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "Không tìm thấy người dùng" });
+        }
+
+        user.email = newEmail;
+        await user.save();
+
+        // Xóa record verification sau khi thành công
+        await EmailVerification.deleteMany({ userId });
+
+        return res.status(200).json({
+            success: true,
+            message: "Đổi email thành công",
+            user: {
+                userName: user.userName,
+                email: user.email,
+                displayName: user.displayName,
+                avatarUrl: user.avatarUrl
+            }
+        });
+    } catch (error) {
+        console.error("Lỗi khi xác nhận đổi email:", error);
+        return res.status(500).json({ message: "Lỗi hệ thống" });
+    }
+}
