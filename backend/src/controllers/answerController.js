@@ -1,6 +1,7 @@
 import Answer from "../models/Answer.js";
 import Question from "../models/Question.js";
 import Vote from "../models/Vote.js";
+import Notification from "../models/Notification.js";
 import mongoose from "mongoose";
 import { io } from "../lib/socket.js";
 
@@ -42,6 +43,24 @@ export const createAnswer = async (req, res) => {
 
         const populatedAnswer = await Answer.findById(newAnswer._id)
             .populate("userId", "userName displayName avatarUrl");
+
+        // --- Logic tạo thông báo ---
+        // Chỉ tạo thông báo nếu người bình luận khác với người đăng câu hỏi
+        if (question.userId.toString() !== userId.toString()) {
+            const newNotification = new Notification({
+                receiverId: question.userId, // Người nhận là tác giả bài viết
+                senderId: userId, // Người gửi là người vừa tạo answer
+                targetId: question._id,
+                targetType: "Answer",
+                message: `đã bình luận vào bài đăng của bạn: "${question.title ? question.title : "Câu hỏi"}"`,
+                link: `/questions/${question._id}`
+            });
+
+            await newNotification.save();
+            
+            // Nếu có kết nối socket với tác giả bài viết, có thể emit realtime
+            io.to(`user_${question.userId.toString()}`).emit("new_notification", newNotification);
+        }
 
         io.to(`room_question_${quesId}`).emit("new_answer", populatedAnswer);
 

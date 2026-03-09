@@ -20,6 +20,11 @@ io.on("connection", async (socket) => {
     const username = socket.user?.userName || "Unknown";
     console.log(`A user connected. Socket: ${socket.id}, User ID: ${userId}, Name: ${username}`);
 
+    if (userId !== "Guest") {
+        socket.join(`user_${userId.toString()}`);
+        console.log(`User ${socket.id} joined personal room user_${userId.toString()}`);
+    }
+
     socket.on("join_room", (room) => {
         socket.join(room);
         console.log(`User ${socket.id} joined room ${room}`);
