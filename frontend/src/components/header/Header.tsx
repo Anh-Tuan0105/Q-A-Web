@@ -110,7 +110,7 @@ const Header: React.FC = () => {
                                         </Link>
 
                                         <Link
-                                            to="/settings"
+                                            to="/settings/profile"
                                             className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
                                             onClick={() => setIsDropdownOpen(false)}
                                         >
