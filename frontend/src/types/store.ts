@@ -7,10 +7,10 @@ export interface AuthState {
     user: User | null;
     loading: boolean;
 
-    setAccessToken: (accessToken: string) => void; 
+    setAccessToken: (accessToken: string) => void;
     clearState: () => void;
     signup: (username: string, password: string, email: string, firstname: string, lastname: string) => Promise<void>;
-    signin: (username: string, password: string) => Promise<void>;
+    signin: (username: string, password: string) => Promise<boolean>;
     logout: () => Promise<void>;
     fetchMe: () => Promise<void>;
     refresh: () => Promise<void>;
@@ -30,6 +30,7 @@ export interface QuestionStore {
     fetchQuestions: (page?: number, sort?: string, tag?: string) => Promise<void>;
     setActiveTab: (tab: string) => void;
     setPage: (page: number) => void;
+    addNewQuestion: (question: QuestionType) => void;
 }
 
 export interface TagStore {

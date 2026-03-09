@@ -10,6 +10,7 @@ import { ChevronUp, ChevronDown, CheckCircle2 } from "lucide-react";
 import MarkdownViewer from "../../components/markdown/MarkdownViewer";
 import SimpleMdeReact from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
+import { useSocketStore } from "../../stores/useSocketStore";
 
 // Tái sử dụng hàm helper từ Home
 const getRelativeTime = (dateString: string) => {
@@ -35,6 +36,7 @@ const QuestionDetail = () => {
     const { id } = useParams<{ id: string }>();
     const { question, answers, isLoading, fetchQuestionDetail, voteQuestion, voteAnswer, postAnswer, acceptAnswer } = useQuestionDetailStore();
     const { user } = useAuthStore();
+    const { connect, joinRoom, leaveRoom, socket } = useSocketStore();
     const [answerContent, setAnswerContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -90,6 +92,31 @@ const QuestionDetail = () => {
             fetchQuestionDetail(id);
         }
     }, [id]);
+
+    useEffect(() => {
+        if (id) {
+            if (!socket) {
+                // Socket.io integration
+                connect();
+            }
+
+            if (socket) {
+                joinRoom(`room_question_${id}`);
+
+                const handleNewAnswer = (newAnswer: any) => {
+                    const { addAnswer } = useQuestionDetailStore.getState();
+                    addAnswer(newAnswer);
+                };
+
+                socket.on("new_answer", handleNewAnswer);
+
+                return () => {
+                    socket.off("new_answer", handleNewAnswer);
+                    leaveRoom(`room_question_${id}`);
+                };
+            }
+        }
+    }, [id, socket]);
 
     if (isLoading) {
         return (

@@ -2,6 +2,7 @@ import Question from "../models/Question.js";
 import Tag from "../models/Tag.js";
 import Vote from "../models/Vote.js";
 import mongoose from "mongoose";
+import { io } from "../lib/socket.js";
 
 // Tạo câu hỏi mới
 export const createQuestion = async (req, res) => {
@@ -44,10 +45,17 @@ export const createQuestion = async (req, res) => {
 
         await newQuestion.save();
 
+        const populatedQuestion = await Question.findById(newQuestion._id)
+            .populate("userId", "userName displayName avatarUrl")
+            .populate("tags", "name")
+            .populate("lastActivityUser", "userName displayName avatarUrl");
+
+        io.emit("new_question", populatedQuestion);
+
         res.status(201).json({
             success: true,
             message: "Tạo câu hỏi thành công",
-            question: newQuestion,
+            question: populatedQuestion,
         });
     } catch (error) {
         console.error("Lỗi trong createQuestion:", error);

@@ -42,9 +42,11 @@ export const useAuthStore = create<AuthState>()(
                 get().setAccessToken(res.accessToken);
                 await get().fetchMe();
                 toast.success("Đăng nhập thành công");
+                return true;
             } catch (error) {
                 console.log(error);
                 toast.error("Đăng nhập thất bại");
+                return false;
             } finally {
                 set({ loading: false })
             }
@@ -95,7 +97,7 @@ export const useAuthStore = create<AuthState>()(
         }
     }), {
         name: "auth-storage",
-        partialize: (state) => ({user: state.user}),
+        partialize: (state) => ({ user: state.user }),
     })
 );
 

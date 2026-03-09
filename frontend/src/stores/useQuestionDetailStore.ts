@@ -15,6 +15,7 @@ interface QuestionDetailStore {
     voteAnswer: (id: string, value: 1 | -1) => Promise<void>;
     postAnswer: (quesId: string, content: string) => Promise<boolean>;
     acceptAnswer: (id: string, quesId: string) => Promise<void>;
+    addAnswer: (answer: AnswerType) => void;
 }
 
 export const useQuestionDetailStore = create<QuestionDetailStore>((set, get) => ({
@@ -163,6 +164,18 @@ export const useQuestionDetailStore = create<QuestionDetailStore>((set, get) => 
         } catch (error: any) {
             import('sonner').then(({ toast }) => {
                 toast.error(error.response?.data?.message || "Lỗi khi duyệt câu trả lời");
+            });
+        }
+    },
+
+    addAnswer: (newAnswer: AnswerType) => {
+        const { answers, question } = get();
+        // Tránh bị đúp nếu người tạo chính là mình (vì postAnswer đã cập nhật rồi)
+        const exists = answers.find(a => a._id === newAnswer._id);
+        if (!exists) {
+            set({
+                answers: [newAnswer, ...answers],
+                question: question ? { ...question, answersCount: question.answersCount + 1 } : null
             });
         }
     }

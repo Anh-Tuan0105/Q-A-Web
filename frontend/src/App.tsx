@@ -7,9 +7,11 @@ import QuestionDetail from './pages/question/QuestionDetail'
 import CreateQuestion from './pages/question/CreateQuestion'
 import { Toaster } from 'sonner'
 import { useAuthStore } from './stores/useAuthStore'
+import { useSocketStore } from './stores/useSocketStore'
 
 function App() {
   const { accessToken, user, refresh, fetchMe } = useAuthStore();
+  const {connect, disconnect} = useSocketStore();
 
   useEffect(() => {
     const initAuth = async () => {
@@ -27,6 +29,15 @@ function App() {
     initAuth();
   }, []);
 
+  useEffect(() => {
+    if (accessToken) {
+      connect();
+    }
+    return () => {
+      disconnect();
+    };
+  }, [accessToken]);
+  
   return (
     <>
       <Toaster richColors />
