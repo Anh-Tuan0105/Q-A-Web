@@ -108,10 +108,17 @@ const QuestionDetail = () => {
                     addAnswer(newAnswer);
                 };
 
+                // Nếu socket vừa mới kết nối/kết nối lại, gửi lệnh join_room
+                const handleConnect = () => {
+                    joinRoom(`room_question_${id}`);
+                };
+
                 socket.on("new_answer", handleNewAnswer);
+                socket.on("connect", handleConnect);
 
                 return () => {
                     socket.off("new_answer", handleNewAnswer);
+                    socket.off("connect", handleConnect);
                     leaveRoom(`room_question_${id}`);
                 };
             }

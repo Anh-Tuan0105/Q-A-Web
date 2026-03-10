@@ -7,6 +7,7 @@ import userRoute from './routes/userRoute.js'
 import questionRoute from './routes/questionRoute.js'
 import answerRoute from './routes/answerRoute.js'
 import tagRoute from './routes/tagRoute.js'
+import notificationRoute from './routes/notificationRoute.js' // Thêm route thông báo
 import { connectDB } from "./lib/db.js";
 import { protectedRoute } from "./middlewares/authMiddleware.js";
 import cors from "cors";
@@ -41,6 +42,7 @@ app.use('/api/tags', tagRoute);
 // Private Routes
 app.use(protectedRoute);
 app.use('/api/users', userRoute);
+app.use('/api/notifications', notificationRoute); // Đăng ký route thông báo
 
 connectDB().then(() => {
     server.listen(PORT, () => {

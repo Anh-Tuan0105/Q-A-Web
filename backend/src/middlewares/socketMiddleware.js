@@ -7,7 +7,7 @@ export const socketMiddleware = async (socket, next) => {
 
         if (!token) {
             // Cho phép kết nối dưới dạng khách (guest) nếu không có token
-            return next(new Error("No token provided"));
+            return next();
         }
 
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decodedPayload) => {
