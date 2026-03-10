@@ -49,9 +49,11 @@ const userSchema = mongoose.Schema({
     },
     reputation: {
         type: Number,
+        default: 0,
     },
     profileViews: {
         type: Number,
+        default: 0,
     },
 },
     {

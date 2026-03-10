@@ -16,7 +16,7 @@ const signUpSchema = z.object({
 type SignUpSchema = z.infer<typeof signUpSchema>
 
 const SignUpForm = () => {
-    const {signup} = useAuthStore();
+    const { signup } = useAuthStore();
     const navigate = useNavigate();
     const {
         register,
@@ -27,9 +27,11 @@ const SignUpForm = () => {
     })
 
     const onSubmit = async (data: SignUpSchema) => {
-        const {firstname, lastname, username, email, password} = data;
-        await signup(username, password, email, firstname, lastname);
-        navigate("/signin");
+        const { firstname, lastname, username, email, password } = data;
+        const success = await signup(username, password, email, firstname, lastname);
+        if (success) {
+            navigate("/signin");
+        }
     }
     return (
         <>

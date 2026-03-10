@@ -24,7 +24,13 @@ export const signUp = async (req, res) => {
         // Kiểm tra username có tồn tại chưa
         const checkUsername = await User.findOne({ userName: username });
         if (checkUsername) {
-            return res.status(409).json({ message: "Tài khoản hoặc mật khẩu bị sai" });
+            return res.status(409).json({ message: "Tên đăng nhập đã tồn tại" });
+        }
+
+        // Kiểm tra email có tồn tại chưa
+        const checkEmail = await User.findOne({ email: email });
+        if (checkEmail) {
+            return res.status(409).json({ message: "Email này đã được sử dụng" });
         }
 
         // Mã hóa password

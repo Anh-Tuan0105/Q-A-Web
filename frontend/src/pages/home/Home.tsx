@@ -104,7 +104,7 @@ const Home = () => {
 
                         {/* Top Header */}
                         <div className="flex justify-between items-center mb-6">
-                            <h1 className="text-[28px] font-bold text-slate-800">Câu hỏi hàng đầu</h1>
+                            <h1 className="text-[28px] font-extrabold text-slate-800">Câu hỏi hàng đầu</h1>
                             {user ? (
                                 <button
                                     onClick={handleAskQuestion}

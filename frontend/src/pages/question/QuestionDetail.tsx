@@ -233,15 +233,17 @@ const QuestionDetail = () => {
                                     <div className="bg-blue-50/50 border border-blue-100/50 rounded-lg p-3 flex flex-col gap-2 min-w-[200px]">
                                         <div className="text-[12px] text-slate-500">đã hỏi {getRelativeTime(question.createdAt)}</div>
                                         <div className="flex items-center gap-2">
-                                            <img
-                                                src={question.userId.avatarUrl || `https://ui-avatars.com/api/?name=${question.userId.displayName || question.userId.userName || "U"}&background=random`}
-                                                alt={question.userId.displayName || question.userId.userName}
-                                                className="w-8 h-8 rounded-md object-cover"
-                                            />
+                                            <Link to={`/profile/${question.userId._id}`} className="hover:opacity-80 transition-opacity">
+                                                <img
+                                                    src={question.userId.avatarUrl || `https://ui-avatars.com/api/?name=${question.userId.displayName || question.userId.userName || "U"}&background=random`}
+                                                    alt={question.userId.displayName || question.userId.userName}
+                                                    className="w-8 h-8 rounded-md object-cover"
+                                                />
+                                            </Link>
                                             <div className="flex flex-col">
-                                                <span className="text-[13px] font-bold text-blue-600">
+                                                <Link to={`/profile/${question.userId._id}`} className="text-[13px] font-bold text-blue-600 hover:text-blue-700">
                                                     {question.userId.displayName || question.userId.userName}
-                                                </span>
+                                                </Link>
                                                 <span className="text-[12px] font-bold text-slate-500">1.2k <span className="text-orange-400 ml-1">● 15</span></span>
                                             </div>
                                         </div>
@@ -321,14 +323,16 @@ const QuestionDetail = () => {
                                             </div>
 
                                             <div className="flex items-center gap-2">
-                                                <img
-                                                    src={answer.userId.avatarUrl || `https://ui-avatars.com/api/?name=${answer.userId.displayName || answer.userId.userName || "U"}&background=random`}
-                                                    alt={answer.userId.displayName || answer.userId.userName}
-                                                    className="w-6 h-6 rounded-md object-cover"
-                                                />
-                                                <span className="text-[13px] font-bold text-blue-600">
-                                                    {answer.userId.displayName || answer.userId.userName}
-                                                </span>
+                                                <Link to={`/profile/${answer.userId._id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                                                    <img
+                                                        src={answer.userId.avatarUrl || `https://ui-avatars.com/api/?name=${answer.userId.displayName || answer.userId.userName || "U"}&background=random`}
+                                                        alt={answer.userId.displayName || answer.userId.userName}
+                                                        className="w-6 h-6 rounded-md object-cover"
+                                                    />
+                                                    <span className="text-[13px] font-bold text-blue-600 hover:text-blue-700">
+                                                        {answer.userId.displayName || answer.userId.userName}
+                                                    </span>
+                                                </Link>
                                             </div>
                                         </div>
                                     </div>

@@ -6,10 +6,11 @@ import Sider from "../../components/sider/Sider";
 import Footer from "../../components/footer/Footer";
 import PopularTags from "../../components/popular-tags/PopularTags";
 import { Filter, ChevronLeft, ChevronRight } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { toast } from "sonner";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import { tagService } from "../../services/tagService";
 
 // Helper function to format relative time
 const getRelativeTime = (dateString: string) => {
@@ -46,9 +47,19 @@ const TABS = [
 const Questions = () => {
     const user = useAuthStore((s) => s.user);
     const navigate = useNavigate();
-    const { questions, isLoading, activeTab, fetchQuestions, setActiveTab, currentPage, totalPages, setPage } = useQuestionStore();
-    const [searchTag, setSearchTag] = useState("");
-    const [appliedTag, setAppliedTag] = useState("");
+    const { questions, isLoading, activeTab, fetchQuestions, setActiveTab, currentPage, totalPages, setPage, totalQuestions } = useQuestionStore();
+    const [searchParams] = useSearchParams();
+    const tagQuery = searchParams.get("tag") || "";
+    const [searchTag, setSearchTag] = useState(tagQuery);
+    const [appliedTag, setAppliedTag] = useState(tagQuery);
+
+    useEffect(() => {
+        if (tagQuery) {
+            setSearchTag(tagQuery);
+            setAppliedTag(tagQuery);
+            tagService.incrementTagView(tagQuery).catch((err) => console.error("Could not increment tag view", err));
+        }
+    }, [tagQuery]);
 
     useEffect(() => {
         fetchQuestions(currentPage, activeTab, appliedTag);
@@ -93,8 +104,8 @@ const Questions = () => {
                         {/* Top Header */}
                         <div className="flex justify-between items-center mb-6">
                             <div>
-                                <h1 className="text-[32px] font-extrabold text-[#282d33] tracking-tight">Tất cả câu hỏi</h1>
-                                <p className="text-slate-500 text-[15px] font-medium mt-1">24,842 câu hỏi đã được đăng tải</p>
+                                <h1 className="text-[28px] font-extrabold text-[#282d33] tracking-tight">Tất cả câu hỏi</h1>
+                                <p className="text-slate-500 text-[15px] font-medium mt-1">{totalQuestions.toLocaleString("vi-VN")} câu hỏi đã được đăng tải</p>
                             </div>
                             {user ? (
                                 <button
@@ -237,18 +248,20 @@ const Questions = () => {
                                             <div className="flex items-center justify-between mt-auto">
                                                 <div className="flex gap-2 flex-wrap">
                                                     {question.tags.map(tag => (
-                                                        <Link key={tag._id} to={`/tags/${tag.name}`} className="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-xs font-bold hover:bg-blue-100 transition-colors">
+                                                        <Link key={tag._id} to={`/questions?tag=${encodeURIComponent(tag.name)}`} className="bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full text-xs font-bold hover:bg-blue-100 transition-colors">
                                                             {tag.name}
                                                         </Link>
                                                     ))}
                                                 </div>
                                                 <div className="flex items-center gap-2 text-sm shrink-0 ml-4">
-                                                    <img
-                                                        src={question.userId.avatarUrl || `https://ui-avatars.com/api/?name=${question.userId.displayName || question.userId.userName || "U"}&background=random`}
-                                                        alt={question.userId.displayName || question.userId.userName}
-                                                        className="w-6 h-6 rounded-full object-cover"
-                                                    />
-                                                    <span className="font-bold text-slate-700 text-[13px]">{question.userId.displayName || question.userId.userName}</span>
+                                                    <Link to={`/profile/${question.userId._id}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer">
+                                                        <img
+                                                            src={question.userId.avatarUrl || `https://ui-avatars.com/api/?name=${question.userId.displayName || question.userId.userName || "U"}&background=random`}
+                                                            alt={question.userId.displayName || question.userId.userName}
+                                                            className="w-6 h-6 rounded-full object-cover"
+                                                        />
+                                                        <span className="font-bold text-slate-700 text-[13px] hover:text-blue-600 transition-colors">{question.userId.displayName || question.userId.userName}</span>
+                                                    </Link>
                                                     <span className="text-slate-300">|</span>
                                                     <span className="text-slate-500 text-[13px]">{getRelativeTime(question.createdAt)}</span>
                                                 </div>

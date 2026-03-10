@@ -8,6 +8,7 @@ import questionRoute from './routes/questionRoute.js'
 import answerRoute from './routes/answerRoute.js'
 import tagRoute from './routes/tagRoute.js'
 import notificationRoute from './routes/notificationRoute.js' // Thêm route thông báo
+import publicUserRoute from './routes/publicUserRoute.js'
 import { connectDB } from "./lib/db.js";
 import { protectedRoute } from "./middlewares/authMiddleware.js";
 import cors from "cors";
@@ -38,6 +39,7 @@ app.use('/api/auth', authRoute);
 app.use('/api/questions', questionRoute);
 app.use('/api/answers', answerRoute);
 app.use('/api/tags', tagRoute);
+app.use('/api/users', publicUserRoute);
 
 // Private Routes
 app.use(protectedRoute);

@@ -8,12 +8,15 @@ import { useNotificationStore } from '../../stores/useNotificationStore';
 import { useSocketStore } from '../../stores/useSocketStore';
 
 const Header: React.FC = () => {
-    const { user, logout } = useAuthStore();
+    const { user, logout, accessToken } = useAuthStore();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const notifDropdownRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
+
+    const userNameDisplay = user?.displayName || user?.userName;
+    const userAvatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(userNameDisplay || "U")}&background=random`;
 
     // Search state
     const [searchTerm, setSearchTerm] = useState('');
@@ -55,10 +58,10 @@ const Header: React.FC = () => {
     const { socket } = useSocketStore();
 
     useEffect(() => {
-        if (user) {
+        if (user && accessToken) {
             fetchNotifications();
         }
-    }, [user, fetchNotifications]);
+    }, [user, accessToken, fetchNotifications]);
 
     useEffect(() => {
         if (socket) {
@@ -80,13 +83,13 @@ const Header: React.FC = () => {
             }
             if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
                 setIsSearchOpen(false);
-                if (notifDropdownRef.current && !notifDropdownRef.current.contains(event.target as Node)) {
-                    setIsNotifOpen(false);
-                }
-            };
-            document.addEventListener('mousedown', handleClickOutside);
-            return () => document.removeEventListener('mousedown', handleClickOutside);
-        }
+            }
+            if (notifDropdownRef.current && !notifDropdownRef.current.contains(event.target as Node)) {
+                setIsNotifOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     const handleLogout = async () => {
@@ -216,11 +219,7 @@ const Header: React.FC = () => {
                                                         className={`flex gap-3 p-3 border-b border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors ${!notif.isRead ? 'bg-blue-50/30' : ''}`}
                                                     >
                                                         <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden shrink-0 mt-1">
-                                                            {notif.senderId?.avatarUrl ? (
-                                                                <img src={notif.senderId.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                                                            ) : (
-                                                                <img src={`https://ui-avatars.com/api/?name=${notif.senderId?.displayName || notif.senderId?.userName || "U"}&background=random`} alt="Avatar" className="w-full h-full object-cover" />
-                                                            )}
+                                                            <img src={notif.senderId?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(notif.senderId?.displayName || notif.senderId?.userName || "U")}&background=random`} alt="Avatar" className="w-full h-full object-cover" />
                                                         </div>
                                                         <div className="flex-1 flex flex-col justify-center">
                                                             <p className="text-sm text-slate-800 leading-tight">
@@ -256,14 +255,10 @@ const Header: React.FC = () => {
                                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                                 >
                                     <div className="w-10 h-10 rounded-full bg-slate-200 overflow-hidden border border-slate-100">
-                                        {user.avatarUrl ? (
-                                            <img src={user.avatarUrl} alt={user.displayName || user.userName} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <img src={`https://ui-avatars.com/api/?name=${user.displayName || user.userName || "U"}&background=random`} alt="User Avatar" className="w-full h-full object-cover" />
-                                        )}
+                                        <img src={user.avatarUrl || userAvatarFallback} alt="User Avatar" className="w-full h-full object-cover" />
                                     </div>
                                     <span className="font-semibold text-slate-700 text-sm hidden sm:block">
-                                        {user.displayName || user.userName}
+                                        {userNameDisplay}
                                     </span>
                                 </div>
 
@@ -272,15 +267,11 @@ const Header: React.FC = () => {
                                     <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.06)] border border-slate-100 py-2 z-50">
                                         {/* User Info Header */}
                                         <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100 mb-2">
-                                            <div className="w-11 h-11 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg shrink-0 overflow-hidden">
-                                                {user.avatarUrl ? (
-                                                    <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                                                ) : (
-                                                    (user.displayName || user.userName || 'U').substring(0, 2).toUpperCase()
-                                                )}
+                                            <div className="w-11 h-11 rounded-full bg-slate-200 text-white flex items-center justify-center font-bold text-lg shrink-0 overflow-hidden">
+                                                <img src={user.avatarUrl || userAvatarFallback} alt="Avatar" className="w-full h-full object-cover" />
                                             </div>
                                             <div className="flex flex-col overflow-hidden leading-tight">
-                                                <span className="font-bold text-slate-800 text-sm truncate">{user.displayName || user.userName}</span>
+                                                <span className="font-bold text-slate-800 text-sm truncate">{userNameDisplay}</span>
                                                 <span className="text-slate-500 text-[13px] truncate">{user.email || 'user@dev.com'}</span>
                                             </div>
                                         </div>

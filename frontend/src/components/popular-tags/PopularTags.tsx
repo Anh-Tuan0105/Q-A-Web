@@ -21,7 +21,7 @@ const PopularTags = ({ className = "sticky top-6" }: PopularTagsProps) => {
                     {popularTags.map(tag => (
                         <div key={tag._id} className="flex items-center justify-between">
                             <Link
-                                to={`/tags/${tag.name}`}
+                                to={`/questions?tag=${encodeURIComponent(tag.name)}`}
                                 className="bg-white border border-slate-200 text-slate-800 px-3 py-1.5 rounded-full text-[13px] font-bold hover:border-slate-300 hover:shadow-sm transition-all"
                             >
                                 {tag.name}

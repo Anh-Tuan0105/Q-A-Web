@@ -31,3 +31,28 @@ export const protectedRoute = async (req, res, next) => {
         return res.status(500).json({ message: "Lỗi hệ thống" })
     }
 }
+
+export const optionalAuth = async (req, res, next) => {
+    try {
+        const authHeader = req.headers["authorization"];
+        const accessToken = authHeader && authHeader.split(" ")[1];
+
+        if (!accessToken) {
+            return next();
+        }
+
+        jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, async (err, decodedPayload) => {
+            if (err) {
+                return next();
+            }
+
+            const user = await User.findById(decodedPayload.userId).select('-hashedPassword');
+            if (user) {
+                req["user"] = user;
+            }
+            next();
+        });
+    } catch (error) {
+        next();
+    }
+}

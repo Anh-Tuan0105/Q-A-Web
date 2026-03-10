@@ -1,18 +1,10 @@
 import { create } from 'zustand';
 import { notificationService } from '../services/notificationService';
 import type { NotificationType } from '../types/notification';
+import type { NotificationStore } from '../types/store';
 
-interface NotificationStore {
-    notifications: NotificationType[];
-    unreadCount: number;
-    isLoading: boolean;
-    error: string | null;
 
-    fetchNotifications: () => Promise<void>;
-    markAsRead: (id: string) => Promise<void>;
-    markAllAsRead: () => Promise<void>;
-    addNotification: (notification: NotificationType) => void;
-}
+
 
 export const useNotificationStore = create<NotificationStore>((set, get) => ({
     notifications: [],

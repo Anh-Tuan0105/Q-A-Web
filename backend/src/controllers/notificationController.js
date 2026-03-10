@@ -8,8 +8,7 @@ export const getNotifications = async (req, res) => {
 
         const notifications = await Notification.find({ receiverId: userId })
             .sort({ createdAt: -1 })
-            .populate("senderId", "userName displayName avatarUrl") // Lấy thông tin người gửi
-            .populate("targetId", "title"); // Lấy thêm title của question nếu cần thiết
+            .populate("senderId", "userName displayName avatarUrl"); // Lấy thông tin người gửi
 
         res.status(200).json({
             success: true,

@@ -1,17 +1,9 @@
 import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
 import { useAuthStore } from './useAuthStore';
+import type { SocketStore } from '../types/store';
 
 
-interface SocketStore {
-    socket: Socket | null;
-    connect: () => void;
-    disconnect: () => void;
-    joinRoom: (roomName: string) => void;
-    leaveRoom: (roomName: string) => void;
-    on: (event: string, callback: (data: any) => void) => void;
-    off: (event: string, callback?: (data: any) => void) => void;
-}
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 

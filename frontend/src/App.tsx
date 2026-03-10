@@ -7,18 +7,20 @@ import QuestionDetail from './pages/question/QuestionDetail'
 import CreateQuestion from './pages/question/CreateQuestion'
 import Questions from './pages/questions/Questions'
 import Profile from './pages/profile/Profile'
+import UserQuestions from './pages/profile/UserQuestions'
+import UserAnswers from './pages/profile/UserAnswers'
 import SettingProfile from './pages/profile/SettingProfile'
 import Security from './pages/securities/Security'
 import EmailChange from './pages/securities/emailchange'
 import EmailAuth from './pages/securities/EmailAuth'
 import TagsPages from './pages/tags/TagsPages'
 import { Toaster } from 'sonner'
-import { useAuthStore } from './stores/useAuthStore'  
+import { useAuthStore } from './stores/useAuthStore'
 import { useSocketStore } from './stores/useSocketStore'
 
 function App() {
   const { accessToken, user, refresh, fetchMe } = useAuthStore();
-  const {connect, disconnect} = useSocketStore();
+  const { connect, disconnect } = useSocketStore();
 
   useEffect(() => {
     const initAuth = async () => {
@@ -44,7 +46,7 @@ function App() {
       disconnect();
     };
   }, [accessToken]);
-  
+
   return (
     <>
       <Toaster richColors />
@@ -80,6 +82,12 @@ function App() {
             path='/profile'
             element={<Profile />}
           />
+          <Route
+            path='/profile/:id'
+            element={<Profile />}
+          />
+          <Route path='/profile/:id/questions' element={<UserQuestions />} />
+          <Route path='/profile/:id/answers' element={<UserAnswers />} />
           <Route
             path='/settings/profile'
             element={<SettingProfile />}

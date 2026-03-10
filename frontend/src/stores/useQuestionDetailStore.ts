@@ -1,22 +1,10 @@
 import { create } from 'zustand';
 import { questionService } from '../services/questionService';
 import { answerService } from '../services/answerService';
-import type { QuestionType } from '../types/question';
 import type { AnswerType } from '../types/answer';
+import type { QuestionDetailStore } from '../types/store';
 
-interface QuestionDetailStore {
-    question: QuestionType | null;
-    answers: AnswerType[];
-    isLoading: boolean;
-    error: string | null;
 
-    fetchQuestionDetail: (id: string) => Promise<void>;
-    voteQuestion: (id: string, value: 1 | -1) => Promise<void>;
-    voteAnswer: (id: string, value: 1 | -1) => Promise<void>;
-    postAnswer: (quesId: string, content: string) => Promise<boolean>;
-    acceptAnswer: (id: string, quesId: string) => Promise<void>;
-    addAnswer: (answer: AnswerType) => void;
-}
 
 export const useQuestionDetailStore = create<QuestionDetailStore>((set, get) => ({
     question: null,
