@@ -14,9 +14,11 @@ import Security from './pages/securities/Security'
 import EmailChange from './pages/securities/emailchange'
 import EmailAuth from './pages/securities/EmailAuth'
 import TagsPages from './pages/tags/TagsPages'
+import MemberList from './pages/member/memberlist'
 import { Toaster } from 'sonner'
 import { useAuthStore } from './stores/useAuthStore'
 import { useSocketStore } from './stores/useSocketStore'
+
 
 function App() {
   const { accessToken, user, refresh, fetchMe } = useAuthStore();
@@ -108,13 +110,17 @@ function App() {
             path='/tags'
             element={<TagsPages />}
           />
+          <Route
+            path='/members'
+            element={<MemberList />}
+          />
           {/* Private Route example - Keep ProtectedRoute for future private pages */}
           {/* <Route element={<ProtectedRoute />}>
           </Route> */}
         </Routes>
       </BrowserRouter>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
