@@ -1,35 +1,40 @@
-import { Resend } from 'resend';
-
-// Khởi tạo Resend với API Key từ biến môi trường
-const resend = new Resend(process.env.RESEND_API_KEY);
+import axios from 'axios';
 
 export const sendMail = async (to, subject, text) => {
     try {
-        if (!process.env.RESEND_API_KEY) {
-            console.error("Lỗi: Thiếu biến môi trường RESEND_API_KEY");
-            throw new Error("Cấu hình Resend không tồn tại trên Server");
+        const apiKey = process.env.BREVO_API_KEY;
+        const senderEmail = process.env.BREVO_SENDER_EMAIL || "huynhngocanhtuan9a9@gmail.com";
+
+        if (!apiKey) {
+            console.error("Lỗi: Thiếu biến môi trường BREVO_API_KEY");
+            throw new Error("Cấu hình Brevo không tồn tại trên Server");
         }
 
-        console.log(`Đang gửi mail tới: ${to} qua Resend API...`);
+        console.log(`Đang gửi mail tới: ${to} qua Brevo API...`);
 
-        const { data, error } = await resend.emails.send({
-            from: 'Q&A Web <onboarding@resend.dev>', // Email mặc định của Resend khi chưa verify domain
-            to: [to],
-            subject: subject,
-            text: text,
-            html: `<p>${text}</p>`,
-        });
+        const response = await axios.post(
+            'https://api.brevo.com/v3/smtp/email',
+            {
+                sender: { name: "Q&A Web", email: senderEmail },
+                to: [{ email: to }],
+                subject: subject,
+                htmlContent: `<p>${text}</p>`,
+                textContent: text
+            },
+            {
+                headers: {
+                    'api-key': apiKey,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            }
+        );
 
-        if (error) {
-            console.error("Lỗi Resend API:", error);
-            throw error;
-        }
-
-        console.log('Email sent successfully via Resend:', data.id);
-        return data;
+        console.log('Email sent successfully via Brevo:', response.data.messageId);
+        return response.data;
 
     } catch (error) {
-        console.error('Lỗi gửi mail qua Resend:', error);
+        console.error('Lỗi gửi mail qua Brevo:', error.response?.data || error.message);
         throw error;
     }
 }
