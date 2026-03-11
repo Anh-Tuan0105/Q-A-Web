@@ -10,31 +10,31 @@ export const sendMail = async (to, subject, text) => {
     console.log(`Đang khởi tạo Nodemailer để gửi tới: ${to}...`);
 
     // Create a transporter object
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // use false for STARTTLS; true for SSL on port 465
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+    const transporter = nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // use false for STARTTLS; true for SSL on port 465
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+        },
+    });
 
-  // Configure the mailoptions object
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: subject,
-    html: content,
-  };
+    // Configure the mailoptions object
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: to,
+        subject: subject,
+        html: text,
+    };
 
-  // Send the email
-  transporter.sendMail(mailOptions, function (error, info) {
-    if (error) {
-      console.log("Error:", error);
-    } else {
-      console.log("Email sent: ", info.response);
-    }
-  });
+    // Send the email
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log("Error:", error);
+        } else {
+            console.log("Email sent: ", info.response);
+        }
+    });
 
 }
