@@ -1,33 +1,60 @@
 import nodemailer from 'nodemailer'
 
 export const sendMail = async (to, subject, text) => {
-    // Cấu hình tối ưu cho việc deploy lên Internet (Render, Vercel, ...)
+    // Kiểm tra biến môi trường
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.error("Lỗi: Thiếu biến môi trường EMAIL_USER hoặc EMAIL_PASS");
+        throw new Error("Cấu hình Email không tồn tại trên Server");
+    }
+
+    // Cấu hình theo mẫu hoạt động tốt trên Cloud (Sử dụng Promises và Verify)
     const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true, // Use SSL
         auth: {
             user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS // Đảm bảo đây là Mật khẩu ứng dụng (App Password)
+            pass: process.env.EMAIL_PASS,
         },
         tls: {
-            // Không từ chối các chứng chỉ không được ủy quyền (fix lỗi chứng chỉ khi deploy)
             rejectUnauthorized: false
         }
-    })
+    });
 
-    const mailOptions = {
-        from: `"Q&A Web" <${process.env.EMAIL_USER}>`,
+    // 1. Kiểm tra kết nối trước khi gửi
+    await new Promise((resolve, reject) => {
+        transporter.verify(function (error, success) {
+            if (error) {
+                console.error("Nodemailer verify error:", error);
+                reject(error);
+            } else {
+                console.log("Server is ready to take our messages");
+                resolve(success);
+            }
+        });
+    });
+
+    const mailData = {
+        from: {
+            name: "Q&A Web",
+            address: process.env.EMAIL_USER,
+        },
         to: to,
         subject: subject,
-        text: text
+        text: text,
+        html: `<p>${text}</p>`,
     };
 
-    try {
-        console.log(`Đang gửi mail tới: ${to}...`);
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent successfully: ' + info.response);
-        return info;
-    } catch (error) {
-        console.error('Lỗi Nodemailer chi tiết:', error);
-        throw error;
-    }
+    // 2. Gửi mail và đợi kết quả
+    return await new Promise((resolve, reject) => {
+        transporter.sendMail(mailData, (err, info) => {
+            if (err) {
+                console.error("Nodemailer send error:", err);
+                reject(err);
+            } else {
+                console.log("Email sent successfully:", info.response);
+                resolve(info);
+            }
+        });
+    });
 }
