@@ -1,7 +1,8 @@
 import Header from "../../components/header/Header";
-import { Mail, CheckCircle, User, Lock, Loader2 } from "lucide-react";
+import { Mail, CheckCircle, Loader2 } from "lucide-react";
+import ProfileSider from "../../components/profile/ProfileSider";
 import { useAuthStore } from "../../stores/useAuthStore";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate } from "react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { authService } from "../../services/authService";
@@ -9,7 +10,6 @@ import { authService } from "../../services/authService";
 const Security = () => {
   const { user, requestEmailChange } = useAuthStore();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -72,43 +72,7 @@ const Security = () => {
 
       {/* Main Layout Container */}
       <div className="flex flex-col md:flex-row flex-1 w-full max-w-[1400px] mx-auto">
-        {/* Left Sidebar Profile Section - Takes full height and has a right border */}
-        <aside className="w-full md:w-[280px] shrink-0 border-r border-blue-100/50 bg-[#FAFBFF]/30 min-h-[calc(100vh-64px)] py-8 px-6">
-          <div className="flex flex-col">
-            {/* User Profile Header */}
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-200 flex-shrink-0">
-                {user?.avatarUrl ? (
-                  <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <img src={`https://ui-avatars.com/api/?name=${user?.displayName || user?.userName || "U"}&background=random`} alt="User Avatar" className="w-full h-full object-cover" />
-                )}
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-slate-800 text-[14px] leading-snug">{user?.displayName || "Nguyen Van A"}</span>
-                <span className="text-slate-500 text-[12px]">Full Stack Developer</span>
-              </div>
-            </div>
-
-            {/* Navigation Menu */}
-            <nav className="flex flex-col gap-2">
-              <div
-                onClick={() => navigate('/settings/profile')}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-bold text-[14px] transition-colors ${location.pathname === '/settings/profile' ? 'bg-[#F0F5FF] text-blue-600' : 'text-slate-600 hover:bg-slate-50'
-                  }`}
-              >
-                <User className="w-[18px] h-[18px]" strokeWidth={2.5} />
-                Hồ Sơ Cá Nhân
-              </div>
-              <div
-                className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-bold text-[14px] transition-colors bg-[#F0F5FF] text-blue-600"
-              >
-                <Lock className="w-[18px] h-[18px] text-blue-600" strokeWidth={2.5} />
-                Bảo mật & Đăng nhập
-              </div>
-            </nav>
-          </div>
-        </aside>
+        <ProfileSider />
 
         {/* Main Content Area */}
         <main className="flex-1 px-8 md:px-12 lg:px-16 py-8 md:py-10 max-w-[900px]">
