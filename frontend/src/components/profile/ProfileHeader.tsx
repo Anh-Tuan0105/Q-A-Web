@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Link as LinkIcon } from "lucide-react";
+import { MapPin, Calendar, Link as LinkIcon, Github, Facebook } from "lucide-react";
 
 interface UserProfile {
     displayName?: string;
@@ -9,7 +9,10 @@ interface UserProfile {
     location?: string;
     createdAt?: string;
     websitePersonal?: string;
-    socialLinks?: string[];
+    socialLinks?: {
+        github?: string;
+        facebook?: string;
+    };
 }
 
 interface ProfileHeaderProps {
@@ -74,12 +77,22 @@ const ProfileHeader = ({ user, topTags }: ProfileHeaderProps) => {
                                 {user.websitePersonal.replace(/^https?:\/\//, '')}
                             </a>
                         )}
-                        {user.socialLinks && user.socialLinks.map((link: string, idx: number) => (
-                            <a key={idx} href={link.startsWith("http") ? link : `https://${link}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
-                                <LinkIcon className="w-[18px] h-[18px]" strokeWidth={2} />
-                                {link.replace(/^https?:\/\//, '').replace(/^www\./, '')}
-                            </a>
-                        ))}
+                        {(user.socialLinks?.github || user.socialLinks?.facebook) && (
+                            <div className="flex flex-wrap items-center gap-6">
+                                {user.socialLinks?.github && (
+                                    <a href={user.socialLinks.github.startsWith("http") ? user.socialLinks.github : `https://github.com/${user.socialLinks.github}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
+                                        <Github className="w-[18px] h-[18px]" strokeWidth={2} />
+                                        {user.socialLinks.github}
+                                    </a>
+                                )}
+                                {user.socialLinks?.facebook && (
+                                    <a href={user.socialLinks.facebook.startsWith("http") ? user.socialLinks.facebook : `https://facebook.com/${user.socialLinks.facebook}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
+                                        <Facebook className="w-[18px] h-[18px]" strokeWidth={2} />
+                                        {user.socialLinks.facebook.replace(/^https?:\/\/(www\.)?facebook\.com\//, '').replace(/\/$/, '')}
+                                    </a>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2.5">

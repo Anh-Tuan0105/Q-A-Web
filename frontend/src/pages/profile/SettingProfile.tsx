@@ -1,5 +1,5 @@
 import Header from "../../components/header/Header";
-import { User, Lock, MapPin, Link as LinkIcon, Camera, X, Github, Linkedin, Loader2 } from "lucide-react";
+import { User, Lock, MapPin, Link as LinkIcon, Camera, X, Github, Facebook, Loader2 } from "lucide-react";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { useNavigate, useLocation } from "react-router";
 import { useState, useEffect, useRef } from "react";
@@ -18,7 +18,7 @@ const SettingProfile = () => {
     avatarUrl: "",
     socialLinks: {
       github: "",
-      linkedin: ""
+      facebook: ""
     }
   });
 
@@ -37,7 +37,7 @@ const SettingProfile = () => {
         avatarUrl: user.avatarUrl || "",
         socialLinks: {
           github: user.socialLinks?.github || "",
-          linkedin: user.socialLinks?.linkedin || ""
+          facebook: user.socialLinks?.facebook || ""
         }
       });
     }
@@ -86,9 +86,8 @@ const SettingProfile = () => {
       form.append("bio", formData.bio);
       form.append("location", formData.location);
       form.append("websitePersonal", formData.websitePersonal);
-      if (formData.avatarUrl === "") form.append("avatarUrl", ""); // Signals to clear avatar if user hits 'Xóa ảnh' but also somehow adds a file? Actually if 'Xóa ảnh' is pressed, avatarFile is null.
       form.append("socialLinks", JSON.stringify(formData.socialLinks));
-      form.append("avatar", avatarFile);
+      form.append("file", avatarFile);
       
       await updateProfile(form);
     } else {
@@ -116,7 +115,7 @@ const SettingProfile = () => {
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-slate-800 text-[14px] leading-snug">{user?.displayName || "Nguyen Van A"}</span>
-                <span className="text-slate-500 text-[12px]">Full Stack Developer</span>
+                <span className="text-slate-500 text-[12px]">{user?.jobTitle || "Thành viên Cộng đồng"}</span>
               </div>
             </div>
 
@@ -158,35 +157,35 @@ const SettingProfile = () => {
                     <div className="w-[90px] h-[90px] rounded-full overflow-hidden bg-slate-100 border-[3px] border-white shadow-sm ring-1 ring-slate-100">
                       {avatarPreview ? (
                         <img src={avatarPreview} alt="Avatar Preview" className="w-full h-full object-cover" />
-                      ) : user?.avatarUrl ? (
-                        <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : formData.avatarUrl ? (
+                        <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                       ) : (
                         <img src={`https://ui-avatars.com/api/?name=${user?.displayName || user?.userName || "U"}&background=random`} alt="User Avatar" className="w-full h-full object-cover" />
                       )}
                     </div>
-                    <button 
+                    <button
                       onClick={handleUploadClick}
                       className="absolute bottom-0 right-1 w-7 h-7 bg-[#1877F2] text-white rounded-full flex items-center justify-center border-2 border-white hover:bg-blue-600 transition-colors shadow-sm"
                     >
                       <Camera className="w-[14px] h-[14px]" />
                     </button>
-                    <input 
-                      type="file" 
-                      ref={fileInputRef} 
-                      className="hidden" 
-                      accept="image/png, image/jpeg, image/gif" 
-                      onChange={handleFileChange} 
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      accept="image/png, image/jpeg, image/gif"
+                      onChange={handleFileChange}
                     />
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
                     <div className="flex flex-wrap items-center gap-3 mb-2.5">
-                      <button 
+                      <button
                         onClick={handleUploadClick}
                         className="px-5 py-[9px] bg-[#1877F2] hover:bg-blue-600 text-white text-[13px] font-bold rounded-lg transition-colors shadow-sm"
                       >
                         Tải ảnh mới
                       </button>
-                      <button 
+                      <button
                         onClick={handleRemoveImage}
                         className="px-5 py-[9px] bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[13px] font-bold rounded-lg transition-colors"
                       >
@@ -309,16 +308,16 @@ const SettingProfile = () => {
 
                   <div className="flex items-start gap-4">
                     <div className="mt-[34px]">
-                      <Linkedin className="w-6 h-6 text-[#0A66C2]" fill="currentColor" />
+                      <Facebook className="w-6 h-6 text-[#1877F2]" fill="currentColor" />
                     </div>
                     <div className="flex-1 w-full max-w-[800px]">
-                      <label className="block text-[13px] text-slate-400 font-medium mb-2">LinkedIn URL</label>
+                      <label className="block text-[13px] text-slate-400 font-medium mb-2">Facebook URL</label>
                       <input
                         type="text"
-                        name="linkedin"
-                        value={formData.socialLinks.linkedin}
+                        name="facebook"
+                        value={formData.socialLinks.facebook}
                         onChange={handleSocialChange}
-                        placeholder="Thêm liên kết LinkedIn"
+                        placeholder="Thêm liên kết Facebook"
                         className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] placeholder:text-slate-300"
                       />
                     </div>
@@ -332,7 +331,7 @@ const SettingProfile = () => {
               <button className="px-6 py-[10px] bg-white text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-colors text-[14px]">
                 Hủy bỏ
               </button>
-              <button 
+              <button
                 onClick={handleSave}
                 disabled={loading}
                 className="px-6 py-[10px] bg-[#1877F2] hover:bg-blue-600 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-colors shadow-sm text-[14px] flex items-center justify-center min-w-[130px]"

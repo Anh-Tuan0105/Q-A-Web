@@ -1,12 +1,11 @@
-// Trong file member.tsx
 export interface Member {
-  // Phải có chữ 'export' ở đây
-  id: number;
-  name: string;
-  location: string;
+  _id: string;
+  displayName: string;
+  userName: string;
+  location?: string;
   reputation: number;
   postCount: number;
-  tags: string[];
-  avatar: string;
-  isVip?: boolean;
+  jobTitle?: string;
+  avatarUrl?: string;
+  topTags?: { _id: string, name: string }[];
 }

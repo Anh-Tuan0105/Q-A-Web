@@ -4,7 +4,9 @@ import Answer from "../models/Answer.js";
 import ProfileView from "../models/ProfileView.js";
 import mongoose from "mongoose";
 import { io } from "../lib/socket.js";
-import cloudinary from "../utils/cloudinary.js";
+import { v2 as cloudinary } from "cloudinary";
+import { uploadImageFromBuffer } from "../middlewares/uploadMiddleware.js";
+
 export const authMe = async (req, res) => {
     try {
         const user = req.user;
@@ -311,7 +313,7 @@ export const updateProfile = async (req, res) => {
         if (bio !== undefined) updateFields.bio = bio;
         if (location !== undefined) updateFields.location = location;
         if (websitePersonal !== undefined) updateFields.websitePersonal = websitePersonal;
-        
+
         // Handle socialLinks if it's stringified from FormData
         let parsedSocialLinks = socialLinks;
         if (typeof socialLinks === 'string') {
@@ -325,13 +327,10 @@ export const updateProfile = async (req, res) => {
         if (parsedSocialLinks) {
             updateFields.socialLinks = {};
             if (parsedSocialLinks.github !== undefined) updateFields.socialLinks.github = parsedSocialLinks.github;
-            if (parsedSocialLinks.linkedin !== undefined) updateFields.socialLinks.linkedin = parsedSocialLinks.linkedin;
+            if (parsedSocialLinks.facebook !== undefined) updateFields.socialLinks.facebook = parsedSocialLinks.facebook;
         }
 
         if (req.file) {
-            const b64 = Buffer.from(req.file.buffer).toString("base64");
-            let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
-            
             const currentUser = await User.findById(userId);
             if (currentUser && currentUser.avatarId) {
                 try {
@@ -341,7 +340,7 @@ export const updateProfile = async (req, res) => {
                 }
             }
 
-            const result = await cloudinary.uploader.upload(dataURI, { folder: "avatars" });
+            const result = await uploadImageFromBuffer(req.file.buffer);
             updateFields.avatarUrl = result.secure_url;
             updateFields.avatarId = result.public_id;
         } else {
@@ -380,3 +379,111 @@ export const updateProfile = async (req, res) => {
         return res.status(500).json({ message: "Lỗi hệ thống khi cập nhật hồ sơ" });
     }
 }
+
+// Lấy danh sách thành viên có phân trang, tìm kiếm và sắp xếp
+export const getMembers = async (req, res) => {
+    try {
+        const { page = 1, limit = 8, keyword = "", sort = "reputation" } = req.query;
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const query = {};
+
+        if (keyword) {
+            query.$or = [
+                { displayName: { $regex: keyword, $options: "i" } },
+                { userName: { $regex: keyword, $options: "i" } }
+            ];
+        }
+
+        let sortQuery = { reputation: -1, createdAt: -1 };
+        if (sort === "newest") {
+            sortQuery = { createdAt: -1 };
+        }
+
+        const users = await User.find(query)
+            .sort(sortQuery)
+            .skip(skip)
+            .limit(parseInt(limit))
+            .select("displayName userName avatarUrl reputation bio jobTitle location createdAt socialLinks");
+
+        const usersWithEnhancedData = await Promise.all(users.map(async (user) => {
+            // 1. Tính toán reputation thực tế (Question upvotes + Answer upvotes)
+            const questionUpvotes = await Question.aggregate([
+                { $match: { userId: user._id } },
+                { $group: { _id: null, total: { $sum: "$upvoteCount" } } }
+            ]);
+            const answerUpvotes = await Answer.aggregate([
+                { $match: { userId: user._id } },
+                { $group: { _id: null, total: { $sum: "$upvoteCount" } } }
+            ]);
+
+            const realReputation = (questionUpvotes[0]?.total || 0) + (answerUpvotes[0]?.total || 0);
+
+            // 2. Đếm tổng bài viết (Questions + Answers)
+            const postCount = await Question.countDocuments({ userId: user._id });
+            const answerCount = await Answer.countDocuments({ userId: user._id });
+
+            // 3. Lấy Top 3 Tags mà user hay trả lời nhất
+            const topTags = await Answer.aggregate([
+                { $match: { userId: user._id } },
+                {
+                    $lookup: {
+                        from: "questions",
+                        localField: "quesId",
+                        foreignField: "_id",
+                        as: "question"
+                    }
+                },
+                { $unwind: "$question" },
+                { $unwind: "$question.tags" },
+                {
+                    $group: {
+                        _id: "$question.tags",
+                        count: { $sum: 1 }
+                    }
+                },
+                { $sort: { count: -1 } },
+                { $limit: 3 },
+                {
+                    $lookup: {
+                        from: "tags",
+                        localField: "_id",
+                        foreignField: "_id",
+                        as: "tagInfo"
+                    }
+                },
+                { $unwind: "$tagInfo" },
+                {
+                    $project: {
+                        _id: 1,
+                        name: "$tagInfo.name"
+                    }
+                }
+            ]);
+
+            return {
+                ...user._doc,
+                reputation: realReputation,
+                postCount: postCount + answerCount,
+                topTags: topTags
+            };
+        }));
+
+        const totalItems = await User.countDocuments(query);
+
+        res.status(200).json({
+            success: true,
+            data: usersWithEnhancedData,
+            pagination: {
+                totalItems,
+                currentPage: parseInt(page),
+                limit: parseInt(limit),
+                totalPages: Math.ceil(totalItems / parseInt(limit))
+            }
+        });
+
+    } catch (error) {
+        console.error("Lỗi get members:", error);
+        res.status(500).json({ success: false, message: "Lỗi Server" });
+    }
+};

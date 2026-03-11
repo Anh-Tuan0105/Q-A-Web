@@ -20,5 +20,11 @@ export const userService = {
             params: { page, limit, sort }
         });
         return response.data;
+    },
+    getMembers: async (page = 1, limit = 12, keyword = "", sort = "reputation") => {
+        const response = await api.get('/users', {
+            params: { page, limit, keyword, sort }
+        });
+        return response.data;
     }
 };

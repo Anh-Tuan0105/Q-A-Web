@@ -11,6 +11,7 @@ import notificationRoute from './routes/notificationRoute.js' // ThÃªm route thÃ
 import publicUserRoute from './routes/publicUserRoute.js'
 import { connectDB } from "./lib/db.js";
 import { protectedRoute } from "./middlewares/authMiddleware.js";
+import {v2 as cloudinary} from 'cloudinary'
 import cors from "cors";
 import dns from "dns"
 
@@ -33,6 +34,12 @@ app.use(cors({
     origin: process.env.CLIENT_URL,
     credentials: true,
 }));
+
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 // Public Routes
 app.use('/api/auth', authRoute);

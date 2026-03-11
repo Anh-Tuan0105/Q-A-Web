@@ -9,4 +9,6 @@ router.put("/profile/:id/view", optionalAuth, userController.incrementProfileVie
 router.get("/profile/:id/questions", optionalAuth, userController.getUserQuestions);
 router.get("/profile/:id/answers", optionalAuth, userController.getUserAnswers);
 
+router.get("/", userController.getMembers);
+
 export default router;

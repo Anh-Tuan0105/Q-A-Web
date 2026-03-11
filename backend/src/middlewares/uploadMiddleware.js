@@ -1,19 +1,36 @@
 import multer from "multer";
-
-const storage = multer.memoryStorage();
-
-const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-        cb(null, true);
-    } else {
-        cb(new Error("File không đúng chuẩn hình ảnh!"), false);
-    }
-};
+import { v2 as cloudinary } from "cloudinary";
 
 export const upload = multer({
-    storage,
-    fileFilter,
+    storage: multer.memoryStorage(),
     limits: {
-        fileSize: 800 * 1024, // 800KB giới hạn như bên Frontend ghi chú
-    }
+        fileSize: 1024 * 1024 * 1, // 1MB
+    },
 });
+
+
+export const uploadImageFromBuffer = (buffer, options) => {
+    return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream({
+            folder: "Qa_web/avatars",
+            resource_type: "image",
+            transformation: [
+                {
+                    width: 250,
+                    height: 250,
+                    crop: "fill",
+                },
+            ],
+            ...options,
+        },
+            (error, result) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(result);
+                }
+            }
+        );
+        uploadStream.end(buffer);
+    });
+}

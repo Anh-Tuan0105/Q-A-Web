@@ -46,7 +46,7 @@ const userSchema = mongoose.Schema({
     },
     socialLinks: {
         github: { type: String, trim: true },
-        linkedin: { type: String, trim: true }
+        facebook: { type: String, trim: true }
     },
     reputation: {
         type: Number,

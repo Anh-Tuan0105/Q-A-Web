@@ -1,6 +1,7 @@
 import React from "react";
 import { type Member } from "./member";
-import { MapPin, ShieldCheck } from "lucide-react";
+import { MapPin } from "lucide-react";
+import { Link } from "react-router";
 
 interface MemberCardProps {
   member: Member;
@@ -8,30 +9,23 @@ interface MemberCardProps {
 
 const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
   return (
-    <div className="bg-white p-6 rounded-xl border border-blue-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 flex flex-col items-center">
-      {/* Avatar & Badge */}
+    <Link 
+      to={`/profile/${member._id}`}
+      className="bg-white p-6 rounded-xl border border-blue-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 flex flex-col items-center group cursor-pointer"
+    >
+      {/* Avatar */}
       <div className="relative mb-3">
         <img
-          src={member.avatar}
-          alt={member.name}
-          className="w-20 h-20 rounded-full object-cover border-4 border-transparent shadow-[0_0_0_2px_#EFF6FF] p-0.5"
+          src={member.avatarUrl || `https://ui-avatars.com/api/?name=${member.displayName || member.userName}&background=random`}
+          alt={member.displayName}
+          className="w-20 h-20 rounded-full object-cover border-4 border-transparent shadow-[0_0_0_2px_#EFF6FF] p-0.5 group-hover:scale-105 transition-transform duration-300"
         />
-        {member.isVip && (
-          <span className="absolute bottom-0 right-0 bg-yellow-400 text-white p-1 rounded-full text-[10px] shadow-sm flex items-center justify-center w-5 h-5 border-2 border-white">
-            ★
-          </span>
-        )}
-        {!member.isVip && member.id === 3 && (
-            <span className="absolute bottom-0 right-0 bg-blue-500 text-white p-1 rounded-full shadow-sm flex items-center justify-center w-5 h-5 border-2 border-white">
-               <ShieldCheck size={10} strokeWidth={3}/>
-            </span>
-        )}
       </div>
 
       {/* Info */}
-      <h3 className="font-bold text-gray-800 text-lg mb-0.5">{member.name}</h3>
-      <p className="text-gray-400 text-[13px] flex items-center gap-1 mb-5">
-        <MapPin size={14} className="text-gray-400" /> {member.location}
+      <h3 className="font-bold text-gray-800 text-lg mb-0.5 group-hover:text-blue-600 transition-colors line-clamp-1">{member.displayName}</h3>
+      <p className="text-gray-400 text-[13px] flex items-center gap-1 mb-5 line-clamp-1">
+        <MapPin size={14} className="text-gray-400" /> {member.location || "Chưa cập nhật"}
       </p>
 
       {/* Stats Table-like */}
@@ -53,17 +47,30 @@ const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
       </div>
 
       {/* Tags List */}
-      <div className="flex flex-wrap gap-2 justify-center">
-        {member.tags.map((tag) => (
-          <span
-            key={tag}
-            className="bg-gray-50/80 border border-gray-100 text-gray-500 px-2.5 py-1 rounded-[6px] text-[11px] font-medium hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 cursor-pointer transition-colors"
-          >
-            {tag}
-          </span>
-        ))}
+      <div className="flex flex-wrap gap-1.5 justify-center">
+        {member.topTags && member.topTags.length > 0 ? (
+          member.topTags.map((tag) => (
+            <span
+              key={tag._id}
+              className="bg-slate-50 border border-slate-100 text-slate-500 px-2 py-0.5 rounded-md text-[10px] font-bold hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 transition-colors"
+            >
+              {tag.name}
+            </span>
+          ))
+        ) : (
+          <span className="text-[10px] text-slate-400 font-medium">Chưa có hoạt động</span>
+        )}
       </div>
-    </div>
+
+      {/* Bio / JobTitle */}
+      {member.jobTitle && (
+        <div className="mt-4 text-center">
+          <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider line-clamp-1">
+            {member.jobTitle}
+          </span>
+        </div>
+      )}
+    </Link>
   );
 };
 

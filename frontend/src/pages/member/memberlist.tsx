@@ -1,96 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MemberCard from "./membercard";
 import { type Member } from "./member";
-import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, MessageSquareOff } from "lucide-react";
 import Header from "../../components/header/Header";
 import Sider from "../../components/sider/Sider";
 import Footer from "../../components/footer/Footer";
+import { userService } from "../../services/userService";
+import Loading from "../../components/ui/Loading";
 
 const MemberList: React.FC = () => {
-  // Mock data matching the design
-  const [members] = useState<Member[]>([
-    {
-      id: 1,
-      name: "Huy Nguyễn",
-      location: "Hà Nội, VN",
-      reputation: 12450,
-      postCount: 458,
-      tags: ["javascript", "reactjs", "nodejs"],
-      avatar: "https://i.pravatar.cc/150?u=huy",
-      isVip: true,
-    },
-    {
-      id: 2,
-      name: "Sarah Trần",
-      location: "TP. HCM, VN",
-      reputation: 8932,
-      postCount: 215,
-      tags: ["typescript", "frontend", "css"],
-      avatar: "https://i.pravatar.cc/150?u=sarah",
-      isVip: false,
-    },
-    {
-      id: 3,
-      name: "David Lee",
-      location: "Da Nang, VN",
-      reputation: 15200,
-      postCount: 620,
-      tags: ["docker", "backend", "go"],
-      avatar: "https://i.pravatar.cc/150?u=david",
-      isVip: false,
-    },
-    {
-      id: 4,
-      name: "Linh Vũ",
-      location: "Singapore",
-      reputation: 4120,
-      postCount: 98,
-      tags: ["ui-design", "figma", "css"],
-      avatar: "https://i.pravatar.cc/150?u=linh",
-      isVip: false,
-    },
-    // Row 2
-    {
-      id: 5,
-      name: "Khoa Phạm",
-      location: "Remote",
-      reputation: 2850,
-      postCount: 45,
-      tags: ["python", "django", "aws"],
-      avatar: "https://ui-avatars.com/api/?name=KP&background=9b51e0&color=fff&size=150",
-      isVip: false,
-    },
-    {
-      id: 6,
-      name: "Thanh Nguyễn",
-      location: "Hà Nội, VN",
-      reputation: 1240,
-      postCount: 28,
-      tags: ["java", "spring", "microservices"],
-      avatar: "https://ui-avatars.com/api/?name=TN&background=eb5757&color=fff&size=150",
-      isVip: false,
-    },
-    {
-      id: 7,
-      name: "Minh Anh",
-      location: "TP. HCM, VN",
-      reputation: 6530,
-      postCount: 156,
-      tags: ["flutter", "dart", "mobile"],
-      avatar: "https://ui-avatars.com/api/?name=MA&background=27ae60&color=fff&size=150",
-      isVip: false,
-    },
-    {
-      id: 8,
-      name: "John B",
-      location: "New York, USA",
-      reputation: 22100,
-      postCount: 890,
-      tags: ["rust", "wasm", "systems"],
-      avatar: "https://ui-avatars.com/api/?name=JB&background=f2994a&color=fff&size=150",
-      isVip: false,
-    }
-  ]);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [keyword, setKeyword] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sort, setSort] = useState<"reputation" | "newest">("reputation");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+
+  useEffect(() => {
+    const fetchMembers = async () => {
+      setIsLoading(true);
+      try {
+        const res = await userService.getMembers(page, 8, searchQuery, sort);
+        if (res.success) {
+          setMembers(res.data);
+          setTotalPages(res.pagination.totalPages);
+          setTotalItems(res.pagination.totalItems);
+        }
+      } catch (error) {
+        console.error("Lỗi tải danh sách thành viên:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchMembers();
+  }, [page, searchQuery, sort]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchQuery(keyword);
+    setPage(1);
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -105,75 +57,96 @@ const MemberList: React.FC = () => {
           <div className="max-w-[1200px] mx-auto">
             {/* Header Section */}
             <h1 className="text-[28px] font-extrabold text-slate-800 mb-6">
-              Danh Sách Thành Viên
+              Danh Sách Thành Viên ({totalItems})
             </h1>
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
 
               {/* Search Bar */}
-              <div className="relative w-full md:w-[450px]">
+              <form onSubmit={handleSearch} className="relative w-full md:w-[450px]">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                 <input
                   type="text"
                   placeholder="Tìm thành viên..."
-                  className="w-[400px] pl-12 pr-4 py-[10px] bg-[#F8F9FA] border border-slate-200 rounded-xl text-[15px] text-slate-600 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  className="w-full md:w-[400px] pl-12 pr-4 py-[10px] bg-white border border-slate-200 rounded-xl text-[15px] text-slate-600 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
                 />
-              </div>
+              </form>
 
               {/* Filters */}
               <div className="flex items-center gap-6 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
-                <div className="flex bg-white rounded-lg p-1 border border-transparent">
-                  <button className="px-4 py-1.5 bg-blue-600 text-white text-sm font-bold rounded-md whitespace-nowrap shadow-sm">
+                <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm">
+                  <button 
+                    onClick={() => { setSort("reputation"); setPage(1); }}
+                    className={`px-4 py-1.5 text-sm font-bold rounded-md whitespace-nowrap transition-all ${sort === "reputation" ? "bg-blue-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
+                  >
                     Người dùng tiêu biểu
                   </button>
-                  <button className="px-4 py-1.5 text-slate-500 hover:text-slate-800 text-sm font-bold rounded-md whitespace-nowrap transition-colors">
+                  <button 
+                    onClick={() => { setSort("newest"); setPage(1); }}
+                    className={`px-4 py-1.5 text-sm font-bold rounded-md whitespace-nowrap transition-all ${sort === "newest" ? "bg-blue-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
+                  >
                     Thành viên mới
                   </button>
-                  <button className="px-4 py-1.5 text-slate-500 hover:text-slate-800 text-sm font-bold rounded-md whitespace-nowrap transition-colors">
-                    Người bình duyệt
-                  </button>
                 </div>
-                <button className="flex items-center gap-1.5 text-slate-600 hover:text-slate-800 text-sm font-bold whitespace-nowrap px-2">
-                  <SlidersHorizontal size={14} />
-                  Bộ lọc
-                </button>
               </div>
 
             </div>
 
             {/* Grid System */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {members.map((member) => (
-                <MemberCard key={member.id} member={member} />
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="py-20 flex justify-center">
+                <Loading message="Đang tải danh sách thành viên..." />
+              </div>
+            ) : members.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {members.map((member) => (
+                  <MemberCard key={member._id} member={member} />
+                ))}
+              </div>
+            ) : (
+              <div className="py-24 text-center bg-white rounded-2xl border border-dashed border-slate-200">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-50 rounded-2xl mb-4">
+                  <MessageSquareOff className="w-8 h-8 text-slate-300" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-800">Không tìm thấy thành viên</h3>
+                <p className="text-slate-500 max-w-xs mx-auto mt-2">Thử điều chỉnh từ khóa tìm kiếm hoặc các bộ lọc của bạn.</p>
+              </div>
+            )}
 
             {/* Pagination */}
-            <div className="mt-12 flex justify-center items-center gap-1">
-              <button className="p-2 text-slate-400 hover:text-blue-600 transition-colors bg-white rounded-md mx-1 border border-transparent hover:border-slate-100">
-                <ChevronLeft size={18} strokeWidth={2} />
-              </button>
-              <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
-                <button className="w-10 h-10 flex items-center justify-center bg-blue-600 text-white rounded-lg text-sm font-bold shadow-sm">
-                  1
+            {!isLoading && totalPages > 1 && (
+              <div className="mt-12 flex justify-center items-center gap-2">
+                <button 
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                >
+                  <ChevronLeft size={18} strokeWidth={2} />
                 </button>
-                <button className="w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-50 rounded-lg text-sm font-bold transition-colors">
-                  2
-                </button>
-                <button className="w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-50 rounded-lg text-sm font-bold transition-colors">
-                  3
-                </button>
-                <div className="w-8 h-8 flex items-center justify-center text-slate-400">
-                  <MoreHorizontal size={16} />
+                
+                <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
+                  {[...Array(totalPages)].map((_, idx) => (
+                    <button
+                      key={idx + 1}
+                      onClick={() => setPage(idx + 1)}
+                      className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-bold transition-all ${page === idx + 1 ? "bg-blue-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-50"}`}
+                    >
+                      {idx + 1}
+                    </button>
+                  ))}
                 </div>
-                <button className="w-10 h-10 flex items-center justify-center text-slate-600 hover:bg-slate-50 rounded-lg text-sm font-bold transition-colors">
-                  24
+
+                <button 
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                >
+                  <ChevronRight size={18} strokeWidth={2} />
                 </button>
               </div>
-              <button className="p-2 text-slate-400 hover:text-blue-600 transition-colors bg-white rounded-md mx-1 border border-transparent hover:border-slate-100">
-                <ChevronRight size={18} strokeWidth={2} />
-              </button>
-            </div>
+            )}
           </div>
         </div>
       </div>
