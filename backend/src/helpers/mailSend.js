@@ -1,7 +1,6 @@
 import nodemailer from 'nodemailer';
 
 export const sendMail = async (to, subject, text) => {
-    // Kiểm tra biến môi trường
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
         console.error("Lỗi: Thiếu biến môi trường EMAIL_USER hoặc EMAIL_PASS");
         throw new Error("Cấu hình Email không tồn tại trên Server");
@@ -13,7 +12,7 @@ export const sendMail = async (to, subject, text) => {
     const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
         port: 587,
-        secure: false, // use false for STARTTLS; true for SSL on port 465
+        secure: false, 
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS,
