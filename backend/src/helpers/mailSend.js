@@ -20,11 +20,13 @@ export const sendMail = async (to, subject, text) => {
     };
 
 
-    await transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
-    });
+    try {
+        // Sử dụng await mà không có callback để Vercel đợi kết quả
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent: ' + info.response);
+        return info;
+    } catch (error) {
+        console.error('Lỗi Nodemailer:', error);
+        throw error; // Đẩy lỗi ra ngoài để API trả về status 500
+    }
 }
