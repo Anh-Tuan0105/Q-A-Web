@@ -37,7 +37,10 @@ export const authService = {
     refresh: async () => {
         const res = await api.post("/auth/refresh", {}, { withCredentials: true });
         return res.data;
+    },
+
+    updateProfile: async (data: any) => {
+        const res = await api.put("/users/profile", data, { withCredentials: true });
+        return res.data;
     }
 }
-
-

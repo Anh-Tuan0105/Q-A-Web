@@ -14,6 +14,7 @@ export interface AuthState {
     logout: () => Promise<void>;
     fetchMe: () => Promise<void>;
     refresh: () => Promise<void>;
+    updateProfile: (data: Partial<User> | FormData) => Promise<boolean>;
 }
 
 

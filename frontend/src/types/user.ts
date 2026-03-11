@@ -9,7 +9,10 @@ export interface User {
     jobTitle?: string;
     location?: string;
     websitePersonal?: string;
-    socialLinks?: string[];
+    socialLinks?: {
+        github?: string;
+        linkedin?: string;
+    };
     reputation?: number;
     profileViews?: number;
     createdAt: string;

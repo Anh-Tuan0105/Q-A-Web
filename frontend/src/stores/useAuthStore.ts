@@ -89,8 +89,23 @@ export const useAuthStore = create<AuthState>()(
                 }
             } catch (error) {
                 console.log(error);
-                // Không hiển thị toast lỗi ở đây vì khách chưa đăng nhập cũng sẽ gọi hàm này
                 get().clearState();
+            } finally {
+                set({ loading: false });
+            }
+        },
+
+        updateProfile: async (data) => {
+            try {
+                set({ loading: true });
+                const updatedUser = await authService.updateProfile(data);
+                set({ user: updatedUser });
+                toast.success("Cập nhật thông tin thành công");
+                return true;
+            } catch (error: any) {
+                console.log(error);
+                toast.error(error.response?.data?.message || "Cập nhật hồ sơ thất bại");
+                return false;
             } finally {
                 set({ loading: false });
             }
@@ -100,4 +115,3 @@ export const useAuthStore = create<AuthState>()(
         partialize: (state) => ({ user: state.user }),
     })
 );
-
