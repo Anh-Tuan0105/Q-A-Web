@@ -20,6 +20,7 @@ export interface AuthState {
     refresh: () => Promise<void>;
     requestEmailChange: (newEmail: string) => Promise<any>;
     verifyEmailChange: (newEmail: string, otp: string) => Promise<any>;
+    updateProfile: (data: Partial<User> | FormData) => Promise<boolean>;
 }
 
 

@@ -52,7 +52,9 @@ export const authService = {
     verifyEmailChange: async (newEmail: string, otp: string) => {
         const res = await api.post("/auth/verify-email-change", { newEmail, otp }, { withCredentials: true });
         return res.data;
+    },
+    updateProfile: async (data: any) => {
+        const res = await api.put("/users/profile", data, { withCredentials: true });
+        return res.data;
     }
 }
-
-

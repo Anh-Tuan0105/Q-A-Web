@@ -1,12 +1,100 @@
 import Header from "../../components/header/Header";
-import { User, Lock, MapPin, Link as LinkIcon, Camera, X, Github, Linkedin } from "lucide-react";
+import { User, Lock, MapPin, Link as LinkIcon, Camera, X, Github, Linkedin, Loader2 } from "lucide-react";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { useNavigate, useLocation } from "react-router";
-
+import { useState, useEffect, useRef } from "react";
+import { toast } from "sonner";
 const SettingProfile = () => {
-  const user = useAuthStore((s) => s.user);
+  const { user, updateProfile, loading } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [formData, setFormData] = useState({
+    displayName: "",
+    jobTitle: "",
+    bio: "",
+    location: "",
+    websitePersonal: "",
+    avatarUrl: "",
+    socialLinks: {
+      github: "",
+      linkedin: ""
+    }
+  });
+
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        displayName: user.displayName || "",
+        jobTitle: user.jobTitle || "",
+        bio: user.bio || "",
+        location: user.location || "",
+        websitePersonal: user.websitePersonal || "",
+        avatarUrl: user.avatarUrl || "",
+        socialLinks: {
+          github: user.socialLinks?.github || "",
+          linkedin: user.socialLinks?.linkedin || ""
+        }
+      });
+    }
+  }, [user]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSocialChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      socialLinks: { ...prev.socialLinks, [name]: value }
+    }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 800 * 1024) {
+        toast.error("Kích thước tệp quá lớn. Vui lòng chọn ảnh dưới 800KB.");
+        return;
+      }
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleRemoveImage = () => {
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    setFormData(prev => ({ ...prev, avatarUrl: "" }));
+  };
+
+  const handleSave = async () => {
+    if (avatarFile) {
+      const form = new FormData();
+      form.append("displayName", formData.displayName);
+      form.append("jobTitle", formData.jobTitle);
+      form.append("bio", formData.bio);
+      form.append("location", formData.location);
+      form.append("websitePersonal", formData.websitePersonal);
+      if (formData.avatarUrl === "") form.append("avatarUrl", ""); // Signals to clear avatar if user hits 'Xóa ảnh' but also somehow adds a file? Actually if 'Xóa ảnh' is pressed, avatarFile is null.
+      form.append("socialLinks", JSON.stringify(formData.socialLinks));
+      form.append("avatar", avatarFile);
+      
+      await updateProfile(form);
+    } else {
+      await updateProfile(formData);
+    }
+  };
 
   return (
     <div className="min-h-[100vh] bg-white flex flex-col">
@@ -68,22 +156,40 @@ const SettingProfile = () => {
                 <div className="flex flex-col sm:flex-row items-center sm:items-center gap-6 pb-2 border-b border-slate-100">
                   <div className="relative shrink-0">
                     <div className="w-[90px] h-[90px] rounded-full overflow-hidden bg-slate-100 border-[3px] border-white shadow-sm ring-1 ring-slate-100">
-                      {user?.avatarUrl ? (
+                      {avatarPreview ? (
+                        <img src={avatarPreview} alt="Avatar Preview" className="w-full h-full object-cover" />
+                      ) : user?.avatarUrl ? (
                         <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                       ) : (
                         <img src={`https://ui-avatars.com/api/?name=${user?.displayName || user?.userName || "U"}&background=random`} alt="User Avatar" className="w-full h-full object-cover" />
                       )}
                     </div>
-                    <button className="absolute bottom-0 right-1 w-7 h-7 bg-[#1877F2] text-white rounded-full flex items-center justify-center border-2 border-white hover:bg-blue-600 transition-colors shadow-sm">
+                    <button 
+                      onClick={handleUploadClick}
+                      className="absolute bottom-0 right-1 w-7 h-7 bg-[#1877F2] text-white rounded-full flex items-center justify-center border-2 border-white hover:bg-blue-600 transition-colors shadow-sm"
+                    >
                       <Camera className="w-[14px] h-[14px]" />
                     </button>
+                    <input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      className="hidden" 
+                      accept="image/png, image/jpeg, image/gif" 
+                      onChange={handleFileChange} 
+                    />
                   </div>
                   <div className="flex-1 flex flex-col justify-center">
                     <div className="flex flex-wrap items-center gap-3 mb-2.5">
-                      <button className="px-5 py-[9px] bg-[#1877F2] hover:bg-blue-600 text-white text-[13px] font-bold rounded-lg transition-colors shadow-sm">
+                      <button 
+                        onClick={handleUploadClick}
+                        className="px-5 py-[9px] bg-[#1877F2] hover:bg-blue-600 text-white text-[13px] font-bold rounded-lg transition-colors shadow-sm"
+                      >
                         Tải ảnh mới
                       </button>
-                      <button className="px-5 py-[9px] bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[13px] font-bold rounded-lg transition-colors">
+                      <button 
+                        onClick={handleRemoveImage}
+                        className="px-5 py-[9px] bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[13px] font-bold rounded-lg transition-colors"
+                      >
                         Xóa ảnh
                       </button>
                     </div>
@@ -105,7 +211,9 @@ const SettingProfile = () => {
                     <label className="block text-[13px] text-slate-400 font-medium mb-2">Họ và tên</label>
                     <input
                       type="text"
-                      defaultValue={user?.displayName || "Nguyen Van A"}
+                      name="displayName"
+                      value={formData.displayName}
+                      onChange={handleChange}
                       className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500"
                     />
                   </div>
@@ -113,7 +221,9 @@ const SettingProfile = () => {
                     <label className="block text-[13px] text-slate-400 font-medium mb-2">Chức danh</label>
                     <input
                       type="text"
-                      defaultValue="Full Stack Developer"
+                      name="jobTitle"
+                      value={formData.jobTitle}
+                      onChange={handleChange}
                       className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500"
                     />
                   </div>
@@ -123,12 +233,15 @@ const SettingProfile = () => {
                   <label className="block text-[13px] text-slate-400 font-medium mb-2">Giới thiệu ngắn (Bio)</label>
                   <div className="relative">
                     <textarea
+                      name="bio"
+                      value={formData.bio}
+                      onChange={handleChange}
                       placeholder="Chia sẻ một chút về bản thân, kinh nghiệm và sở thích lập trình..."
                       rows={5}
                       className="w-full px-4 py-3 bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-[14px] resize-none font-medium placeholder:text-slate-300"
                     ></textarea>
                     <div className="absolute bottom-[-24px] right-2 text-[11px] font-semibold text-slate-400">
-                      0/200 ký tự
+                      {formData.bio.length}/500 ký tự
                     </div>
                   </div>
                 </div>
@@ -140,7 +253,10 @@ const SettingProfile = () => {
                       <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" strokeWidth={2} />
                       <input
                         type="text"
-                        defaultValue="Ho Chi Minh City, Vietnam"
+                        name="location"
+                        value={formData.location}
+                        onChange={handleChange}
+                        placeholder="Ví dụ: Ho Chi Minh City, Vietnam"
                         className="w-full pl-10 pr-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500"
                       />
                     </div>
@@ -151,7 +267,10 @@ const SettingProfile = () => {
                       <LinkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" strokeWidth={2} />
                       <input
                         type="text"
-                        defaultValue="https://nguyenvana.dev"
+                        name="websitePersonal"
+                        value={formData.websitePersonal}
+                        onChange={handleChange}
+                        placeholder="https://yourwebsite.space"
                         className="w-full pl-10 pr-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500"
                       />
                     </div>
@@ -175,7 +294,10 @@ const SettingProfile = () => {
                       <div className="relative">
                         <input
                           type="text"
-                          defaultValue="nguyenvanadev"
+                          name="github"
+                          value={formData.socialLinks.github}
+                          onChange={handleSocialChange}
+                          placeholder="nguyenvanadev"
                           className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500"
                         />
                         <button className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
@@ -193,6 +315,9 @@ const SettingProfile = () => {
                       <label className="block text-[13px] text-slate-400 font-medium mb-2">LinkedIn URL</label>
                       <input
                         type="text"
+                        name="linkedin"
+                        value={formData.socialLinks.linkedin}
+                        onChange={handleSocialChange}
                         placeholder="Thêm liên kết LinkedIn"
                         className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] placeholder:text-slate-300"
                       />
@@ -207,8 +332,12 @@ const SettingProfile = () => {
               <button className="px-6 py-[10px] bg-white text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-colors text-[14px]">
                 Hủy bỏ
               </button>
-              <button className="px-6 py-[10px] bg-[#1877F2] hover:bg-blue-600 text-white font-bold rounded-lg transition-colors shadow-sm text-[14px]">
-                Lưu thay đổi
+              <button 
+                onClick={handleSave}
+                disabled={loading}
+                className="px-6 py-[10px] bg-[#1877F2] hover:bg-blue-600 disabled:opacity-70 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-colors shadow-sm text-[14px] flex items-center justify-center min-w-[130px]"
+              >
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Lưu thay đổi"}
               </button>
             </div>
 
