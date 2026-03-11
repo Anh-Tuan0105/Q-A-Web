@@ -328,7 +328,10 @@ const SettingProfile = () => {
 
             {/* Action Buttons */}
             <div className="bg-white rounded-xl border border-slate-200/80 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] p-6 flex justify-end gap-3 items-center mt-6">
-              <button className="px-6 py-[10px] bg-white text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-colors text-[14px]">
+              <button 
+                onClick={() => navigate(`/profile/${user?._id}`)}
+                className="px-6 py-[10px] bg-white text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-colors text-[14px]"
+              >
                 Hủy bỏ
               </button>
               <button

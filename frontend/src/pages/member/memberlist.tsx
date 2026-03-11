@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import MemberCard from "./membercard";
-import { type Member } from "./member";
+import MemberCard from "../../components/members/membercard";
+import { type Member } from "../../components/members/member";
 import { Search, ChevronLeft, ChevronRight, MessageSquareOff } from "lucide-react";
 import Header from "../../components/header/Header";
 import Sider from "../../components/sider/Sider";
@@ -77,13 +77,13 @@ const MemberList: React.FC = () => {
               {/* Filters */}
               <div className="flex items-center gap-6 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
                 <div className="flex bg-white rounded-lg p-1 border border-slate-200 shadow-sm">
-                  <button 
+                  <button
                     onClick={() => { setSort("reputation"); setPage(1); }}
                     className={`px-4 py-1.5 text-sm font-bold rounded-md whitespace-nowrap transition-all ${sort === "reputation" ? "bg-blue-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
                   >
                     Người dùng tiêu biểu
                   </button>
-                  <button 
+                  <button
                     onClick={() => { setSort("newest"); setPage(1); }}
                     className={`px-4 py-1.5 text-sm font-bold rounded-md whitespace-nowrap transition-all ${sort === "newest" ? "bg-blue-600 text-white shadow-sm" : "text-slate-500 hover:text-slate-800"}`}
                   >
@@ -118,14 +118,14 @@ const MemberList: React.FC = () => {
             {/* Pagination */}
             {!isLoading && totalPages > 1 && (
               <div className="mt-12 flex justify-center items-center gap-2">
-                <button 
+                <button
                   onClick={() => setPage(p => Math.max(1, p - 1))}
                   disabled={page === 1}
                   className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                 >
                   <ChevronLeft size={18} strokeWidth={2} />
                 </button>
-                
+
                 <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
                   {[...Array(totalPages)].map((_, idx) => (
                     <button
@@ -138,7 +138,7 @@ const MemberList: React.FC = () => {
                   ))}
                 </div>
 
-                <button 
+                <button
                   onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                   disabled={page === totalPages}
                   className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"

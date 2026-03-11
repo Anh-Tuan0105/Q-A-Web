@@ -9,7 +9,7 @@ interface MemberCardProps {
 
 const MemberCard: React.FC<MemberCardProps> = ({ member }) => {
   return (
-    <Link 
+    <Link
       to={`/profile/${member._id}`}
       className="bg-white p-6 rounded-xl border border-blue-100 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-lg transition-all duration-300 flex flex-col items-center group cursor-pointer"
     >
