@@ -1,32 +1,33 @@
 import nodemailer from 'nodemailer'
 
 export const sendMail = async (to, subject, text) => {
+    // Cấu hình tối ưu cho việc deploy lên Internet (Render, Vercel, ...)
     const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465, //587
-        secure: true, //false
+        service: 'gmail',
         auth: {
             user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
+            pass: process.env.EMAIL_PASS // Đảm bảo đây là Mật khẩu ứng dụng (App Password)
+        },
+        tls: {
+            // Không từ chối các chứng chỉ không được ủy quyền (fix lỗi chứng chỉ khi deploy)
+            rejectUnauthorized: false
         }
     })
 
-
     const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: `"Q&A Web" <${process.env.EMAIL_USER}>`,
         to: to,
         subject: subject,
         text: text
     };
 
-
     try {
-        // Sử dụng await mà không có callback để Vercel đợi kết quả
+        console.log(`Đang gửi mail tới: ${to}...`);
         const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent: ' + info.response);
+        console.log('Email sent successfully: ' + info.response);
         return info;
     } catch (error) {
-        console.error('Lỗi Nodemailer:', error);
-        throw error; // Đẩy lỗi ra ngoài để API trả về status 500
+        console.error('Lỗi Nodemailer chi tiết:', error);
+        throw error;
     }
 }
