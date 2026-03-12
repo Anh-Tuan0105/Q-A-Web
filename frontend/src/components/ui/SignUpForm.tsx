@@ -115,12 +115,10 @@ const SignUpForm = () => {
                     className="cursor-pointer w-full bg-[#137FEC] hover:bg-[#116ecf] active:scale-[0.98] py-3.5 rounded-lg font-bold text-white mb-8 transition-all shadow-lg shadow-blue-100 flex items-center justify-center gap-x-2"
                     disabled={isSubmitting}
                 >
-                    {/* Thêm Icon ở đây */}
                     <UserRoundPlus className="h-5 w-5" />
-                    <span>Tạo tài khoản</span>
+                    <span>{isSubmitting ? "Đang xử lý..." : "Tạo tài khoản"}</span>
                 </button>
-                <p className="font-normal text-[12px] text-[#94A3B8] text-center">Bằng cách nhấn tạo tài khoản, bạn xác nhận đồng ý với các quy định
-                    chung của cộng đồng.</p>
+                <p className="font-normal text-[12px] text-[#94A3B8] text-center">Bằng cách nhấn tạo tài khoản, bạn xác nhận đồng ý với các quy định chung của cộng đồng.</p>
             </form>
         </>
     )

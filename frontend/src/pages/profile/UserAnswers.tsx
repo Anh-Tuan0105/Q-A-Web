@@ -51,7 +51,7 @@ const UserAnswers = () => {
 
     if (!userProfile && isLoading) {
         return (
-            <div className="min-h-screen bg-slate-50 flex flex-col">
+            <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col">
                 <Header />
                 <div className="flex-1 flex items-center justify-center">
                     <Loading />
@@ -63,51 +63,51 @@ const UserAnswers = () => {
     const user = userProfile || currentUser;
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col">
             <Header />
             <div className="flex-1 max-w-[1240px] w-full mx-auto px-4 md:px-8 py-8 md:py-10">
                 <ProfileHeader user={user} topTags={topTags} />
 
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-[#334155] shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-slate-100 dark:border-[#334155] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
-                            <h2 className="text-xl font-bold text-slate-800">Tất cả câu trả lời ({totalItems})</h2>
-                            <p className="text-sm text-slate-500 mt-1">Danh sách các đóng góp câu trả lời</p>
+                            <h2 className="text-xl font-bold text-slate-800 dark:text-[#f8fafc]">Tất cả câu trả lời ({totalItems})</h2>
+                            <p className="text-sm text-slate-500 dark:text-[#94a3b8] mt-1">Danh sách các đóng góp câu trả lời</p>
                         </div>
 
-                        <div className="flex bg-slate-100 p-1 rounded-xl w-fit">
+                        <div className="flex bg-slate-100 dark:bg-[#334155]/50 p-1 rounded-xl w-fit">
                             <button
                                 onClick={() => { setSort("votes"); setPage(1); }}
-                                className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-all ${sort === 'votes' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-all ${sort === 'votes' ? 'bg-white dark:bg-[#1e293b] text-blue-600 shadow-sm' : 'text-slate-500 dark:text-[#94a3b8] hover:text-slate-700 dark:hover:text-[#f8fafc]'}`}
                             >
                                 Điểm cao nhất
                             </button>
                             <button
                                 onClick={() => { setSort("newest"); setPage(1); }}
-                                className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-all ${sort === 'newest' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-all ${sort === 'newest' ? 'bg-white dark:bg-[#1e293b] text-blue-600 shadow-sm' : 'text-slate-500 dark:text-[#94a3b8] hover:text-slate-700 dark:hover:text-[#f8fafc]'}`}
                             >
                                 Mới nhất
                             </button>
                         </div>
                     </div>
 
-                    <div className="divide-y divide-slate-100">
+                    <div className="divide-y divide-slate-100 dark:divide-[#334155]">
                         {isLoading ? (
                             <div className="py-20 flex justify-center">
                                 <Loading message="Đang tải danh sách..." />
                             </div>
                         ) : answers.length > 0 ? (
                             answers.map((ans) => (
-                                <div key={ans._id} className="p-6 hover:bg-slate-50/50 transition-colors group">
+                                <div key={ans._id} className="p-6 hover:bg-slate-50/50 dark:hover:bg-[#334155]/30 transition-colors group">
                                     <div className="flex flex-col md:flex-row gap-6">
                                         {/* Stats Container - Desktop */}
                                         <div className="hidden md:flex flex-col gap-3 min-w-[100px] text-center">
-                                            <div className="flex flex-col px-3 py-2 bg-slate-50 rounded-xl">
-                                                <span className="text-lg font-bold text-slate-700">{ans.upvoteCount - ans.downvoteCount}</span>
-                                                <span className="text-[11px] font-bold text-slate-400 uppercase">votes</span>
+                                            <div className="flex flex-col px-3 py-2 bg-slate-50 dark:bg-[#334155]/50 rounded-xl">
+                                                <span className="text-lg font-bold text-slate-700 dark:text-[#f8fafc]">{ans.upvoteCount - ans.downvoteCount}</span>
+                                                <span className="text-[11px] font-bold text-slate-400 dark:text-[#94a3b8] uppercase">votes</span>
                                             </div>
                                             {ans.isAccepted && (
-                                                <div className="flex items-center justify-center text-green-600 mt-1">
+                                                <div className="flex items-center justify-center text-green-600 dark:text-green-400 mt-1">
                                                     <CheckCircle2 className="w-8 h-8" strokeWidth={3} />
                                                 </div>
                                             )}
@@ -115,18 +115,18 @@ const UserAnswers = () => {
 
                                         {/* Content Container */}
                                         <div className="flex-1 min-w-0">
-                                            <div className="inline-flex items-center px-2 py-0.5 rounded bg-blue-50 text-blue-600 text-[11px] font-bold uppercase tracking-wider mb-2">
+                                            <div className="inline-flex items-center px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-[11px] font-bold uppercase tracking-wider mb-2">
                                                 RE: {ans.quesId?.title ? "Câu hỏi" : "Câu hỏi không tồn tại"}
                                             </div>
 
                                             <Link to={`/questions/${ans.quesId?._id}`} className="block mb-3">
-                                                <h3 className="text-lg font-extrabold text-slate-800 leading-snug group-hover:text-blue-600 transition-colors">
+                                                <h3 className="text-lg font-extrabold text-slate-800 dark:text-[#f8fafc] leading-snug group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                                                     {ans.quesId?.title || "Câu hỏi gốc đã bị xóa"}
                                                 </h3>
                                             </Link>
 
-                                            <div className="bg-slate-50 rounded-xl p-4 mb-4 border border-slate-100">
-                                                <p className="text-[15px] text-slate-600 line-clamp-3">
+                                            <div className="bg-slate-50 dark:bg-[#334155]/50 rounded-xl p-4 mb-4 border border-slate-100 dark:border-[#334155]">
+                                                <p className="text-[15px] text-slate-600 dark:text-[#94a3b8] line-clamp-3">
                                                     {ans.content.replace(/<[^>]*>/g, '')}
                                                 </p>
                                             </div>
@@ -134,15 +134,15 @@ const UserAnswers = () => {
                                             <div className="flex flex-wrap items-center justify-between gap-4 mt-auto">
                                                 <div className="flex flex-wrap items-center gap-2">
                                                     {ans.quesId?.tags?.map((tag: any) => (
-                                                        <span key={tag._id} className="px-2.5 py-0.5 bg-slate-200/50 text-slate-500 text-[11px] font-bold rounded border border-slate-200/50 shadow-sm">
+                                                        <span key={tag._id} className="px-2.5 py-0.5 bg-slate-200/50 dark:bg-[#334155] text-slate-500 dark:text-[#94a3b8] text-[11px] font-bold rounded border border-slate-200/50 dark:border-[#334155] shadow-sm">
                                                             {tag.name}
                                                         </span>
                                                     ))}
                                                 </div>
 
-                                                <div className="flex items-center gap-4 text-slate-400 text-sm font-medium">
+                                                <div className="flex items-center gap-4 text-slate-400 dark:text-[#94a3b8] text-sm font-medium">
                                                     <div className="flex items-center gap-1.5 md:hidden">
-                                                        <span className="font-bold text-slate-600">{ans.upvoteCount - ans.downvoteCount}</span> votes
+                                                        <span className="font-bold text-slate-600 dark:text-[#f8fafc]">{ans.upvoteCount - ans.downvoteCount}</span> votes
                                                     </div>
                                                     <span>Đã trả lời {new Date(ans.createdAt).toLocaleDateString("vi-VN")}</span>
                                                 </div>
@@ -153,22 +153,22 @@ const UserAnswers = () => {
                             ))
                         ) : (
                             <div className="py-24 text-center">
-                                <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 rounded-2xl mb-4">
-                                    <MessageSquare className="w-8 h-8 text-slate-400" />
+                                <div className="inline-flex items-center justify-center w-16 h-16 bg-slate-100 dark:bg-[#334155] rounded-2xl mb-4">
+                                    <MessageSquare className="w-8 h-8 text-slate-400 dark:text-[#94a3b8]" />
                                 </div>
-                                <h3 className="text-lg font-bold text-slate-800">Chưa có câu trả lời nào</h3>
-                                <p className="text-slate-500 max-w-xs mx-auto mt-2">Người dùng này vẫn chưa tham gia giải đáp câu hỏi nào trong cộng đồng.</p>
+                                <h3 className="text-lg font-bold text-slate-800 dark:text-[#f8fafc]">Chưa có câu trả lời nào</h3>
+                                <p className="text-slate-500 dark:text-[#94a3b8] max-w-xs mx-auto mt-2">Người dùng này vẫn chưa tham gia giải đáp câu hỏi nào trong cộng đồng.</p>
                             </div>
                         )}
                     </div>
 
                     {/* Pagination */}
                     {totalPages > 1 && (
-                        <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex items-center justify-center gap-2">
+                        <div className="p-6 bg-slate-50/50 dark:bg-[#334155]/20 border-t border-slate-100 dark:border-[#334155] flex items-center justify-center gap-2">
                             <button
                                 onClick={() => setPage(p => Math.max(1, p - 1))}
                                 disabled={page === 1}
-                                className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                                className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#1e293b] text-slate-600 dark:text-[#94a3b8] hover:bg-slate-50 dark:hover:bg-[#334155] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
                             >
                                 <ChevronLeft className="w-5 h-5" />
                             </button>
@@ -177,7 +177,7 @@ const UserAnswers = () => {
                                 <button
                                     key={idx + 1}
                                     onClick={() => setPage(idx + 1)}
-                                    className={`w-10 h-10 flex items-center justify-center rounded-xl border font-bold text-sm transition-all shadow-sm ${page === idx + 1 ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                                    className={`w-10 h-10 flex items-center justify-center rounded-xl border font-bold text-sm transition-all shadow-sm ${page === idx + 1 ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white dark:bg-[#1e293b] border-slate-200 dark:border-[#334155] text-slate-600 dark:text-[#94a3b8] hover:bg-slate-50 dark:hover:bg-[#334155]'}`}
                                 >
                                     {idx + 1}
                                 </button>
@@ -186,7 +186,7 @@ const UserAnswers = () => {
                             <button
                                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                                 disabled={page === totalPages}
-                                className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
+                                className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 dark:border-[#334155] bg-white dark:bg-[#1e293b] text-slate-600 dark:text-[#94a3b8] hover:bg-slate-50 dark:hover:bg-[#334155] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm"
                             >
                                 <ChevronRight className="w-5 h-5" />
                             </button>
