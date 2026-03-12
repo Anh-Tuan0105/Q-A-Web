@@ -109,3 +109,11 @@ export interface ProfileStore {
     fetchTopAnswers: (userId: string, sort: "votes" | "newest") => Promise<void>;
     updateProfileViews: (profileId: string, views: number) => void;
 }
+
+export interface ThemeState {
+    theme: "light" | "dark";
+    userThemes: Record<string, "light" | "dark">;
+    setTheme: (theme: "light" | "dark", userId?: string) => void;
+    toggleTheme: (userId?: string) => void;
+    loadUserTheme: (userId: string) => void;
+}

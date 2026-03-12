@@ -75,23 +75,23 @@ const EmailAuth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
-      <div className="max-w-[480px] w-full bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-slate-50 overflow-hidden">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0f172a] flex items-center justify-center p-4">
+      <div className="max-w-[480px] w-full bg-white dark:bg-[#1e293b] rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.04)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-slate-50 dark:border-[#334155] overflow-hidden">
         <div className="p-8 md:p-12">
           {/* Icon Header */}
           <div className="flex justify-center mb-8">
-            <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl flex items-center justify-center shadow-sm">
+            <div className="w-16 h-16 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center shadow-sm">
               <Mail className="w-8 h-8" strokeWidth={2} />
             </div>
           </div>
 
           {/* Title & Description */}
           <div className="text-center mb-10">
-            <h1 className="text-[24px] font-bold text-slate-800 mb-3 tracking-tight">
+            <h1 className="text-[24px] font-bold text-slate-800 dark:text-[#f8fafc] mb-3 tracking-tight">
               Xác thực Email của bạn
             </h1>
-            <p className="text-slate-500 text-[15px] leading-relaxed px-4">
-              Chúng tôi đã gửi mã OTP 6 chữ số đến email <span className="font-bold text-slate-700">{submittedEmail}</span>
+            <p className="text-slate-500 dark:text-[#94a3b8] text-[15px] leading-relaxed px-4">
+              Chúng tôi đã gửi mã OTP 6 chữ số đến email <span className="font-bold text-slate-700 dark:text-[#f8fafc]">{submittedEmail}</span>
             </p>
           </div>
 
@@ -109,9 +109,9 @@ const EmailAuth = () => {
                     }
                   })}
                   placeholder="Nhập 6 số"
-                  className={`w-full pl-14 pr-5 py-4 bg-white border-2 rounded-xl focus:outline-none focus:ring-4 transition-all text-slate-800 font-bold text-[18px] tracking-[0.5em] md:tracking-widest placeholder:text-slate-300 placeholder:tracking-normal placeholder:font-medium text-center sm:text-left ${errors.otp
+                  className={`w-full pl-14 pr-5 py-4 bg-white dark:bg-[#334155] border-2 rounded-xl focus:outline-none focus:ring-4 transition-all text-slate-800 dark:text-[#f8fafc] font-bold text-[18px] tracking-[0.5em] md:tracking-widest placeholder:text-slate-300 dark:placeholder:text-[#94a3b8] placeholder:tracking-normal placeholder:font-medium text-center sm:text-left ${errors.otp
                     ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
-                    : "border-blue-100 focus:border-blue-500 focus:ring-blue-500/10"
+                    : "border-blue-100 dark:border-[#334155] focus:border-blue-500 focus:ring-blue-500/10"
                     }`}
                 />
               </div>
@@ -133,12 +133,12 @@ const EmailAuth = () => {
 
           {/* Resend Timer */}
           <div className="text-center">
-            <p className="text-[14px] font-medium text-slate-400">
+            <p className="text-[14px] font-medium text-slate-400 dark:text-[#94a3b8]">
               Không nhận được mã?{" "}
               {countdown > 0 ? (
-                <span className="text-slate-500 font-bold">Gửi lại sau {countdown}s</span>
+                <span className="text-slate-500 dark:text-[#f8fafc] font-bold">Gửi lại sau {countdown}s</span>
               ) : (
-                <span onClick={handleResendOtp} className="text-blue-500 font-bold cursor-pointer hover:underline underline-offset-4">
+                <span onClick={handleResendOtp} className="text-blue-500 dark:text-blue-400 font-bold cursor-pointer hover:underline underline-offset-4">
                   Gửi lại mã
                 </span>
               )}
@@ -147,9 +147,9 @@ const EmailAuth = () => {
         </div>
 
         {/* Footer Support */}
-        <div className="bg-slate-50/50 p-6 border-t border-slate-50 flex items-center justify-center gap-2 text-[13px] font-medium text-slate-500">
-          <HelpCircle className="w-4 h-4 text-slate-400" />
-          <span>Cần hỗ trợ? <button className="text-slate-700 hover:text-blue-600 transition-colors">Liên hệ quản trị viên</button></span>
+        <div className="bg-slate-50/50 dark:bg-[#334155]/30 p-6 border-t border-slate-50 dark:border-[#334155] flex items-center justify-center gap-2 text-[13px] font-medium text-slate-500 dark:text-[#94a3b8]">
+          <HelpCircle className="w-4 h-4 text-slate-400 dark:text-[#94a3b8]" />
+          <span>Cần hỗ trợ? <button className="text-slate-700 dark:text-[#f8fafc] hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Liên hệ quản trị viên</button></span>
         </div>
       </div>
     </div>

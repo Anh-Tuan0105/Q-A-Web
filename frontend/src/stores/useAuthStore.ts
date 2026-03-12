@@ -18,7 +18,7 @@ export const useAuthStore = create<AuthState>()(
 
         clearState: () => {
             set({ user: null, accessToken: null, loading: false });
-            localStorage.clear();
+            localStorage.removeItem('auth-storage');
         },
 
         signup: async (username, password, email, firstname, lastname) => {
@@ -40,7 +40,7 @@ export const useAuthStore = create<AuthState>()(
         signin: async (username, password) => {
             try {
                 set({ loading: true });
-                localStorage.clear();
+                localStorage.removeItem('auth-storage');
                 const res = await authService.signin(username, password);
                 get().setAccessToken(res.accessToken);
                 await get().fetchMe();

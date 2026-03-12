@@ -1,11 +1,13 @@
 import Header from "../../components/header/Header";
-import { User, Lock, MapPin, Link as LinkIcon, Camera, X, Github, Facebook, Loader2 } from "lucide-react";
+import { User, Lock, MapPin, Link as LinkIcon, Camera, X, Github, Facebook, Loader2, Sun, Moon } from "lucide-react";
 import { useAuthStore } from "../../stores/useAuthStore";
+import { useThemeStore } from "../../stores/useThemeStore";
 import { useNavigate, useLocation } from "react-router";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 const SettingProfile = () => {
   const { user, updateProfile, loading } = useAuthStore();
+  const { theme, setTheme } = useThemeStore();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -96,17 +98,17 @@ const SettingProfile = () => {
   };
 
   return (
-    <div className="min-h-[100vh] bg-white flex flex-col">
+    <div className="min-h-[100vh] bg-white dark:bg-[#0f172a] flex flex-col">
       <Header />
 
       {/* Main Layout Container */}
       <div className="flex flex-col md:flex-row flex-1 w-full max-w-[1400px] mx-auto">
-        {/* Left Sidebar Profile Section - Takes full height and has a right border */}
-        <aside className="w-full md:w-[280px] shrink-0 border-r border-blue-100/50 bg-[#FAFBFF]/30 min-h-[calc(100vh-64px)] py-8 px-6">
+        {/* Left Sidebar Profile Section */}
+        <aside className="w-full md:w-[280px] shrink-0 border-r border-blue-100/50 dark:border-[#334155] bg-[#FAFBFF]/30 dark:bg-[#1e293b]/30 min-h-[calc(100vh-64px)] py-8 px-6">
           <div className="flex flex-col">
             {/* User Profile Header */}
             <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-200 flex-shrink-0">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-slate-200 dark:bg-[#334155] flex-shrink-0">
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
@@ -114,15 +116,15 @@ const SettingProfile = () => {
                 )}
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-slate-800 text-[14px] leading-snug">{user?.displayName || "Nguyen Van A"}</span>
-                <span className="text-slate-500 text-[12px]">{user?.jobTitle || "Thành viên Cộng đồng"}</span>
+                <span className="font-bold text-slate-800 dark:text-[#f8fafc] text-[14px] leading-snug">{user?.displayName || "Nguyen Van A"}</span>
+                <span className="text-slate-500 dark:text-[#94a3b8] text-[12px]">{user?.jobTitle || "Thành viên Cộng đồng"}</span>
               </div>
             </div>
 
             {/* Navigation Menu */}
             <nav className="flex flex-col gap-2">
               <div
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-bold text-[14px] transition-colors ${location.pathname === '/settings/profile' ? 'bg-[#F0F5FF] text-blue-600' : 'text-slate-600 hover:bg-slate-50'
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-bold text-[14px] transition-colors ${location.pathname === '/settings/profile' ? 'bg-[#F0F5FF] dark:bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-[#94a3b8] hover:bg-slate-50 dark:hover:bg-[#334155]'
                   }`}
               >
                 <User className="w-[18px] h-[18px]" strokeWidth={2.5} />
@@ -130,10 +132,10 @@ const SettingProfile = () => {
               </div>
               <div
                 onClick={() => navigate('/security')}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-bold text-[14px] transition-colors ${location.pathname === '/security' ? 'bg-[#F0F5FF] text-blue-600' : 'text-slate-700 hover:bg-slate-50'
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-bold text-[14px] transition-colors ${location.pathname === '/security' ? 'bg-[#F0F5FF] dark:bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-[#f8fafc] hover:bg-slate-50 dark:hover:bg-[#334155]'
                   }`}
               >
-                <Lock className="w-[18px] h-[18px] text-slate-700" strokeWidth={2.5} />
+                <Lock className="w-[18px] h-[18px] text-slate-700 dark:text-[#f8fafc]" strokeWidth={2.5} />
                 Bảo mật & Đăng nhập
               </div>
             </nav>
@@ -143,18 +145,18 @@ const SettingProfile = () => {
         {/* Main Content Area */}
         <main className="flex-1 px-8 md:px-12 lg:px-16 py-8 md:py-10 max-w-[900px]">
           <div className="mb-8">
-            <h1 className="text-[32px] font-bold text-slate-800 mb-1 tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>Hồ Sơ Cá Nhân</h1>
-            <p className="text-slate-400 text-[14px] mt-1 font-medium">Quản lý thông tin hồ sơ hiển thị công khai của bạn.</p>
+            <h1 className="text-[32px] font-bold text-slate-800 dark:text-[#f8fafc] mb-1 tracking-tight" style={{ fontFamily: "'Inter', sans-serif" }}>Hồ Sơ Cá Nhân</h1>
+            <p className="text-slate-400 dark:text-[#94a3b8] text-[14px] mt-1 font-medium">Quản lý thông tin hồ sơ hiển thị công khai của bạn.</p>
           </div>
 
           <div className="space-y-6">
             {/* Avatar Section */}
-            <div className="bg-white rounded-xl border border-slate-200/80 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+            <div className="bg-white dark:bg-[#1e293b] rounded-xl border border-slate-200/80 dark:border-[#334155] shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
               <div className="p-6 md:p-8">
-                <h2 className="text-[16px] font-bold text-slate-800 mb-6 font-sans">Ảnh đại diện</h2>
-                <div className="flex flex-col sm:flex-row items-center sm:items-center gap-6 pb-2 border-b border-slate-100">
+                <h2 className="text-[16px] font-bold text-slate-800 dark:text-[#f8fafc] mb-6 font-sans">Ảnh đại diện</h2>
+                <div className="flex flex-col sm:flex-row items-center sm:items-center gap-6 pb-2 border-b border-slate-100 dark:border-[#334155]">
                   <div className="relative shrink-0">
-                    <div className="w-[90px] h-[90px] rounded-full overflow-hidden bg-slate-100 border-[3px] border-white shadow-sm ring-1 ring-slate-100">
+                    <div className="w-[90px] h-[90px] rounded-full overflow-hidden bg-slate-100 dark:bg-[#334155] border-[3px] border-white dark:border-[#0f172a] shadow-sm ring-1 ring-slate-100 dark:ring-[#334155]">
                       {avatarPreview ? (
                         <img src={avatarPreview} alt="Avatar Preview" className="w-full h-full object-cover" />
                       ) : formData.avatarUrl ? (
@@ -187,12 +189,12 @@ const SettingProfile = () => {
                       </button>
                       <button
                         onClick={handleRemoveImage}
-                        className="px-5 py-[9px] bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-[13px] font-bold rounded-lg transition-colors"
+                        className="px-5 py-[9px] bg-white dark:bg-[#334155] border border-slate-200 dark:border-[#334155] hover:bg-slate-50 dark:hover:bg-[#334155]/80 text-slate-700 dark:text-[#f8fafc] text-[13px] font-bold rounded-lg transition-colors"
                       >
                         Xóa ảnh
                       </button>
                     </div>
-                    <p className="text-[12px] text-slate-400 font-medium">
+                    <p className="text-[12px] text-slate-400 dark:text-[#94a3b8] font-medium">
                       Hỗ trợ định dạng JPG, GIF hoặc PNG. Kích thước tối đa 800KB.
                     </p>
                   </div>
@@ -201,35 +203,35 @@ const SettingProfile = () => {
             </div>
 
             {/* Basic Info Section */}
-            <div className="bg-white rounded-xl border border-slate-200/80 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+            <div className="bg-white dark:bg-[#1e293b] rounded-xl border border-slate-200/80 dark:border-[#334155] shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
               <div className="p-6 md:p-8">
-                <h2 className="text-[16px] font-bold text-slate-800 mb-6 font-sans">Thông tin cơ bản</h2>
+                <h2 className="text-[16px] font-bold text-slate-800 dark:text-[#f8fafc] mb-6 font-sans">Thông tin cơ bản</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
-                    <label className="block text-[13px] text-slate-400 font-medium mb-2">Họ và tên</label>
+                    <label className="block text-[13px] text-slate-400 dark:text-[#94a3b8] font-medium mb-2">Họ và tên</label>
                     <input
                       type="text"
                       name="displayName"
                       value={formData.displayName}
                       onChange={handleChange}
-                      className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500"
+                      className="w-full px-4 py-[11px] bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-[#334155] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500 dark:text-[#f8fafc]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[13px] text-slate-400 font-medium mb-2">Chức danh</label>
+                    <label className="block text-[13px] text-slate-400 dark:text-[#94a3b8] font-medium mb-2">Chức danh</label>
                     <input
                       type="text"
                       name="jobTitle"
                       value={formData.jobTitle}
                       onChange={handleChange}
-                      className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500"
+                      className="w-full px-4 py-[11px] bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-[#334155] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500 dark:text-[#f8fafc]"
                     />
                   </div>
                 </div>
 
                 <div className="mb-6">
-                  <label className="block text-[13px] text-slate-400 font-medium mb-2">Giới thiệu ngắn (Bio)</label>
+                  <label className="block text-[13px] text-slate-400 dark:text-[#94a3b8] font-medium mb-2">Giới thiệu ngắn (Bio)</label>
                   <div className="relative">
                     <textarea
                       name="bio"
@@ -237,9 +239,9 @@ const SettingProfile = () => {
                       onChange={handleChange}
                       placeholder="Chia sẻ một chút về bản thân, kinh nghiệm và sở thích lập trình..."
                       rows={5}
-                      className="w-full px-4 py-3 bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-[14px] resize-none font-medium placeholder:text-slate-300"
+                      className="w-full px-4 py-3 bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-[#334155] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-[14px] resize-none font-medium placeholder:text-slate-300 dark:placeholder:text-[#94a3b8] dark:text-[#f8fafc]"
                     ></textarea>
-                    <div className="absolute bottom-[-24px] right-2 text-[11px] font-semibold text-slate-400">
+                    <div className="absolute bottom-[-24px] right-2 text-[11px] font-semibold text-slate-400 dark:text-[#94a3b8]">
                       {formData.bio.length}/500 ký tự
                     </div>
                   </div>
@@ -247,30 +249,30 @@ const SettingProfile = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
                   <div>
-                    <label className="block text-[13px] text-slate-400 font-medium mb-2">Địa điểm</label>
+                    <label className="block text-[13px] text-slate-400 dark:text-[#94a3b8] font-medium mb-2">Địa điểm</label>
                     <div className="relative">
-                      <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" strokeWidth={2} />
+                      <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400 dark:text-[#94a3b8]" strokeWidth={2} />
                       <input
                         type="text"
                         name="location"
                         value={formData.location}
                         onChange={handleChange}
                         placeholder="Ví dụ: Ho Chi Minh City, Vietnam"
-                        className="w-full pl-10 pr-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500"
+                        className="w-full pl-10 pr-4 py-[11px] bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-[#334155] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500 dark:text-[#f8fafc]"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[13px] text-slate-400 font-medium mb-2">Website cá nhân</label>
+                    <label className="block text-[13px] text-slate-400 dark:text-[#94a3b8] font-medium mb-2">Website cá nhân</label>
                     <div className="relative">
-                      <LinkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400" strokeWidth={2} />
+                      <LinkIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-slate-400 dark:text-[#94a3b8]" strokeWidth={2} />
                       <input
                         type="text"
                         name="websitePersonal"
                         value={formData.websitePersonal}
                         onChange={handleChange}
                         placeholder="https://yourwebsite.space"
-                        className="w-full pl-10 pr-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500"
+                        className="w-full pl-10 pr-4 py-[11px] bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-[#334155] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500 dark:text-[#f8fafc]"
                       />
                     </div>
                   </div>
@@ -279,17 +281,17 @@ const SettingProfile = () => {
             </div>
 
             {/* Social Links Section */}
-            <div className="bg-white rounded-xl border border-slate-200/80 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+            <div className="bg-white dark:bg-[#1e293b] rounded-xl border border-slate-200/80 dark:border-[#334155] shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
               <div className="p-6 md:p-8">
-                <h2 className="text-[16px] font-bold text-slate-800 mb-6 font-sans">Liên kết xã hội</h2>
+                <h2 className="text-[16px] font-bold text-slate-800 dark:text-[#f8fafc] mb-6 font-sans">Liên kết xã hội</h2>
 
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
                     <div className="mt-[34px]">
-                      <Github className="w-6 h-6 text-[#24292e]" />
+                      <Github className="w-6 h-6 text-[#24292e] dark:text-[#f8fafc]" />
                     </div>
                     <div className="flex-1 w-full max-w-[800px]">
-                      <label className="block text-[13px] text-slate-400 font-medium mb-2">GitHub Username</label>
+                      <label className="block text-[13px] text-slate-400 dark:text-[#94a3b8] font-medium mb-2">GitHub Username</label>
                       <div className="relative">
                         <input
                           type="text"
@@ -297,9 +299,9 @@ const SettingProfile = () => {
                           value={formData.socialLinks.github}
                           onChange={handleSocialChange}
                           placeholder="nguyenvanadev"
-                          className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500"
+                          className="w-full px-4 py-[11px] bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-[#334155] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] text-slate-500 dark:text-[#f8fafc]"
                         />
-                        <button className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors">
+                        <button className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-[#94a3b8] hover:text-slate-600 dark:hover:text-[#f8fafc] transition-colors">
                           <X className="w-4 h-4" />
                         </button>
                       </div>
@@ -311,14 +313,14 @@ const SettingProfile = () => {
                       <Facebook className="w-6 h-6 text-[#1877F2]" fill="currentColor" />
                     </div>
                     <div className="flex-1 w-full max-w-[800px]">
-                      <label className="block text-[13px] text-slate-400 font-medium mb-2">Facebook URL</label>
+                      <label className="block text-[13px] text-slate-400 dark:text-[#94a3b8] font-medium mb-2">Facebook URL</label>
                       <input
                         type="text"
                         name="facebook"
                         value={formData.socialLinks.facebook}
                         onChange={handleSocialChange}
                         placeholder="Thêm liên kết Facebook"
-                        className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] placeholder:text-slate-300"
+                        className="w-full px-4 py-[11px] bg-white dark:bg-[#0f172a] border border-slate-200/80 dark:border-[#334155] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-[14px] placeholder:text-slate-300 dark:placeholder:text-[#94a3b8] dark:text-[#f8fafc]"
                       />
                     </div>
                   </div>
@@ -326,11 +328,68 @@ const SettingProfile = () => {
               </div>
             </div>
 
+            {/* Theme Selection Section */}
+            <div className="bg-white dark:bg-[#1e293b] rounded-xl border border-slate-200/80 dark:border-[#334155] shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+              <div className="p-6 md:p-8">
+                <h2 className="text-[16px] font-bold text-slate-800 dark:text-[#f8fafc] mb-6 font-sans border-b border-slate-100 dark:border-[#334155] pb-4">Giao diện</h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {/* Light Mode Card */}
+                  <div
+                    onClick={() => setTheme("light", user?._id)}
+                    className={`cursor-pointer rounded-2xl border-2 p-1.5 transition-all duration-300 group ${theme === 'light' ? 'border-[#1877F2]' : 'border-transparent hover:border-slate-100 dark:hover:border-[#334155] bg-slate-50/50 dark:bg-[#334155]/20'
+                      }`}
+                  >
+                    <div className={`p-4 rounded-[10px] h-full ${theme === 'light' ? 'bg-white' : 'bg-transparent'}`}>
+                      <div className="aspect-[2/1] mb-5 rounded-lg bg-white border border-slate-100 overflow-hidden shadow-sm relative">
+                        <div className="h-3 bg-[#1877F2] w-full"></div>
+                        <div className="p-3 space-y-2">
+                          <div className="h-1.5 bg-slate-100 w-1/3 rounded-full"></div>
+                          <div className="h-1.5 bg-slate-100 w-1/2 rounded-full"></div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between px-1">
+                        <span className={`font-bold text-[14px] ${theme === 'light' ? 'text-slate-800' : 'text-slate-500 dark:text-[#94a3b8]'}`}>Light Mode</span>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${theme === 'light' ? 'bg-slate-50 text-[#1877F2]' : 'text-slate-400 dark:text-[#94a3b8] group-hover:text-slate-600 dark:group-hover:text-[#f8fafc]'
+                          }`}>
+                          <Sun className="w-[18px] h-[18px]" strokeWidth={2.5} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Dark Mode Card */}
+                  <div
+                    onClick={() => setTheme("dark", user?._id)}
+                    className={`cursor-pointer rounded-2xl border-2 p-1.5 transition-all duration-300 group ${theme === 'dark' ? 'border-[#1877F2]' : 'border-transparent hover:border-slate-100 dark:hover:border-[#334155] bg-slate-50/50 dark:bg-[#334155]/20'
+                      }`}
+                  >
+                    <div className={`p-4 rounded-[10px] h-full ${theme === 'dark' ? 'bg-white dark:bg-[#1e293b]' : 'bg-transparent'}`}>
+                      <div className="aspect-[2/1] mb-5 rounded-lg bg-[#0F172A] border border-[#334155] overflow-hidden shadow-sm relative">
+                        <div className="h-3 bg-[#1877F2] w-full"></div>
+                        <div className="p-3 space-y-2">
+                          <div className="h-1.5 bg-[#1e293b] w-1/3 rounded-full"></div>
+                          <div className="h-1.5 bg-[#1e293b] w-1/2 rounded-full"></div>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between px-1">
+                        <span className={`font-bold text-[14px] ${theme === 'dark' ? 'text-slate-800 dark:text-[#f8fafc]' : 'text-slate-500 dark:text-[#94a3b8]'}`}>Dark Mode</span>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${theme === 'dark' ? 'bg-slate-50 dark:bg-[#334155] text-[#1877F2] dark:text-blue-400' : 'text-slate-400 dark:text-[#94a3b8] group-hover:text-slate-600 dark:group-hover:text-[#f8fafc]'
+                          }`}>
+                          <Moon className="w-[18px] h-[18px]" strokeWidth={2.5} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Action Buttons */}
-            <div className="bg-white rounded-xl border border-slate-200/80 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] p-6 flex justify-end gap-3 items-center mt-6">
+            <div className="bg-white dark:bg-[#1e293b] rounded-xl border border-slate-200/80 dark:border-[#334155] shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] p-6 flex justify-end gap-3 items-center mt-6">
               <button 
                 onClick={() => navigate(`/profile/${user?._id}`)}
-                className="px-6 py-[10px] bg-white text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-colors text-[14px]"
+                className="px-6 py-[10px] bg-white dark:bg-[#334155] text-slate-700 dark:text-[#f8fafc] font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-[#334155]/80 transition-colors text-[14px] border border-slate-200 dark:border-[#334155]"
               >
                 Hủy bỏ
               </button>
