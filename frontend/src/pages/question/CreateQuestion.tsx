@@ -7,6 +7,8 @@ import { questionService } from "../../services/questionService";
 import { X } from "lucide-react";
 import SimpleMdeReact from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
+import { useQuestionSimilarity } from "../../hooks/useQuestionSimilarity";
+import SimilarQuestions from "../../components/question/SimilarQuestions";
 
 const CreateQuestion = () => {
     const navigate = useNavigate();
@@ -18,6 +20,9 @@ const CreateQuestion = () => {
     const [tags, setTags] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // AI Similarity check
+    const { suggestions, isChecking } = useQuestionSimilarity(title);
 
     const mdeOptions = useMemo(() => {
         return {
@@ -107,6 +112,8 @@ const CreateQuestion = () => {
                             onChange={(e) => setTitle(e.target.value)}
                             disabled={isSubmitting}
                         />
+                        {/* AI Similarity suggestions */}
+                        <SimilarQuestions suggestions={suggestions} isChecking={isChecking} />
                     </div>
 
                     {/* Content Block */}
