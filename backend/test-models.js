@@ -10,5 +10,5 @@ async function run() {
              console.log(m.name, m.supportedGenerationMethods);
         }
     }
-}
+}   
 run();
