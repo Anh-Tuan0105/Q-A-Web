@@ -1,4 +1,5 @@
 import Tag from "../models/Tag.js";
+import { suggestTagsByText } from "../services/autoTag.service.js";
 
 // Lấy danh sách tags có phân trang, search, sort
 export const getTags = async (req, res) => {
@@ -93,5 +94,21 @@ export const incrementTagView = async (req, res) => {
     } catch (error) {
         console.error("Lỗi khi cập nhật lượt xem tag:", error.message);
         res.status(500).json({ success: false, message: "Lỗi Server" });
+    }
+};
+
+export const suggestTags = async (req, res) => {
+    try {
+        const { title = "", body = "" } = req.body;
+
+        if (!title.trim() && !body.trim()) {
+            return res.status(200).json({ success: true, tags: [] });
+        }
+
+        const tags = await suggestTagsByText(title, body);
+        res.status(200).json({ success: true, tags });
+    } catch (error) {
+        console.error("Lỗi khi gợi ý Tags:", error.message);
+        res.status(500).json({ success: false, message: "Lỗi Server", error: error.message });
     }
 };
