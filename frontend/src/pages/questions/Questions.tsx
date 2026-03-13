@@ -182,7 +182,7 @@ const Questions = () => {
                         <div className="flex flex-col gap-4">
                             {isLoading ? (
                                 Array(4).fill(0).map((_, idx) => (
-                                    <div key={idx} className="bg-white dark:bg-[#1e293b] p-6 rounded-xl border border-slate-200 dark:border-[#334155] shadow-sm flex gap-6">
+                                    <div key={idx} className="bg-white dark:bg-[#1e293b]/50 p-6 rounded-xl border border-slate-200 dark:border-[#334155] shadow-sm flex gap-6">
                                         <div className="flex flex-col items-end gap-3 shrink-0 w-[80px]">
                                             <Skeleton width={40} height={20} baseColor={document.documentElement.classList.contains('dark') ? '#27272a' : '#f3f4f6'} highlightColor={document.documentElement.classList.contains('dark') ? '#3f3f46' : '#f9fafb'} />
                                             <Skeleton width={60} height={35} className="rounded-lg" baseColor={document.documentElement.classList.contains('dark') ? '#27272a' : '#f3f4f6'} highlightColor={document.documentElement.classList.contains('dark') ? '#3f3f46' : '#f9fafb'} />
@@ -190,15 +190,15 @@ const Questions = () => {
                                         </div>
                                         <div className="flex flex-col flex-1">
                                             <Skeleton width="80%" height={24} className="mb-2" baseColor={document.documentElement.classList.contains('dark') ? '#27272a' : '#f3f4f6'} highlightColor={document.documentElement.classList.contains('dark') ? '#3f3f46' : '#f9fafb'} />
-                                            <Skeleton count={2} className="mb-4" baseColor={document.documentElement.classList.contains('dark') ? '#27272a' : '#f3f4f6'} highlightColor={document.documentElement.classList.contains('dark') ? '#3f3f46' : '#f9fafb'}/>
+                                            <Skeleton count={2} className="mb-4" baseColor={document.documentElement.classList.contains('dark') ? '#27272a' : '#f3f4f6'} highlightColor={document.documentElement.classList.contains('dark') ? '#3f3f46' : '#f9fafb'} />
                                             <div className="flex items-center justify-between mt-auto">
                                                 <div className="flex gap-2">
-                                                    <Skeleton width={50} height={24} borderRadius={12} baseColor={document.documentElement.classList.contains('dark') ? '#27272a' : '#f3f4f6'} highlightColor={document.documentElement.classList.contains('dark') ? '#3f3f46' : '#f9fafb'}/>
-                                                    <Skeleton width={60} height={24} borderRadius={12} baseColor={document.documentElement.classList.contains('dark') ? '#27272a' : '#f3f4f6'} highlightColor={document.documentElement.classList.contains('dark') ? '#3f3f46' : '#f9fafb'}/>
+                                                    <Skeleton width={50} height={24} borderRadius={12} baseColor={document.documentElement.classList.contains('dark') ? '#27272a' : '#f3f4f6'} highlightColor={document.documentElement.classList.contains('dark') ? '#3f3f46' : '#f9fafb'} />
+                                                    <Skeleton width={60} height={24} borderRadius={12} baseColor={document.documentElement.classList.contains('dark') ? '#27272a' : '#f3f4f6'} highlightColor={document.documentElement.classList.contains('dark') ? '#3f3f46' : '#f9fafb'} />
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <Skeleton circle width={24} height={24} baseColor={document.documentElement.classList.contains('dark') ? '#27272a' : '#f3f4f6'} highlightColor={document.documentElement.classList.contains('dark') ? '#3f3f46' : '#f9fafb'}/>
-                                                    <Skeleton width={80} height={16} baseColor={document.documentElement.classList.contains('dark') ? '#27272a' : '#f3f4f6'} highlightColor={document.documentElement.classList.contains('dark') ? '#3f3f46' : '#f9fafb'}/>
+                                                    <Skeleton circle width={24} height={24} baseColor={document.documentElement.classList.contains('dark') ? '#27272a' : '#f3f4f6'} highlightColor={document.documentElement.classList.contains('dark') ? '#3f3f46' : '#f9fafb'} />
+                                                    <Skeleton width={80} height={16} baseColor={document.documentElement.classList.contains('dark') ? '#27272a' : '#f3f4f6'} highlightColor={document.documentElement.classList.contains('dark') ? '#3f3f46' : '#f9fafb'} />
                                                 </div>
                                             </div>
                                         </div>
