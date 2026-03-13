@@ -133,17 +133,17 @@ const Questions = () => {
                         </div>
 
                         {/* Filters Bar */}
-                        <div className="flex flex-col gap-4 mb-6 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] rounded-xl p-4 shadow-sm">
+                        <div className="flex flex-col gap-4 mb-6 bg-white dark:bg-[#1e293b]/50 border border-slate-200 dark:border-[#334155] rounded-xl p-4 shadow-sm">
                             <div className="flex items-center">
-                                <div className="flex bg-slate-50 dark:bg-[#334155]/50 p-1 rounded-lg">
+                                <div className="flex gap-2">
                                     {TABS.map((tab) => (
                                         <button
                                             key={tab.id}
                                             onClick={() => setActiveTab(tab.id)}
-                                            className={`px-4 py-2 rounded-md text-[14.5px] font-bold transition-all
+                                            className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center gap-2
                                                     ${activeTab === tab.id
-                                                    ? "bg-white dark:bg-[#1e293b] text-slate-900 dark:text-[#f8fafc] shadow-sm"
-                                                    : "text-slate-500 dark:text-[#94a3b8] hover:text-slate-800 dark:hover:text-[#f8fafc]"
+                                                    ? "bg-slate-100 dark:bg-[#334155] text-slate-900 dark:text-[#f8fafc]"
+                                                    : "text-slate-500 dark:text-[#94a3b8] hover:text-slate-800 dark:hover:text-zinc-200 hover:bg-slate-50 dark:hover:bg-[#334155]/50"
                                                 }`}
                                         >
                                             {tab.label}
@@ -170,7 +170,7 @@ const Questions = () => {
                                 </div>
                                 <button
                                     onClick={handleFilterTag}
-                                    className="flex items-center gap-2 px-4 py-2 text-blue-600 dark:text-blue-400 font-medium text-sm hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg transition-colors cursor-pointer"
+                                    className="flex items-center gap-2 px-4 py-2 text-blue-600 dark:text-blue-400 font-bold text-sm hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors cursor-pointer"
                                 >
                                     <Filter className="w-4 h-4" />
                                     Lọc
