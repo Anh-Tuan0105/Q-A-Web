@@ -6,6 +6,7 @@ import EmailVerification from '../models/EmailVerification.js';
 import crypto from 'crypto'
 import { generateOTP } from '../helpers/generateOTP.js';
 import { sendMail } from '../helpers/mailSend.js';
+import { getOTPTemplate } from '../helpers/otpTemplate.js';
 
 
 const ACCESS_TOKEN_TTL = "30m";
@@ -213,6 +214,9 @@ export const requestEmailChange = async (req, res) => {
         // Xóa các OTP cũ nếu có
         await EmailVerification.deleteMany({ userId });
 
+        const user = await User.findById(userId);
+        const displayName = user?.displayName || user?.userName;
+
         // Lưu OTP vào DB
         const verification = new EmailVerification({
             userId,
@@ -222,10 +226,9 @@ export const requestEmailChange = async (req, res) => {
         });
         await verification.save();
 
-        // Trong thực tế, bạn sẽ dùng nodemailer để gửi email ở đây.
-        // Tạm thời trả về qua API để test Frontend dễ dàng.
-        // console.log(`[OTP cho đổi email của ${userId}]: ${otp}`);
-        await sendMail(newEmail, "Xác thực đổi email", `Mã OTP của bạn là: ${otp}`);
+        // Gửi email với template hiện đại
+        const emailHtml = getOTPTemplate(otp, displayName);
+        await sendMail(newEmail, "[DevCommunity] Xác thực mã OTP đổi email", emailHtml);
 
 
         return res.status(200).json({

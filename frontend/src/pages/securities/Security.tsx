@@ -67,63 +67,64 @@ const Security = () => {
   };
 
   return (
-    <div className="min-h-[100vh] bg-white flex flex-col">
+    <div className="min-h-[100vh] bg-white dark:bg-[#0f172a] flex flex-col">
       <Header />
 
       {/* Main Layout Container */}
       <div className="flex flex-col md:flex-row flex-1 w-full max-w-[1400px] mx-auto">
+        {/* Profile Sidebar */}
         <ProfileSider />
 
         {/* Main Content Area */}
         <main className="flex-1 px-8 md:px-12 lg:px-16 py-8 md:py-10 max-w-[900px]">
           <div className="mb-8">
-            <h1 className="text-[32px] font-bold text-slate-800 mb-1 tracking-tight">Bảo mật & Đăng nhập</h1>
-            <p className="text-slate-400 text-[14px] mt-1 font-medium">Quản lý các thiết lập bảo mật và bảo vệ tài khoản của bạn.</p>
+            <h1 className="text-[32px] font-bold text-slate-800 dark:text-[#f8fafc] mb-1 tracking-tight">Bảo mật & Đăng nhập</h1>
+            <p className="text-slate-400 dark:text-[#94a3b8] text-[14px] mt-1 font-medium">Quản lý các thiết lập bảo mật và bảo vệ tài khoản của bạn.</p>
           </div>
 
           <div className="space-y-6">
             {/* Change Password Section */}
-            <div className="bg-white rounded-xl border border-slate-200/80 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
+            <div className="bg-white dark:bg-[#1e293b] rounded-xl border border-slate-200/80 dark:border-[#334155] shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] overflow-hidden">
               <div className="p-6 md:p-8">
-                <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-2 mb-6 border-b border-slate-100 dark:border-[#334155] pb-4">
                   <span className="text-[#1877F2] font-black text-xl tracking-widest mt-1">***</span>
-                  <h2 className="text-[16px] font-bold text-slate-800 font-sans">Thay đổi mật khẩu</h2>
+                  <h2 className="text-[16px] font-bold text-slate-800 dark:text-[#f8fafc] font-sans">Thay đổi mật khẩu</h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
                   <div>
-                    <label className="block text-[13px] text-slate-400 font-medium mb-2">Mật khẩu hiện tại</label>
+                    <label className="block text-[13px] text-slate-400 dark:text-[#94a3b8] font-medium mb-2">Mật khẩu hiện tại</label>
                     <input
                       type="password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-200 text-[14px]"
+                      className="w-full px-4 py-[11px] bg-white dark:bg-[#334155] border border-slate-200/80 dark:border-[#334155] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-200 dark:placeholder:text-[#94a3b8] text-[14px] dark:text-[#f8fafc]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[13px] text-slate-400 font-medium mb-2">Mật khẩu mới</label>
+                    <label className="block text-[13px] text-slate-400 dark:text-[#94a3b8] font-medium mb-2">Mật khẩu mới</label>
                     <input
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-200 text-[14px]"
+                      className="w-full px-4 py-[11px] bg-white dark:bg-[#334155] border border-slate-200/80 dark:border-[#334155] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-200 dark:placeholder:text-[#94a3b8] text-[14px] dark:text-[#f8fafc]"
                     />
                   </div>
                   <div>
-                    <label className="block text-[13px] text-slate-400 font-medium mb-2">Xác nhận mật khẩu mới</label>
+                    <label className="block text-[13px] text-slate-400 dark:text-[#94a3b8] font-medium mb-2">Xác nhận mật khẩu mới</label>
                     <input
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="w-full px-4 py-[11px] bg-white border border-slate-200/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-200 text-[14px]"
+                      className="w-full px-4 py-[11px] bg-white dark:bg-[#334155] border border-slate-200/80 dark:border-[#334155] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-200 dark:placeholder:text-[#94a3b8] text-[14px] dark:text-[#f8fafc]"
                     />
                   </div>
                 </div>
 
-                <div className="flex justify-end border-t border-slate-100 pt-6 mt-2">
+                <div className="flex justify-end border-t border-slate-100 dark:border-[#334155] pt-6 mt-2">
                   <button
                     onClick={handleChangePassword}
                     disabled={isLoading}
@@ -137,30 +138,30 @@ const Security = () => {
             </div>
 
             {/* Email Verification Section */}
-            <div className="bg-white rounded-xl border border-slate-200/80 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] overflow-hidden mt-6">
+            <div className="bg-white dark:bg-[#1e293b] rounded-xl border border-slate-200/80 dark:border-[#334155] shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] overflow-hidden mt-6">
               <div className="p-6 md:p-8">
-                <div className="flex items-center gap-2.5 mb-6 border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-2.5 mb-6 border-b border-slate-100 dark:border-[#334155] pb-4">
                   <Mail className="w-[18px] h-[18px] text-[#1877F2]" strokeWidth={2.5} />
-                  <h2 className="text-[16px] font-bold text-slate-800 font-sans">Xác thực Email</h2>
+                  <h2 className="text-[16px] font-bold text-slate-800 dark:text-[#f8fafc] font-sans">Xác thực Email</h2>
                 </div>
 
                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 pb-2">
                   <div className="flex items-start gap-4 flex-1 min-w-0">
-                    <div className="w-12 h-12 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center shrink-0">
                       <Mail className="w-[22px] h-[22px]" strokeWidth={2} />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[12px] font-medium text-slate-400 mb-1">Địa chỉ email hiện tại</div>
+                      <div className="text-[12px] font-medium text-slate-400 dark:text-[#94a3b8] mb-1">Địa chỉ email hiện tại</div>
                       <div className="flex flex-wrap items-center gap-3 mb-2">
-                        <span className="font-bold text-slate-800 text-[15px] tracking-tight truncate max-w-full">
+                        <span className="font-bold text-slate-800 dark:text-[#f8fafc] text-[15px] tracking-tight truncate max-w-full">
                           {user?.email || "lequangdung2906@gmail.com"}
                         </span>
-                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-green-50 border border-green-100 rounded-full text-green-600 text-[11px] font-bold whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-green-50 dark:bg-green-500/10 border border-green-100 dark:border-green-500/30 rounded-full text-green-600 dark:text-green-400 text-[11px] font-bold whitespace-nowrap">
                           <CheckCircle className="w-3 h-3" />
                           Đã xác thực
                         </div>
                       </div>
-                      <p className="text-[13px] text-slate-400 leading-relaxed max-w-[480px]">
+                      <p className="text-[13px] text-slate-400 dark:text-[#94a3b8] leading-relaxed max-w-[480px]">
                         Email của bạn được sử dụng để nhận thông báo quan trọng và khôi phục mật khẩu.
                       </p>
                     </div>
@@ -169,14 +170,14 @@ const Security = () => {
                   <div className="flex flex-wrap items-center gap-3 shrink-0">
                     <button
                       onClick={() => navigate('/security/email-change')}
-                      className="flex-1 lg:flex-none px-5 py-[9px] bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-700 font-bold transition-colors text-[13px] whitespace-nowrap shadow-sm"
+                      className="flex-1 lg:flex-none px-5 py-[9px] bg-white dark:bg-[#334155] border border-slate-200 dark:border-[#334155] rounded-lg hover:bg-slate-50 dark:hover:bg-[#334155]/80 text-slate-700 dark:text-[#f8fafc] font-bold transition-colors text-[13px] whitespace-nowrap shadow-sm"
                     >
                       Thay đổi email
                     </button>
                     <button
                       onClick={handleResendCurrentEmailAuth}
                       disabled={isResending}
-                      className="flex items-center gap-2 px-5 py-[9px] bg-[#1C1E21] hover:bg-black disabled:bg-slate-400 text-white rounded-lg font-bold transition-colors text-[13px] shadow-sm whitespace-nowrap"
+                      className="flex items-center gap-2 px-5 py-[9px] bg-[#1C1E21] dark:bg-[#f8fafc] hover:bg-black dark:hover:bg-white disabled:bg-slate-400 text-white dark:text-[#0f172a] rounded-lg font-bold transition-colors text-[13px] shadow-sm whitespace-nowrap"
                     >
                       {isResending && <Loader2 className="w-4 h-4 animate-spin" />}
                       Gửi lại mã xác thực

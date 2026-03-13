@@ -21,11 +21,27 @@ import AdminMembers from './pages/admin/AdminMembers'
 import { Toaster } from 'sonner'
 import { useAuthStore } from './stores/useAuthStore'
 import { useSocketStore } from './stores/useSocketStore'
+import { useThemeStore } from './stores/useThemeStore'
 
 
 function App() {
   const { accessToken, user, refresh, fetchMe } = useAuthStore();
   const { connect, disconnect } = useSocketStore();
+  const { theme, loadUserTheme, setTheme } = useThemeStore();
+
+  useEffect(() => {
+    if (user?._id) {
+      loadUserTheme(user._id);
+    } else {
+      setTheme("light");
+    }
+  }, [user?._id, loadUserTheme, setTheme]);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+  }, [theme]);
 
   useEffect(() => {
     const initAuth = async () => {

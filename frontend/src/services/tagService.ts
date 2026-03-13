@@ -13,5 +13,9 @@ export const tagService = {
     incrementTagView: async (name: string) => {
         const response = await api.put<{ success: boolean; viewCount: number }>(`/tags/${name}/view`);
         return response.data;
+    },
+    suggestTags: async (title: string, body: string) => {
+        const response = await api.post<{ success: boolean; tags: string[] }>('/tags/suggest', { title, body });
+        return response.data;
     }
 };

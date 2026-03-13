@@ -92,7 +92,7 @@ const SignInForm = () => {
                     type='submit'
                     disabled={isSubmitting}
                     className="cursor-pointer w-full bg-[#137FEC] hover:bg-[#116ecf] active:scale-[0.99] py-4 rounded-xl font-bold text-white transition-all shadow-lg shadow-blue-100/50 mt-2">
-                    Đăng nhập
+                    {isSubmitting ? "Đang xử lý..." : "Đăng nhập"}
                 </button>
 
                 {/* Sign Up Link */}

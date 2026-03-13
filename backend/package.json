@@ -12,6 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google/genai": "^1.44.0",
+    "axios": "^1.13.6",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.9.0",
     "cookie-parser": "^1.4.7",
@@ -21,7 +23,6 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.2.4",
     "multer": "^2.1.1",
-    "nodemailer": "^8.0.2",
     "socket.io": "^4.8.3"
   },
   "devDependencies": {
