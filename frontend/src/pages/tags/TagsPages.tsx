@@ -8,7 +8,7 @@ import Footer from '../../components/footer/Footer';
 
 const TagsPages: React.FC = () => {
   const navigate = useNavigate();
-  const { tags, isLoading, fetchTags, currentPage, totalPages, totalTags } = useTagStore();
+  const { tags, isLoading, fetchTags, currentPage, totalPages } = useTagStore();
 
   const [searchValue, setSearchValue] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');

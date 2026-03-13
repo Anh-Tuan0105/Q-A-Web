@@ -7,6 +7,10 @@ import { questionService } from "../../services/questionService";
 import { X } from "lucide-react";
 import SimpleMdeReact from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
+import { useQuestionSimilarity } from "../../hooks/useQuestionSimilarity";
+import SimilarQuestions from "../../components/question/SimilarQuestions";
+import { useAutoTag } from "../../hooks/useAutoTag";
+import TagSuggestion from "../../components/question/TagSuggestion";
 
 const CreateQuestion = () => {
     const navigate = useNavigate();
@@ -17,12 +21,25 @@ const CreateQuestion = () => {
     const [tagInput, setTagInput] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const mdeOptions = useMemo(() => ({
-        spellChecker: false,
-        placeholder: "Viết câu hỏi của bạn ở đây...",
-        hideIcons: ["guide", "fullscreen", "side-by-side"],
-        status: false
-    } as any), []);
+    // AI Similarity check
+    const { suggestions, isChecking } = useQuestionSimilarity(title);
+
+    // Auto-tagging
+    const { suggestedTags, isLoading: isTagLoading } = useAutoTag(title, content);
+
+    const handleSuggestTagSelect = (tag: string) => {
+        if (tags.includes(tag) || tags.length >= 5) return;
+        setTags([...tags, tag]);
+    };
+
+    const mdeOptions = useMemo(() => {
+        return {
+            spellChecker: false,
+            placeholder: "Viết câu hỏi của bạn ở đây...",
+            hideIcons: ["guide", "fullscreen", "side-by-side"],
+            status: false
+        } as any;
+    }, []);
 
     const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter" || e.key === ",") {
@@ -87,7 +104,16 @@ const CreateQuestion = () => {
                             </div>
                             <span className="text-[12px] text-slate-400 dark:text-[#94a3b8] font-bold uppercase">Bắt buộc</span>
                         </div>
-                        <input type="text" className="w-full bg-white dark:bg-[#0f172a] border border-slate-300 dark:border-[#334155] rounded-lg px-4 py-2.5 text-[15px] outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-400 dark:placeholder:text-[#94a3b8] dark:text-[#f8fafc]" placeholder="Ví dụ: Làm cách nào để chuyển đổi chuỗi thành số nguyên trong Python?" value={title} onChange={(e) => setTitle(e.target.value)} disabled={isSubmitting} />
+                        <input
+                            type="text"
+                            className="w-full border border-slate-300 rounded-lg px-4 py-2.5 text-[15px] outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-400"
+                            placeholder="Ví dụ: Làm cách nào để chuyển đổi chuỗi thành số nguyên trong Python?"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            disabled={isSubmitting}
+                        />
+                        {/* AI Similarity suggestions */}
+                        <SimilarQuestions suggestions={suggestions} isChecking={isChecking} />
                     </div>
                     {/* Content Block */}
                     <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] rounded-xl p-6 shadow-sm">
@@ -120,6 +146,12 @@ const CreateQuestion = () => {
                             ))}
                             <input type="text" className="flex-1 bg-transparent outline-none min-w-[150px] px-2 text-[15px] dark:text-[#f8fafc] placeholder:text-slate-400 dark:placeholder:text-[#94a3b8]" placeholder={tags.length === 0 ? "Ví dụ: javascript, react, css..." : ""} value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={handleTagInputKeyDown} disabled={isSubmitting || tags.length >= 5} />
                         </div>
+                        <TagSuggestion
+                            tags={suggestedTags}
+                            isLoading={isTagLoading}
+                            currentTags={tags}
+                            onSelectTag={handleSuggestTagSelect}
+                        />
                     </div>
                 </div>
                 <div className="flex items-center justify-between">

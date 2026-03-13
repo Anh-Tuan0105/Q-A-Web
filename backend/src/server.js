@@ -9,6 +9,7 @@ import answerRoute from './routes/answerRoute.js'
 import tagRoute from './routes/tagRoute.js'
 import notificationRoute from './routes/notificationRoute.js' // Thêm route thông báo
 import publicUserRoute from './routes/publicUserRoute.js'
+import similarityRoute from './routes/similarityRoute.js'
 import { connectDB } from "./lib/db.js";
 import { protectedRoute } from "./middlewares/authMiddleware.js";
 import {v2 as cloudinary} from 'cloudinary'
@@ -47,6 +48,7 @@ app.use('/api/questions', questionRoute);
 app.use('/api/answers', answerRoute);
 app.use('/api/tags', tagRoute);
 app.use('/api/users', publicUserRoute);
+app.use('/api/similarity', similarityRoute);
 
 // Private Routes
 app.use(protectedRoute);
