@@ -9,6 +9,8 @@ import SimpleMdeReact from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
 import { useQuestionSimilarity } from "../../hooks/useQuestionSimilarity";
 import SimilarQuestions from "../../components/question/SimilarQuestions";
+import { useAutoTag } from "../../hooks/useAutoTag";
+import TagSuggestion from "../../components/question/TagSuggestion";
 
 const CreateQuestion = () => {
     const navigate = useNavigate();
@@ -23,6 +25,14 @@ const CreateQuestion = () => {
 
     // AI Similarity check
     const { suggestions, isChecking } = useQuestionSimilarity(title);
+
+    // Auto-tagging
+    const { suggestedTags, isLoading: isTagLoading } = useAutoTag(title, content);
+
+    const handleSuggestTagSelect = (tag: string) => {
+        if (tags.includes(tag) || tags.length >= 5) return;
+        setTags([...tags, tag]);
+    };
 
     const mdeOptions = useMemo(() => {
         return {
@@ -167,6 +177,12 @@ const CreateQuestion = () => {
                                 disabled={isSubmitting || tags.length >= 5}
                             />
                         </div>
+                        <TagSuggestion
+                            tags={suggestedTags}
+                            isLoading={isTagLoading}
+                            currentTags={tags}
+                            onSelectTag={handleSuggestTagSelect}
+                        />
                     </div>
                 </div>
 
