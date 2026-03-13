@@ -48,6 +48,10 @@ const questionSchema = mongoose.Schema(
             type: Number,
             default: 0,
         },
+        embedding: {
+            type: [Number],
+            default: [],
+        },
         status: {
             type: String,
             enum: ["open", "closed", "resolved"],

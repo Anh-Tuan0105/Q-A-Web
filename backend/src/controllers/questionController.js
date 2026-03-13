@@ -3,6 +3,7 @@ import Tag from "../models/Tag.js";
 import Vote from "../models/Vote.js";
 import mongoose from "mongoose";
 import { io } from "../lib/socket.js";
+import { generateEmbedding } from "../services/ai.service.js";
 
 // Tạo câu hỏi mới
 export const createQuestion = async (req, res) => {
@@ -44,6 +45,13 @@ export const createQuestion = async (req, res) => {
         });
 
         await newQuestion.save();
+
+        // Auto-generate embedding cho câu hỏi mới (fire-and-forget để không làm chậm response)
+        generateEmbedding(title).then(embedding => {
+            if (embedding) {
+                Question.updateOne({ _id: newQuestion._id }, { $set: { embedding } }).catch(() => {});
+            }
+        }).catch(() => {});
 
         const populatedQuestion = await Question.findById(newQuestion._id)
             .populate("userId", "userName displayName avatarUrl")
