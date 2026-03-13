@@ -3,7 +3,7 @@ import { MapPin, Link as LinkIcon, Camera, X, Github, Facebook, Loader2, Sun, Mo
 import ProfileSider from "../../components/profile/ProfileSider";
 import { useAuthStore } from "../../stores/useAuthStore";
 import { useThemeStore } from "../../stores/useThemeStore";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate} from "react-router";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 const SettingProfile = () => {
