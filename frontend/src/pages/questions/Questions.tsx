@@ -213,42 +213,42 @@ const Questions = () => {
                                 const isResolved = question.status === "resolved";
 
                                 return (
-                                    <div key={question._id} className="bg-white dark:bg-[#1e293b] p-6 rounded-xl border border-slate-200 dark:border-[#334155] shadow-sm flex gap-6 hover:border-blue-300 dark:hover:border-blue-500/50 transition-colors">
+                                    <div key={question._id} className="bg-white dark:bg-[#1e293b]/50 p-6 rounded-xl border border-slate-200 dark:border-[#334155] shadow-sm flex gap-6 hover:border-blue-300 dark:hover:border-blue-500/50 transition-all hover:shadow-md">
 
                                         {/* Left Stats Column */}
                                         <div className="flex flex-col items-end gap-3 shrink-0 w-[80px]">
                                             <div className="flex flex-col items-end leading-none">
                                                 <span className="font-bold text-[15px] text-slate-800 dark:text-[#f8fafc] pr-2">{netVotes}</span>
-                                                <span className="text-[11px] text-slate-500 dark:text-[#94a3b8] font-medium uppercase mt-1.5 pr-2">PHIẾU</span>
+                                                <span className="text-[10px] text-slate-500 dark:text-[#94a3b8] font-bold uppercase mt-1.5 pr-2">PHIẾU</span>
                                             </div>
-                                            <div className={`flex flex-col items-end py-1.5 px-2 rounded-lg border leading-none w-full text-right
-                                        ${isResolved ? "border-green-300 bg-green-50 dark:bg-green-500/10 dark:border-green-500/30 text-green-700 dark:text-green-400" :
-                                                    question.answersCount > 0 ? "border-blue-300 bg-blue-50 dark:bg-blue-500/10 dark:border-blue-500/30 text-blue-700 dark:text-blue-400" :
+                                            <div className={`flex flex-col items-end py-1.5 px-2 rounded-lg border leading-none w-full text-right transition-colors
+                                        ${isResolved ? "border-green-300 dark:border-green-800/50 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400" :
+                                                    question.answersCount > 0 ? "border-blue-300 dark:border-blue-800/50 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400" :
                                                         "border-transparent text-slate-500 dark:text-[#94a3b8]"}
                                     `}>
                                                 <span className="font-bold text-[15px]">{question.answersCount}</span>
-                                                <span className="text-[10px] font-bold uppercase mt-1.5">TRẢ LỜI</span>
+                                                <span className="text-[9px] font-bold uppercase mt-1.5">TRẢ LỜI</span>
                                             </div>
                                             <div className="flex flex-col items-end leading-none mt-1">
-                                                <span className="font-semibold text-[15px] text-slate-500 dark:text-[#94a3b8] pr-2">{question.viewCount >= 1000 ? `${(question.viewCount / 1000).toFixed(1)}k` : question.viewCount}</span>
-                                                <span className="text-[11px] text-slate-400 dark:text-[#94a3b8] font-medium uppercase mt-1.5 pr-2">XEM</span>
+                                                <span className="font-bold text-[15px] text-slate-500 dark:text-[#94a3b8] pr-2">{question.viewCount >= 1000 ? `${(question.viewCount / 1000).toFixed(1)}k` : question.viewCount}</span>
+                                                <span className="text-[10px] text-slate-400 dark:text-[#94a3b8] font-bold uppercase mt-1.5 pr-2">XEM</span>
                                             </div>
                                         </div>
 
                                         {/* Right Content Column */}
                                         <div className="flex flex-col flex-1">
-                                            <Link to={`/questions/${question._id}`} className="text-[19px] font-bold text-slate-800 dark:text-[#f8fafc] hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-snug mb-2 pr-4">
+                                            <Link to={`/questions/${question._id}`} className="text-[19px] font-bold text-slate-800 dark:text-[#f8fafc] hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-snug mb-2 pr-4 tracking-tight">
                                                 {question.title}
                                             </Link>
-                                            <p className="text-slate-600 dark:text-[#94a3b8] text-[15px] leading-relaxed mb-4 line-clamp-2">
-                                                {question.content}
+                                            <p className="text-slate-600 dark:text-[#94a3b8] text-[14px] leading-relaxed mb-4 line-clamp-2">
+                                                {question.content.replace(/[#*`>\[\]]/g, '')}
                                             </p>
 
                                             {/* Tags and Author */}
                                             <div className="flex items-center justify-between mt-auto">
                                                 <div className="flex gap-2 flex-wrap">
                                                     {question.tags.map(tag => (
-                                                        <Link key={tag._id} to={`/questions?tag=${encodeURIComponent(tag.name)}`} className="bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-full text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors">
+                                                        <Link key={tag._id} to={`/questions?tag=${encodeURIComponent(tag.name)}`} className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-full text-[11px] font-bold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors">
                                                             {tag.name}
                                                         </Link>
                                                     ))}
@@ -258,12 +258,12 @@ const Questions = () => {
                                                         <img
                                                             src={question.userId.avatarUrl || `https://ui-avatars.com/api/?name=${question.userId.displayName || question.userId.userName || "U"}&background=random`}
                                                             alt={question.userId.displayName || question.userId.userName}
-                                                            className="w-6 h-6 rounded-full object-cover"
+                                                            className="w-6 h-6 rounded-full object-cover border border-slate-100 dark:border-[#334155]"
                                                         />
-                                                        <span className="font-bold text-slate-700 dark:text-[#f8fafc] text-[13px] hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{question.userId.displayName || question.userId.userName}</span>
+                                                        <span className="font-bold text-slate-700 dark:text-[#f8fafc] text-[12px] hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{question.userId.displayName || question.userId.userName}</span>
                                                     </Link>
                                                     <span className="text-slate-300 dark:text-[#334155]">|</span>
-                                                    <span className="text-slate-500 dark:text-[#94a3b8] text-[13px]">{getRelativeTime(question.createdAt)}</span>
+                                                    <span className="text-slate-500 dark:text-[#94a3b8] text-[12px]">{getRelativeTime(question.createdAt)}</span>
                                                 </div>
                                             </div>
                                         </div>
