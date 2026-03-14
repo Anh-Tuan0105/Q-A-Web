@@ -15,6 +15,7 @@ export interface User {
     };
     reputation?: number;
     profileViews?: number;
+    role?: 'user' | 'admin';
     createdAt: string;
     updatedAt: string;
 }

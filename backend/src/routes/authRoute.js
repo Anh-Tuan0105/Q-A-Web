@@ -1,5 +1,5 @@
 import express from "express";
-import { signUp, signIn, logOut, refreshToken, changePassword, requestEmailChange, verifyEmailChange } from "../controllers/authController.js";
+import { signUp, signIn, logOut, refreshToken, changePassword, requestEmailChange, verifyEmailChange, adminLogin } from "../controllers/authController.js";
 import { protectedRoute } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
@@ -14,5 +14,7 @@ router.post("/refresh", refreshToken);
 router.post("/change-password", protectedRoute, changePassword);
 router.post("/request-email-change", protectedRoute, requestEmailChange);
 router.post("/verify-email-change", protectedRoute, verifyEmailChange);
+
+router.post("/admin/login", adminLogin);
 
 export default router;

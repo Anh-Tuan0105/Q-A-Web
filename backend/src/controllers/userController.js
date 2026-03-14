@@ -51,20 +51,21 @@ export const getUserProfile = async (req, res) => {
             }
         ]);
 
-        // Đếm tổng số câu trả lời và số upvote
+        // Đếm tổng số câu trả lời và số upvote/downvote
         const answerStats = await Answer.aggregate([
             { $match: { userId: user._id } },
             {
                 $group: {
                     _id: null,
                     totalAnswers: { $sum: 1 },
-                    totalAnswerUpvotes: { $sum: "$upvoteCount" }
+                    totalAnswerUpvotes: { $sum: "$upvoteCount" },
+                    totalAnswerDownvotes: { $sum: "$downvoteCount" }
                 }
             }
         ]);
 
         const qt = questionStats[0] || { totalQuestions: 0, totalQuestionViews: 0, totalQuestionUpvotes: 0 };
-        const at = answerStats[0] || { totalAnswers: 0, totalAnswerUpvotes: 0 };
+        const at = answerStats[0] || { totalAnswers: 0, totalAnswerUpvotes: 0, totalAnswerDownvotes: 0 };
 
         // 1. Top 3 Câu hỏi (sắp xếp theo điểm, rồi câu trả lời, rồi views)
         const topQuestions = await Question.find({ userId: user._id })
@@ -111,7 +112,7 @@ export const getUserProfile = async (req, res) => {
                     answersCount: { $sum: 1 }
                 }
             },
-            { $sort: { score: -1, answersCount: -1 } },
+            { $sort: { score: -1 } },
             { $limit: 4 },
             {
                 $lookup: {
@@ -140,7 +141,7 @@ export const getUserProfile = async (req, res) => {
                 totalQuestions: qt.totalQuestions,
                 totalAnswers: at.totalAnswers,
                 totalViews: qt.totalQuestionViews, // Lượt view từ các bài đăng
-                reputation: qt.totalQuestionUpvotes + at.totalAnswerUpvotes,
+                reputation: at.totalAnswerUpvotes - at.totalAnswerDownvotes,
             },
             topQuestions,
             topAnswers,
@@ -407,17 +408,13 @@ export const getMembers = async (req, res) => {
             .select("displayName userName avatarUrl reputation bio jobTitle location createdAt socialLinks");
 
         const usersWithEnhancedData = await Promise.all(users.map(async (user) => {
-            // 1. Tính toán reputation thực tế (Question upvotes + Answer upvotes)
-            const questionUpvotes = await Question.aggregate([
+            // 1. Tính toán reputation thực tế (Tổng điểm các câu trả lời: Upvotes - Downvotes)
+            const answerVotes = await Answer.aggregate([
                 { $match: { userId: user._id } },
-                { $group: { _id: null, total: { $sum: "$upvoteCount" } } }
-            ]);
-            const answerUpvotes = await Answer.aggregate([
-                { $match: { userId: user._id } },
-                { $group: { _id: null, total: { $sum: "$upvoteCount" } } }
+                { $group: { _id: null, total: { $sum: { $subtract: ["$upvoteCount", "$downvoteCount"] } } } }
             ]);
 
-            const realReputation = (questionUpvotes[0]?.total || 0) + (answerUpvotes[0]?.total || 0);
+            const realReputation = answerVotes[0]?.total || 0;
 
             // 2. Đếm tổng bài viết (Questions + Answers)
             const postCount = await Question.countDocuments({ userId: user._id });
@@ -439,10 +436,10 @@ export const getMembers = async (req, res) => {
                 {
                     $group: {
                         _id: "$question.tags",
-                        count: { $sum: 1 }
+                        score: { $sum: { $subtract: ["$upvoteCount", "$downvoteCount"] } }
                     }
                 },
-                { $sort: { count: -1 } },
+                { $sort: { score: -1 } },
                 { $limit: 3 },
                 {
                     $lookup: {
@@ -456,7 +453,8 @@ export const getMembers = async (req, res) => {
                 {
                     $project: {
                         _id: 1,
-                        name: "$tagInfo.name"
+                        name: "$tagInfo.name",
+                        score: 1
                     }
                 }
             ]);

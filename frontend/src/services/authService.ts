@@ -56,5 +56,12 @@ export const authService = {
     updateProfile: async (data: any) => {
         const res = await api.put("/users/profile", data, { withCredentials: true });
         return res.data;
+    },
+    adminLogin: async (username: string, password: string) => {
+        const res = await api.post("/auth/admin/login", {
+            username,
+            password
+        }, { withCredentials: true });
+        return res.data;
     }
 }

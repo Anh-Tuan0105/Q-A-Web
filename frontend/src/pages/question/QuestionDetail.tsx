@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useParams, Link } from "react-router";
+import { useParams, Link, useNavigate } from "react-router";
 import { useQuestionDetailStore } from "../../stores/useQuestionDetailStore";
 import { useAuthStore } from "../../stores/useAuthStore";
 import Header from "../../components/header/Header";
@@ -34,20 +34,50 @@ const getRelativeTime = (dateString: string) => {
 
 const QuestionDetail = () => {
     const { id } = useParams<{ id: string }>();
-    const { question, answers, isLoading, fetchQuestionDetail, voteQuestion, voteAnswer, postAnswer, acceptAnswer } = useQuestionDetailStore();
+    const navigate = useNavigate();
+    const { question, answers, isLoading, fetchQuestionDetail, voteQuestion, voteAnswer, postAnswer, acceptAnswer, updateQuestion, deleteQuestion, updateAnswer, deleteAnswer } = useQuestionDetailStore();
     const { user } = useAuthStore();
     const { connect, joinRoom, leaveRoom, socket } = useSocketStore();
     const [answerContent, setAnswerContent] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Sorting state
+    const [sortBy, setSortBy] = useState<"votes" | "newest">("votes");
+
+    // Edit Question state
+    const [isEditingQuestion, setIsEditingQuestion] = useState(false);
+    const [editQuestionTitle, setEditQuestionTitle] = useState("");
+    const [editQuestionContent, setEditQuestionContent] = useState("");
+
+    // Edit Answer state
+    const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null);
+    const [editAnswerContent, setEditAnswerContent] = useState("");
+
     const mdeOptions = useMemo(() => {
         return {
             spellChecker: false,
-            placeholder: user ? "Viết câu trả lời của bạn ở đây..." : "Bạn cần đăng nhập để trả lời...",
+            placeholder: "Viết câu trả lời của bạn ở đây...",
             hideIcons: ["guide", "fullscreen", "side-by-side"],
-            status: false
+            status: false,
+            autofocus: false,
         } as any;
-    }, [user]);
+    }, []);
+
+    const editQuestionMdeOptions = useMemo(() => {
+        return {
+            ...mdeOptions,
+            placeholder: "Nội dung câu hỏi...",
+            autofocus: true,
+        };
+    }, [mdeOptions]);
+
+    const editAnswerMdeOptions = useMemo(() => {
+        return {
+            ...mdeOptions,
+            placeholder: "Nội dung câu trả lời...",
+            autofocus: true,
+        };
+    }, [mdeOptions]);
 
     const handleVoteQuestion = (value: 1 | -1) => {
         if (!user) {
@@ -86,6 +116,74 @@ const QuestionDetail = () => {
         }
         setIsSubmitting(false);
     };
+
+    const handleEditQuestion = () => {
+        if (!question) return;
+        setEditQuestionTitle(question.title);
+        setEditQuestionContent(question.content);
+        setIsEditingQuestion(true);
+    };
+
+    const handleUpdateQuestion = async () => {
+        if (!question) return;
+        if (!editQuestionTitle.trim() || !editQuestionContent.trim()) {
+            import('sonner').then(({ toast }) => toast.warning("Vui lòng nhập đầy đủ tiêu đề và nội dung"));
+            return;
+        }
+
+        const success = await updateQuestion(question._id, editQuestionTitle, editQuestionContent, question.tags.map(t => t.name));
+        if (success) {
+            setIsEditingQuestion(false);
+        }
+    };
+
+    const handleDeleteQuestion = async () => {
+        if (!question) return;
+        if (window.confirm("Bạn có chắc chắn muốn xóa câu hỏi này không? Thao tác này không thể hoàn tác.")) {
+            const success = await deleteQuestion(question._id);
+            if (success) {
+                navigate("/");
+            }
+        }
+    };
+
+    const handleEditAnswer = (answer: any) => {
+        setEditingAnswerId(answer._id);
+        setEditAnswerContent(answer.content);
+    };
+
+    const handleUpdateAnswer = async (answerId: string) => {
+        if (!editAnswerContent.trim()) {
+            import('sonner').then(({ toast }) => toast.warning("Vui lòng nhập nội dung câu trả lời"));
+            return;
+        }
+
+        const success = await updateAnswer(answerId, editAnswerContent);
+        if (success) {
+            setEditingAnswerId(null);
+        }
+    };
+
+    const handleDeleteAnswer = async (answerId: string) => {
+        if (window.confirm("Bạn có chắc chắn muốn xóa câu trả lời này không?")) {
+            await deleteAnswer(answerId);
+        }
+    };
+
+    const sortedAnswers = useMemo(() => {
+        return [...answers].sort((a, b) => {
+            if (a.isAccepted) return -1;
+            if (b.isAccepted) return 1;
+
+            if (sortBy === "votes") {
+                const votesA = a.upvoteCount - a.downvoteCount;
+                const votesB = b.upvoteCount - b.downvoteCount;
+                return votesB - votesA;
+            } else {
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            }
+        });
+    }, [answers, sortBy]);
 
     useEffect(() => {
         if (id) {
@@ -208,7 +306,41 @@ const QuestionDetail = () => {
 
                             {/* Content Column */}
                             <div className="flex-1 flex flex-col">
-                                <MarkdownViewer content={question.content} className="mb-6 dark:prose-invert" />
+                                {isEditingQuestion ? (
+                                    <div className="mb-6 flex flex-col gap-4">
+                                        <input
+                                            type="text"
+                                            value={editQuestionTitle}
+                                            onChange={(e) => setEditQuestionTitle(e.target.value)}
+                                            className="w-full px-4 py-2 border border-slate-300 dark:border-[#334155] rounded-lg bg-white dark:bg-[#0f172a] text-slate-800 dark:text-[#f8fafc] focus:border-blue-500 outline-none font-bold"
+                                            placeholder="Tiêu đề câu hỏi"
+                                        />
+                                        <div className="border border-slate-300 dark:border-[#334155] rounded-xl overflow-hidden bg-white dark:bg-[#0f172a]">
+                                            <SimpleMdeReact
+                                                id={`edit-question-${question._id}`}
+                                                value={editQuestionContent}
+                                                onChange={(val) => setEditQuestionContent(val)}
+                                                options={editQuestionMdeOptions}
+                                            />
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={handleUpdateQuestion}
+                                                className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors cursor-pointer text-sm"
+                                            >
+                                                Cập nhật
+                                            </button>
+                                            <button
+                                                onClick={() => setIsEditingQuestion(false)}
+                                                className="px-4 py-2 bg-slate-200 dark:bg-[#334155] text-slate-700 dark:text-[#f8fafc] font-bold rounded-lg hover:bg-slate-300 dark:hover:bg-[#475569] transition-colors cursor-pointer text-sm"
+                                            >
+                                                Hủy
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <MarkdownViewer content={question.content} className="mb-6 dark:prose-invert" />
+                                )}
 
                                 {/* Tags */}
                                 <div className="flex gap-2 flex-wrap mb-6">
@@ -222,10 +354,10 @@ const QuestionDetail = () => {
                                 {/* Author Card */}
                                 <div className="flex items-start justify-between mt-auto">
                                     <div className="flex gap-4 text-[13px] text-slate-500 dark:text-[#94a3b8] font-bold">
-                                        {user?._id === question.userId._id && (
+                                        {user?._id === question.userId._id && !isEditingQuestion && (
                                             <>
-                                                <button className="hover:text-slate-800 dark:hover:text-[#f8fafc] transition-colors cursor-pointer">Sửa</button>
-                                                <button className="hover:text-slate-800 dark:hover:text-[#f8fafc] transition-colors cursor-pointer">Xóa</button>
+                                                <button onClick={handleEditQuestion} className="hover:text-slate-800 dark:hover:text-[#f8fafc] transition-colors cursor-pointer">Sửa</button>
+                                                <button onClick={handleDeleteQuestion} className="hover:text-slate-800 dark:hover:text-[#f8fafc] transition-colors cursor-pointer">Xóa</button>
                                             </>
                                         )}
                                     </div>
@@ -257,15 +389,19 @@ const QuestionDetail = () => {
                             <h2 className="text-[20px] font-bold text-slate-800 dark:text-[#f8fafc]">{answers.length} Câu trả lời</h2>
                             <div className="flex items-center gap-2 text-[14px]">
                                 <span className="text-slate-500 dark:text-[#94a3b8] font-medium">Sắp xếp theo:</span>
-                                <select className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] rounded-lg px-3 py-1.5 font-bold text-slate-700 dark:text-[#f8fafc] outline-none focus:border-blue-500">
-                                    <option>Điểm số cao nhất</option>
-                                    <option>Mới nhất</option>
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value as "votes" | "newest")}
+                                    className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] rounded-lg px-3 py-1.5 font-bold text-slate-700 dark:text-[#f8fafc] outline-none focus:border-blue-500 cursor-pointer"
+                                >
+                                    <option value="votes">Điểm số cao nhất</option>
+                                    <option value="newest">Mới nhất</option>
                                 </select>
                             </div>
                         </div>
 
                         <div className="flex flex-col gap-6 mb-12">
-                            {answers.map(answer => (
+                            {sortedAnswers.map(answer => (
                                 <div key={answer._id} className="flex gap-4 border-[2px] border-green-100/30 dark:border-green-900/20 p-[24px] rounded-[24px] bg-white dark:bg-[#1e293b]/50 shadow-sm">
                                     {/* Answer Vote Column */}
                                     <div className="flex flex-col items-center gap-2 shrink-0 w-12 pt-2">
@@ -305,14 +441,41 @@ const QuestionDetail = () => {
 
                                     {/* Answer Content Column */}
                                     <div className="flex-1 flex flex-col pt-4">
-                                        <MarkdownViewer content={answer.content} className="mb-6 dark:prose-invert" />
+                                        {editingAnswerId === answer._id ? (
+                                            <div className="mb-6 flex flex-col gap-4">
+                                                <div className="border border-slate-300 dark:border-[#334155] rounded-xl overflow-hidden bg-white dark:bg-[#0f172a]">
+                                                    <SimpleMdeReact
+                                                        id={`edit-answer-${answer._id}`}
+                                                        value={editAnswerContent}
+                                                        onChange={(val) => setEditAnswerContent(val)}
+                                                        options={editAnswerMdeOptions}
+                                                    />
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => handleUpdateAnswer(answer._id)}
+                                                        className="px-4 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-colors cursor-pointer text-sm"
+                                                    >
+                                                        Cập nhật
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setEditingAnswerId(null)}
+                                                        className="px-4 py-2 bg-slate-200 dark:bg-[#334155] text-slate-700 dark:text-[#f8fafc] font-bold rounded-lg hover:bg-slate-300 dark:hover:bg-[#475569] transition-colors cursor-pointer text-sm"
+                                                    >
+                                                        Hủy
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <MarkdownViewer content={answer.content} className="mb-6 dark:prose-invert" />
+                                        )}
 
                                         <div className="flex items-start justify-between mt-auto">
                                             <div className="flex gap-4 text-[13px] text-slate-500 dark:text-[#94a3b8] font-bold">
-                                                {user?._id === answer.userId._id && (
+                                                {user?._id === answer.userId._id && editingAnswerId !== answer._id && (
                                                     <>
-                                                        <button className="hover:text-slate-800 dark:hover:text-[#f8fafc] transition-colors cursor-pointer">Sửa</button>
-                                                        <button className="hover:text-slate-800 dark:hover:text-[#f8fafc] transition-colors cursor-pointer">Xóa</button>
+                                                        <button onClick={() => handleEditAnswer(answer)} className="hover:text-slate-800 dark:hover:text-[#f8fafc] transition-colors cursor-pointer">Sửa</button>
+                                                        <button onClick={() => handleDeleteAnswer(answer._id)} className="hover:text-slate-800 dark:hover:text-[#f8fafc] transition-colors cursor-pointer">Xóa</button>
                                                     </>
                                                 )}
                                             </div>
@@ -340,6 +503,7 @@ const QuestionDetail = () => {
                             <h3 className="text-[20px] font-bold text-slate-800 dark:text-[#f8fafc] mb-4">Câu trả lời của bạn</h3>
                             <div className={`rounded-xl overflow-hidden mb-6 bg-white dark:bg-[#0f172a] transition-all prose-mde ${!user ? 'opacity-50 pointer-events-none select-none border border-slate-300 dark:border-[#334155]' : 'border border-slate-300 dark:border-[#334155] focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500'}`}>
                                 <SimpleMdeReact
+                                    id={`new-answer-${question._id}`}
                                     value={answerContent}
                                     onChange={(val) => setAnswerContent(val)}
                                     options={mdeOptions}

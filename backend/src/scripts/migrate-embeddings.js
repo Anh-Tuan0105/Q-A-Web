@@ -2,6 +2,7 @@
  * Script để generate embedding cho các câu hỏi cũ trong DB chưa có embedding
  * Chạy một lần: node src/scripts/migrate-embeddings.js
  */
+// AI gemini 3 pro
 import dotenv from 'dotenv';
 import { connectDB } from '../lib/db.js';
 import Question from '../models/Question.js';

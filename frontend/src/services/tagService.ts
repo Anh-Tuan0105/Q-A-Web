@@ -17,5 +17,11 @@ export const tagService = {
     suggestTags: async (title: string, body: string) => {
         const response = await api.post<{ success: boolean; tags: string[] }>('/tags/suggest', { title, body });
         return response.data;
-    }
+    },
+    createTag: async (name: string, description: string) => {
+        const response = await api.post<{ success: boolean; tag: any; message: string }>('/tags', { name, description });
+        return response.data;
+    },
+    updateTag: (id: string, description: string) => api.patch(`/tags/${id}`, { description }).then(res => res.data),
+    deleteTag: (id: string) => api.delete(`/tags/${id}`).then(res => res.data),
 };

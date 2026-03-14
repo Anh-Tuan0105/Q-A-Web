@@ -112,3 +112,88 @@ export const suggestTags = async (req, res) => {
         res.status(500).json({ success: false, message: "Lỗi Server", error: error.message });
     }
 };
+
+// Tạo Tag mới (Admin)
+export const createTag = async (req, res) => {
+    try {
+        const { name, description } = req.body;
+
+        if (!name || !description) {
+            return res.status(400).json({ success: false, message: "Tên và mô tả là bắt buộc." });
+        }
+
+        const normalizedName = name.trim().toLowerCase();
+        const existingTag = await Tag.findOne({ name: normalizedName });
+
+        if (existingTag) {
+            return res.status(400).json({ success: false, message: "Tag này đã tồn tại." });
+        }
+
+        const newTag = new Tag({
+            name: normalizedName,
+            description: description.trim()
+        });
+
+        await newTag.save();
+
+        res.status(201).json({
+            success: true,
+            message: "Tạo Tag thành công.",
+            tag: newTag
+        });
+    } catch (error) {
+        console.error("Lỗi khi tạo Tag:", error.message);
+        res.status(500).json({ success: false, message: "Lỗi hệ thống.", error: error.message });
+    }
+};
+
+// Cập nhật mô tả Tag (Admin)
+export const updateTag = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { description } = req.body;
+
+        if (!description) {
+            return res.status(400).json({ success: false, message: "Mô tả là bắt buộc." });
+        }
+
+        const tag = await Tag.findByIdAndUpdate(
+            id,
+            { description: description.trim() },
+            { new: true }
+        );
+
+        if (!tag) {
+            return res.status(404).json({ success: false, message: "Không tìm thấy Tag." });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Cập nhật Tag thành công.",
+            tag
+        });
+    } catch (error) {
+        console.error("Lỗi khi cập nhật Tag:", error.message);
+        res.status(500).json({ success: false, message: "Lỗi hệ thống.", error: error.message });
+    }
+};
+
+// Xóa Tag (Admin)
+export const deleteTag = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const tag = await Tag.findByIdAndDelete(id);
+
+        if (!tag) {
+            return res.status(404).json({ success: false, message: "Không tìm thấy Tag để xóa." });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Xóa Tag thành công."
+        });
+    } catch (error) {
+        console.error("Lỗi khi xóa Tag:", error.message);
+        res.status(500).json({ success: false, message: "Lỗi hệ thống.", error: error.message });
+    }
+};

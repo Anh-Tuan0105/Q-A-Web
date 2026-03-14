@@ -51,6 +51,9 @@ export interface TagStore {
 
     fetchPopularTags: (limit?: number) => Promise<void>;
     fetchTags: (page?: number, limit?: number, keyword?: string, sort?: string) => Promise<void>;
+    createTag: (name: string, description: string) => Promise<boolean>;
+    updateTag: (id: string, description: string) => Promise<boolean>;
+    deleteTag: (id: string) => Promise<boolean>;
 }
 
 export interface NotificationStore {
@@ -77,6 +80,10 @@ export interface QuestionDetailStore {
     postAnswer: (quesId: string, content: string) => Promise<boolean>;
     acceptAnswer: (id: string, quesId: string) => Promise<void>;
     addAnswer: (answer: AnswerType) => void;
+    updateQuestion: (id: string, title: string, content: string, tags: string[]) => Promise<boolean>;
+    deleteQuestion: (id: string) => Promise<boolean>;
+    updateAnswer: (id: string, content: string) => Promise<boolean>;
+    deleteAnswer: (id: string) => Promise<boolean>;
 }
 
 export interface SocketStore {

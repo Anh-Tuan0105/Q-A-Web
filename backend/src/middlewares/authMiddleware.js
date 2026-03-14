@@ -56,3 +56,11 @@ export const optionalAuth = async (req, res, next) => {
         next();
     }
 }
+
+// Middleware kiểm tra quyền admin
+export const adminOnly = async (req, res, next) => {
+    if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Bạn không có quyền truy cập. Chỉ dành cho quản trị viên." });
+    }
+    next();
+}

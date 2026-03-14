@@ -290,3 +290,63 @@ export const verifyEmailChange = async (req, res) => {
         return res.status(500).json({ message: "Lỗi hệ thống" });
     }
 }
+
+// Đăng nhập dành riêng cho Admin
+export const adminLogin = async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        if (!username || !password) {
+            return res.status(400).json({ message: "Thiếu tài khoản hoặc mật khẩu" });
+        }
+
+        const user = await User.findOne({ userName: username });
+        if (!user) {
+            return res.status(401).json({ message: "Tài khoản hoặc mật khẩu không chính xác" });
+        }
+
+        const compare = await bcrypt.compare(password, user.hashedPassword);
+        if (!compare) {
+            return res.status(401).json({ message: "Tài khoản hoặc mật khẩu không chính xác" });
+        }
+
+        // Kiểm tra quyền admin
+        if (user.role !== 'admin') {
+            return res.status(403).json({ message: "Tài khoản này không có quyền quản trị viên" });
+        }
+
+        const accessToken = jwt.sign(
+            { userId: user._id },
+            process.env.ACCESS_TOKEN_SECRET,
+            { expiresIn: ACCESS_TOKEN_TTL }
+        );
+
+        const refreshToken = crypto.randomBytes(64).toString('hex');
+
+        await Session.create({
+            userId: user._id,
+            refreshToken: refreshToken,
+            expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL)
+        });
+
+        res.cookie(
+            "refreshToken",
+            refreshToken,
+            {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none",
+                maxAge: REFRESH_TOKEN_TTL
+            }
+        );
+
+        return res.status(200).json({
+            message: `Quản trị viên ${user.displayName} đã đăng nhập!`,
+            accessToken
+        });
+
+    } catch (error) {
+        console.log("Lỗi khi gọi adminLogin", error);
+        return res.status(500).json({ message: "Lỗi hệ thống" });
+    }
+};

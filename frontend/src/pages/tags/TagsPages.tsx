@@ -133,12 +133,12 @@ const TagsPages: React.FC = () => {
               {tags.map(tag => (
                 <div key={tag._id} className="bg-white dark:bg-[#1e293b] rounded-lg shadow-md dark:shadow-[0_2px_8px_rgba(0,0,0,0.2)] p-6 hover:shadow-lg transition cursor-pointer border border-transparent dark:border-[#334155]" onClick={() => navigate(`/questions?tag=${encodeURIComponent(tag.name)}`)}>
                   {/* Tag Name */}
-                  <Link to={`/questions?tag=${encodeURIComponent(tag.name)}`} className="text-blue-500 dark:text-blue-400 font-bold text-lg hover:text-blue-600 dark:hover:text-blue-300 transition">
+                  <Link to={`/questions?tag=${encodeURIComponent(tag.name)}`} className="text-blue-500 dark:text-blue-400 font-bold text-lg hover:text-blue-600 dark:hover:text-blue-300 transition block truncate">
                     {tag.name}
                   </Link>
 
                   {/* Description */}
-                  <p className="text-gray-600 dark:text-[#94a3b8] text-sm mt-3 line-clamp-3 h-10">
+                  <p className="text-gray-600 dark:text-[#94a3b8] text-sm mt-3 line-clamp-2 min-h-[40px]">
                     {tag.description || `Thẻ mô tả chủ đề liên quan đến ${tag.name}`}
                   </p>
 

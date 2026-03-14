@@ -20,5 +20,15 @@ export const answerService = {
     acceptAnswer: async (id: string, quesId: string) => {
         const response = await api.patch(`/answers/${id}/accept`, { quesId });
         return response.data;
+    },
+
+    updateAnswer: async (id: string, content: string) => {
+        const response = await api.put(`/answers/${id}`, { content });
+        return response.data;
+    },
+
+    deleteAnswer: async (id: string) => {
+        const response = await api.delete(`/answers/${id}`);
+        return response.data;
     }
 };

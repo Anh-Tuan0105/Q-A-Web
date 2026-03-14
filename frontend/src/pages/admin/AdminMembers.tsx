@@ -46,8 +46,8 @@ const AdminMembers = () => {
   ];
 
   return (
-    <div className="w-full h-full flex flex-col">
-      <div className="max-w-6xl w-full">
+    <div className="w-full flex flex-col items-center">
+      <div className="w-full">
         {/* Header Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-[#1e293b] mb-2">Thành viên</h1>

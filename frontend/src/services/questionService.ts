@@ -42,5 +42,15 @@ export const questionService = {
     createQuestion: async (title: string, content: string, tags: string[]) => {
         const response = await api.post(`/questions`, { title, content, tags });
         return response.data;
+    },
+
+    updateQuestion: async (id: string, title: string, content: string, tags: string[]) => {
+        const response = await api.put(`/questions/${id}`, { title, content, tags });
+        return response.data;
+    },
+
+    deleteQuestion: async (id: string) => {
+        const response = await api.delete(`/questions/${id}`);
+        return response.data;
     }
 };

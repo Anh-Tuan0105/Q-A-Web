@@ -8,7 +8,7 @@ const AdminDashboard: React.FC = () => {
     const stats = [
         { title: 'Tổng số bài viết', value: '1,284', icon: <FileText className="text-blue-500" />, bgColor: 'bg-blue-50' },
         { title: 'Bị báo cáo', value: '12', icon: <Flag className="text-red-500" />, bgColor: 'bg-red-50' },
-        { title: 'Bình luận mới', value: '243', icon: <MessageSquare className="text-green-500" />, bgColor: 'bg-green-50' },
+        { title: 'Trả lời', value: '243', icon: <MessageSquare className="text-green-500" />, bgColor: 'bg-green-50' },
     ];
 
     const posts = [

@@ -166,5 +166,96 @@ export const useQuestionDetailStore = create<QuestionDetailStore>((set, get) => 
                 question: question ? { ...question, answersCount: question.answersCount + 1 } : null
             });
         }
+    },
+
+    updateQuestion: async (id: string, title: string, content: string, tags: string[]) => {
+        try {
+            set({ isLoading: true });
+            const res = await questionService.updateQuestion(id, title, content, tags);
+            if (res.success && res.question) {
+                set({ question: res.question });
+                import('sonner').then(({ toast }) => {
+                    toast.success(res.message || "Cập nhật câu hỏi thành công");
+                });
+                return true;
+            }
+            return false;
+        } catch (error: any) {
+            import('sonner').then(({ toast }) => {
+                toast.error(error.response?.data?.message || "Lỗi khi cập nhật câu hỏi");
+            });
+            return false;
+        } finally {
+            set({ isLoading: false });
+        }
+    },
+
+    deleteQuestion: async (id: string) => {
+        try {
+            set({ isLoading: true });
+            const res = await questionService.deleteQuestion(id);
+            if (res.success) {
+                set({ question: null, answers: [] });
+                import('sonner').then(({ toast }) => {
+                    toast.success(res.message || "Xóa câu hỏi thành công");
+                });
+                return true;
+            }
+            return false;
+        } catch (error: any) {
+            import('sonner').then(({ toast }) => {
+                toast.error(error.response?.data?.message || "Lỗi khi xóa câu hỏi");
+            });
+            return false;
+        } finally {
+            set({ isLoading: false });
+        }
+    },
+
+    updateAnswer: async (id: string, content: string) => {
+        try {
+            const res = await answerService.updateAnswer(id, content);
+            if (res.success && res.answer) {
+                const { answers } = get();
+                const updatedAnswers = answers.map((ans: AnswerType) =>
+                    ans._id === id ? { ...ans, content: res.answer.content } : ans
+                );
+                set({ answers: updatedAnswers });
+                import('sonner').then(({ toast }) => {
+                    toast.success(res.message || "Cập nhật câu trả lời thành công");
+                });
+                return true;
+            }
+            return false;
+        } catch (error: any) {
+            import('sonner').then(({ toast }) => {
+                toast.error(error.response?.data?.message || "Lỗi khi cập nhật câu trả lời");
+            });
+            return false;
+        }
+    },
+
+    deleteAnswer: async (id: string) => {
+        try {
+            const res = await answerService.deleteAnswer(id);
+            if (res.success) {
+                const { answers, question } = get();
+                const updatedAnswers = answers.filter((ans: AnswerType) => ans._id !== id);
+                set({
+                    answers: updatedAnswers,
+                    question: question ? { ...question, answersCount: question.answersCount - 1 } : null
+                });
+                import('sonner').then(({ toast }) => {
+                    toast.success(res.message || "Xóa câu trả lời thành công");
+                });
+                return true;
+            }
+            return false;
+        } catch (error: any) {
+            import('sonner').then(({ toast }) => {
+                toast.error(error.response?.data?.message || "Lỗi khi xóa câu trả lời");
+            });
+            return false;
+        }
     }
 }));
