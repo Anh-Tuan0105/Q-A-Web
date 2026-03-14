@@ -20,7 +20,6 @@ const EmailChange = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // Setup form 1: newEmail
   const {
     register: registerEmail,
     handleSubmit: handleEmailSubmit,
@@ -50,66 +49,66 @@ const EmailChange = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-[#0f172a] flex flex-col">
       <Header />
 
       <main className="flex-1 max-w-[1400px] w-full mx-auto px-4 md:px-16 py-8">
         {/* Breadcrumbs */}
-        <nav className="flex items-center gap-2 mb-8 text-[13px] font-medium text-slate-400">
-          <Link to="/settings/profile" className="hover:text-blue-600 transition-colors">Cài đặt</Link>
+        <nav className="flex items-center gap-2 mb-8 text-[13px] font-medium text-slate-400 dark:text-[#94a3b8]">
+          <Link to="/settings/profile" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Cài đặt</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <Link to="/security" className="hover:text-blue-600 transition-colors">Tài khoản</Link>
+          <Link to="/security" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Tài khoản</Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-blue-600">Thay đổi Email</span>
+          <span className="text-blue-600 dark:text-blue-400">Thay đổi Email</span>
         </nav>
 
         <div className="max-w-[800px] mx-auto">
           {/* Header Section */}
           <div className="mb-10">
-            <h1 className="text-[36px] font-bold text-slate-800 mb-3 tracking-tight" style={{ fontFamily: "Inter, sans-serif" }}>
+            <h1 className="text-[36px] font-bold text-slate-800 dark:text-[#f8fafc] mb-3 tracking-tight" style={{ fontFamily: "Inter, sans-serif" }}>
               Thay đổi địa chỉ Email
             </h1>
-            <p className="text-slate-500 text-[16px]">
+            <p className="text-slate-500 dark:text-[#94a3b8] text-[16px]">
               Cập nhật email tài khoản của bạn để nhận thông báo và bảo mật tốt hơn.
             </p>
           </div>
 
           {/* Main Card */}
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 md:p-12 mb-8">
+          <div className="bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-100 dark:border-[#334155] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.2)] p-8 md:p-12 mb-8">
             <form onSubmit={handleEmailSubmit(onEmailSubmit)} className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
               {/* Current Email Field */}
               <div>
-                <label className="block text-[14px] font-bold text-slate-700 mb-3">Email hiện tại</label>
+                <label className="block text-[14px] font-bold text-slate-700 dark:text-[#f8fafc] mb-3">Email hiện tại</label>
                 <div className="relative group">
                   <input
                     type="email"
                     value={user?.email || "alex.developer@example.com"}
                     readOnly
-                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-xl text-slate-400 font-medium cursor-not-allowed text-[15px]"
+                    className="w-full px-5 py-4 bg-slate-50 dark:bg-[#334155] border border-slate-100 dark:border-[#334155] rounded-xl text-slate-400 dark:text-[#94a3b8] font-medium cursor-not-allowed text-[15px]"
                   />
-                  <Lock className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+                  <Lock className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 dark:text-[#94a3b8]" />
                 </div>
               </div>
 
               {/* New Email Field */}
               <div>
-                <label className="block text-[14px] font-bold text-slate-700 mb-3">Địa chỉ Email mới</label>
+                <label className="block text-[14px] font-bold text-slate-700 dark:text-[#f8fafc] mb-3">Địa chỉ Email mới</label>
                 <div className="relative group">
                   <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-500" strokeWidth={2.5} />
                   <input
                     type="email"
                     {...registerEmail("newEmail")}
                     placeholder="Nhập email mới của bạn"
-                    className={`w-full pl-14 pr-5 py-4 bg-white border-2 rounded-xl focus:outline-none focus:ring-4 transition-all text-slate-800 font-medium text-[15px] placeholder:text-slate-300 ${emailErrors.newEmail
+                    className={`w-full pl-14 pr-5 py-4 bg-white dark:bg-[#334155] border-2 rounded-xl focus:outline-none focus:ring-4 transition-all text-slate-800 dark:text-[#f8fafc] font-medium text-[15px] placeholder:text-slate-300 dark:placeholder:text-[#94a3b8] ${emailErrors.newEmail
                       ? "border-red-300 focus:border-red-500 focus:ring-red-500/10"
-                      : "border-blue-100 focus:border-blue-500 focus:ring-blue-500/10"
+                      : "border-blue-100 dark:border-[#334155] focus:border-blue-500 focus:ring-blue-500/10"
                       }`}
                   />
                 </div>
                 {emailErrors.newEmail ? (
                   <p className="mt-2 text-[13px] text-red-500 font-medium">{emailErrors.newEmail.message}</p>
                 ) : (
-                  <p className="mt-3 text-[13px] text-slate-400 font-medium">
+                  <p className="mt-3 text-[13px] text-slate-400 dark:text-[#94a3b8] font-medium">
                     Chúng tôi sẽ gửi mã xác nhận gồm 6 số đến địa chỉ email mới này.
                   </p>
                 )}
@@ -128,7 +127,7 @@ const EmailChange = () => {
                 <button
                   type="button"
                   onClick={() => navigate('/security')}
-                  className="flex-1 py-4 bg-slate-50 hover:bg-slate-100 text-slate-600 font-bold rounded-xl transition-all text-[15px]"
+                  className="flex-1 py-4 bg-slate-50 dark:bg-[#334155] hover:bg-slate-100 dark:hover:bg-[#334155]/80 text-slate-600 dark:text-[#f8fafc] font-bold rounded-xl transition-all text-[15px]"
                 >
                   Hủy bỏ
                 </button>
@@ -137,15 +136,15 @@ const EmailChange = () => {
           </div>
 
           {/* Important Note Box */}
-          <div className="bg-[#EDF5FF] rounded-2xl p-6 md:p-8 flex gap-5 border border-blue-50">
+          <div className="bg-[#EDF5FF] dark:bg-blue-500/10 rounded-2xl p-6 md:p-8 flex gap-5 border border-blue-50 dark:border-blue-500/20">
             <div className="shrink-0">
               <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center">
                 <Info className="w-4 h-4" />
               </div>
             </div>
             <div>
-              <h3 className="font-bold text-slate-800 mb-2 text-[15px]">Lưu ý quan trọng</h3>
-              <p className="text-slate-600 text-[14px] leading-relaxed font-medium">
+              <h3 className="font-bold text-slate-800 dark:text-[#f8fafc] mb-2 text-[15px]">Lưu ý quan trọng</h3>
+              <p className="text-slate-600 dark:text-[#94a3b8] text-[14px] leading-relaxed font-medium">
                 Sau khi thay đổi, bạn sẽ cần đăng nhập lại bằng email mới. Mọi dữ liệu và quyền hạn của bạn sẽ được giữ nguyên.
               </p>
             </div>

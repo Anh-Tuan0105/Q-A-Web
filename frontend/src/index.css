@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 
 @theme {
   --breakpoint-sm: 576px;
@@ -17,6 +19,18 @@
 * {
   font-family: "Lexend", sans-serif;
   box-sizing: border-box;
+}
+
+body {
+  @apply bg-white text-slate-900;
+}
+
+html.dark body {
+  @apply bg-[#0f172a] text-[#f8fafc];
+}
+
+html.light body {
+  @apply bg-white text-slate-900;
 }
 
 /* Override default EasyMDE styles */
@@ -36,4 +50,63 @@
 }
 .prose-mde .editor-statusbar {
   display: none;
+}
+
+/* Dark mode EasyMDE styles */
+html.dark .prose-mde .editor-toolbar {
+  background-color: #1e293b;
+  border-bottom-color: #334155;
+}
+html.dark .prose-mde .editor-toolbar button {
+  color: #94a3b8 !important;
+}
+html.dark .prose-mde .editor-toolbar button:hover {
+  background: #334155;
+  color: #f8fafc !important;
+}
+html.dark .prose-mde .editor-toolbar button.active {
+  background: #334155;
+  color: #3b82f6 !important;
+}
+html.dark .prose-mde .editor-toolbar i.separator {
+  border-left-color: #334155;
+  border-right-color: #334155;
+}
+html.dark .prose-mde .CodeMirror {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+html.dark .prose-mde .CodeMirror-cursor {
+  border-left-color: #f8fafc;
+}
+html.dark .prose-mde .CodeMirror-selected {
+  background: #334155 !important;
+}
+html.dark .prose-mde .CodeMirror .CodeMirror-code .cm-header {
+  color: #f8fafc;
+}
+html.dark .prose-mde .CodeMirror .CodeMirror-code .cm-link {
+  color: #3b82f6;
+}
+html.dark .prose-mde .CodeMirror .CodeMirror-code .cm-url {
+  color: #94a3b8;
+}
+html.dark .prose-mde .CodeMirror .CodeMirror-code .cm-comment {
+  color: #94a3b8;
+}
+html.dark .prose-mde .CodeMirror-placeholder {
+  color: #94a3b8 !important;
+  opacity: 0.5;
+}
+html.dark .prose-mde .editor-preview {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+html.dark .prose-mde .editor-preview pre {
+  background-color: #1e293b;
+  border: 1px solid #334155;
+}
+html.dark .prose-mde .editor-preview code {
+  background-color: #334155;
+  color: #f8fafc;
 }

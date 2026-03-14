@@ -18,14 +18,32 @@ import MemberList from './pages/member/memberlist'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import DetailQuestions from './pages/admin/DetailQuestions'
+import AdminSettings from './pages/admin/AdminSettings'
+import AdminMembers from './pages/admin/AdminMembers'
 import { Toaster } from 'sonner'
 import { useAuthStore } from './stores/useAuthStore'
 import { useSocketStore } from './stores/useSocketStore'
+import { useThemeStore } from './stores/useThemeStore'
 
 
 function App() {
   const { accessToken, user, refresh, fetchMe } = useAuthStore();
   const { connect, disconnect } = useSocketStore();
+  const { theme, loadUserTheme, setTheme } = useThemeStore();
+
+  useEffect(() => {
+    if (user?._id) {
+      loadUserTheme(user._id);
+    } else {
+      setTheme("light");
+    }
+  }, [user?._id, loadUserTheme, setTheme]);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+  }, [theme]);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -122,12 +140,16 @@ function App() {
             <Route index element={<Navigate to="posts" replace />} />
             <Route path="posts" element={<AdminDashboard />} />
             <Route path="posts/:id" element={<DetailQuestions />} />
-            <Route path="members" element={<AdminDashboard />} /> {/* Placeholder */}
-            <Route path="settings" element={<AdminDashboard />} /> {/* Placeholder */}
           </Route>
           {/* Private Route example - Keep ProtectedRoute for future private pages */}
           {/* <Route element={<ProtectedRoute />}>
           </Route> */}
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="settings" element={<AdminSettings />} />
+            <Route path="members" element={<AdminMembers />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </>
