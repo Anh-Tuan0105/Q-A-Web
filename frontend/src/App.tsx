@@ -15,6 +15,11 @@ import EmailChange from './pages/securities/emailchange'
 import EmailAuth from './pages/securities/EmailAuth'
 import TagsPages from './pages/tags/TagsPages'
 import MemberList from './pages/member/memberlist'
+import AdminLayout from './pages/admin/AdminLayout'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import DetailQuestions from './pages/admin/DetailQuestions'
+import AdminSettings from './pages/admin/AdminSettings'
+import AdminMembers from './pages/admin/AdminMembers'
 import { Toaster } from 'sonner'
 import { useAuthStore } from './stores/useAuthStore'
 import { useSocketStore } from './stores/useSocketStore'
@@ -130,9 +135,21 @@ function App() {
             path='/members'
             element={<MemberList />}
           />
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="posts" replace />} />
+            <Route path="posts" element={<AdminDashboard />} />
+            <Route path="posts/:id" element={<DetailQuestions />} />
+          </Route>
           {/* Private Route example - Keep ProtectedRoute for future private pages */}
           {/* <Route element={<ProtectedRoute />}>
           </Route> */}
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="settings" element={<AdminSettings />} />
+            <Route path="members" element={<AdminMembers />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </>
