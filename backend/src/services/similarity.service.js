@@ -45,11 +45,14 @@ export const findSimilarQuestions = async (queryText, excludeId = null, limit = 
             .limit(limit)
             .select('title _id');
 
-        return results.map(q => ({
-            _id: q._id,
-            title: q.title,
-            similarity: null,
-        }));
+        // Chỉ lấy những kết quả có textScore đủ cao (tùy chỉnh ngưỡng nếu cần)
+        return results
+            .filter(q => q._doc.score > 2) // Ngưỡng ví dụ cho textScore
+            .map(q => ({
+                _id: q._id,
+                title: q.title,
+                similarity: null,
+            }));
     }
 
     // 2. Lấy tất cả câu hỏi đã có embedding từ DB
@@ -66,7 +69,8 @@ export const findSimilarQuestions = async (queryText, excludeId = null, limit = 
     }));
 
     // 4. Sắp xếp theo điểm giảm dần và lấy top `limit`
-    const MIN_SIMILARITY = 0.5; // Ngưỡng tối thiểu để coi là tương đồng
+    // Tăng ngưỡng lên 0.75 (75%) để đảm bảo độ chính xác cao hơn
+    const MIN_SIMILARITY = 0.75; 
     return scored
         .filter(q => q.similarity >= MIN_SIMILARITY)
         .sort((a, b) => b.similarity - a.similarity)
