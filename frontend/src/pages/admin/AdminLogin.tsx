@@ -46,7 +46,7 @@ const AdminLogin: React.FC = () => {
             <header className="fixed top-0 left-0 right-0 p-6 flex justify-between items-center z-10">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg">
-                        <img src="/public/logo.svg" alt="" className="w-6 h-6" />
+                        <img src="/logo.svg" alt="" className="w-6 h-6" />
                     </div>
                     <span className="text-[#1E293B] font-extrabold text-xl tracking-tight">DevCommunity Admin</span>
                 </div>
