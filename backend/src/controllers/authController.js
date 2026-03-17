@@ -75,6 +75,11 @@ export const signIn = async (req, res) => {
             return res.status(401).json({ message: "Sai tài khoản hoặc mật khẩu" })
         }
 
+        // Kiểm tra xem user có bị cấm không
+        if (user.isBanned) {
+            return res.status(403).json({ message: "Tài khoản của bạn đã bị cấm khỏi hệ thống. Vui lòng liên hệ quản trị viên." });
+        }
+
         // tạo access token tham số đầu tiên là cái mà mình muốn lưu ở đây lưu user._id trong payload
         const accessToken = jwt.sign(
             { userId: user._id },
@@ -313,6 +318,11 @@ export const adminLogin = async (req, res) => {
         // Kiểm tra quyền admin
         if (user.role !== 'admin') {
             return res.status(403).json({ message: "Tài khoản này không có quyền quản trị viên" });
+        }
+
+        // Kiểm tra xem admin có bị cấm không (dù hiếm khi xảy ra)
+        if (user.isBanned) {
+            return res.status(403).json({ message: "Tài khoản quản trị của bạn đã bị cấm." });
         }
 
         const accessToken = jwt.sign(

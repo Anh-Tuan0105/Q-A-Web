@@ -4,6 +4,7 @@ import { useNavigate, Navigate } from 'react-router';
 import { toast } from 'sonner';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { authService } from '../../services/authService';
+import { useAdminSettingsStore } from '../../stores/useAdminSettingsStore';
 
 const AdminLogin: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -12,6 +13,8 @@ const AdminLogin: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const { user, accessToken, setAccessToken, fetchMe } = useAuthStore();
+    const logoUrl = useAdminSettingsStore((s) => s.logoUrl);
+    const siteName = useAdminSettingsStore((s) => s.siteName);
 
     // Nếu đã đăng nhập là admin → redirect thẳng tới trang quản trị
     if (accessToken && user?.role === 'admin') {
@@ -46,9 +49,9 @@ const AdminLogin: React.FC = () => {
             <header className="fixed top-0 left-0 right-0 p-6 flex justify-between items-center z-10">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg">
-                        <img src="/public/logo.svg" alt="" className="w-6 h-6" />
+                        <img src={logoUrl} alt={`${siteName} Logo`} className="w-6 h-6 object-cover" />
                     </div>
-                    <span className="text-[#1E293B] font-extrabold text-xl tracking-tight">DevCommunity Admin</span>
+                    <span className="text-[#1E293B] font-extrabold text-xl tracking-tight">{siteName} Admin</span>
                 </div>
             </header>
 

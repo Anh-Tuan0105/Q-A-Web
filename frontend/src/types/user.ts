@@ -16,6 +16,7 @@ export interface User {
     reputation?: number;
     profileViews?: number;
     role?: 'user' | 'admin';
+    isBanned?: boolean;
     createdAt: string;
     updatedAt: string;
 }

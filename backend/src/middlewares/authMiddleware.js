@@ -22,6 +22,10 @@ export const protectedRoute = async (req, res, next) => {
                 return res.status(404).json({ message: "Người dùng không tồn tại hoặc đã đăng xuất" })
             }
 
+            if (user.isBanned) {
+                return res.status(403).json({ message: "Tài khoản của bạn đã bị cấm." });
+            }
+
             req["user"] = user;
             next();
         });

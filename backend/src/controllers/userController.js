@@ -140,8 +140,8 @@ export const getUserProfile = async (req, res) => {
             stats: {
                 totalQuestions: qt.totalQuestions,
                 totalAnswers: at.totalAnswers,
-                totalViews: qt.totalQuestionViews, // Lượt view từ các bài đăng
-                reputation: at.totalAnswerUpvotes - at.totalAnswerDownvotes,
+                totalViews: qt.totalQuestionViews, 
+                reputation: user.reputation, // Sử dụng trường reputation từ database
             },
             topQuestions,
             topAnswers,
@@ -408,15 +408,7 @@ export const getMembers = async (req, res) => {
             .select("displayName userName avatarUrl reputation bio jobTitle location createdAt socialLinks");
 
         const usersWithEnhancedData = await Promise.all(users.map(async (user) => {
-            // 1. Tính toán reputation thực tế (Tổng điểm các câu trả lời: Upvotes - Downvotes)
-            const answerVotes = await Answer.aggregate([
-                { $match: { userId: user._id } },
-                { $group: { _id: null, total: { $sum: { $subtract: ["$upvoteCount", "$downvoteCount"] } } } }
-            ]);
-
-            const realReputation = answerVotes[0]?.total || 0;
-
-            // 2. Đếm tổng bài viết (Questions + Answers)
+            // 2. Đếm tổng bài viết (Questions + Answers) - Vẫn giữ lại vì ko có trong DB field
             const postCount = await Question.countDocuments({ userId: user._id });
             const answerCount = await Answer.countDocuments({ userId: user._id });
 
@@ -461,7 +453,7 @@ export const getMembers = async (req, res) => {
 
             return {
                 ...user._doc,
-                reputation: realReputation,
+                // reputation đã có sẵn trong user._doc vì được select ở trên
                 postCount: postCount + answerCount,
                 topTags: topTags
             };
@@ -483,5 +475,88 @@ export const getMembers = async (req, res) => {
     } catch (error) {
         console.error("Lỗi get members:", error);
         res.status(500).json({ success: false, message: "Lỗi Server" });
+    }
+};
+// --- ADMIN FUNCTIONS ---
+
+// Lấy danh sách tất cả người dùng (Admin only)
+export const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find().select("-hashedPassword").sort({ createdAt: -1 });
+        return res.status(200).json(users);
+    } catch (error) {
+        console.error("Lỗi khi lấy danh sách user:", error);
+        return res.status(500).json({ message: "Lỗi hệ thống" });
+    }
+};
+
+// Cấm người dùng (Admin only)
+export const banUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "Người dùng không tồn tại" });
+        }
+
+        if (user.role === 'admin') {
+            return res.status(403).json({ message: "Không thể cấm tài khoản Admin" });
+        }
+
+        user.isBanned = true;
+        await user.save();
+
+        // Gửi sự kiện realtime để "đá" người dùng ra ngoài
+        io.to(`user_${id}`).emit("user_banned");
+
+        return res.status(200).json({ message: "Đã cấm người dùng thành công", user });
+    } catch (error) {
+        console.error("Lỗi khi ban user:", error);
+        return res.status(500).json({ message: "Lỗi hệ thống" });
+    }
+};
+
+// Bỏ cấm người dùng (Admin only)
+export const unbanUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "Người dùng không tồn tại" });
+        }
+
+        user.isBanned = false;
+        await user.save();
+
+        return res.status(200).json({ message: "Đã bỏ cấm người dùng thành công", user });
+    } catch (error) {
+        console.error("Lỗi khi unban user:", error);
+    }
+};
+
+// Cập nhật điểm uy tín (Admin only)
+export const updateReputation = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { reputation } = req.body;
+
+        if (reputation === undefined || typeof reputation !== 'number') {
+            return res.status(400).json({ message: "Điểm uy tín không hợp lệ" });
+        }
+
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ message: "Người dùng không tồn tại" });
+        }
+
+        user.reputation = reputation;
+        await user.save();
+
+        return res.status(200).json({ message: "Cập nhật điểm uy tín thành công", reputation: user.reputation });
+    } catch (error) {
+        console.error("Lỗi khi cập nhật reputation:", error);
+        return res.status(500).json({ message: "Lỗi hệ thống" });
     }
 };

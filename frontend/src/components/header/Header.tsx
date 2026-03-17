@@ -6,9 +6,12 @@ import { questionService } from '../../services/questionService';
 import type { QuestionType } from '../../types/question';
 import { useNotificationStore } from '../../stores/useNotificationStore';
 import { useSocketStore } from '../../stores/useSocketStore';
+import { useAdminSettingsStore } from '../../stores/useAdminSettingsStore';
 
 const Header: React.FC = () => {
     const { user, logout, accessToken } = useAuthStore();
+    const logoUrl = useAdminSettingsStore((s) => s.logoUrl);
+    const siteName = useAdminSettingsStore((s) => s.siteName);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -65,6 +68,7 @@ const Header: React.FC = () => {
 
     useEffect(() => {
         if (socket) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const handleNewNotification = (notification: any) => {
                 useNotificationStore.getState().addNotification(notification);
             };
@@ -106,8 +110,8 @@ const Header: React.FC = () => {
                 <div className="flex items-center gap-8 ml-8 flex-1">
                     {/* Logo Section */}
                     <Link to="/" className="flex items-center gap-3 shrink-0 cursor-pointer">
-                        <img src="/logo.svg" alt="DevCommunity Logo" className="w-[28px] h-[28px] dark:invert-[0.1]" />
-                        <span className="text-[20px] font-bold text-slate-800 dark:text-[#f8fafc]">DevCommunity</span>
+                        <img src={logoUrl} alt={`${siteName} Logo`} className="w-[28px] h-[28px] object-cover dark:invert-[0.1]" />
+                        <span className="text-[20px] font-bold text-slate-800 dark:text-[#f8fafc]">{siteName}</span>
                     </Link>
 
                     {/* Search Bar Section */}
