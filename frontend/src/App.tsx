@@ -87,8 +87,9 @@ function App() {
         description: "Vui lòng liên hệ quản trị viên để biết thêm chi tiết.",
         duration: 5000,
       });
-      setTimeout(() => {
-        useAuthStore.getState().logout();
+      setTimeout(async () => {
+        await useAuthStore.getState().logout();
+        window.location.href = '/signin';
       }, 2000);
     };
 
