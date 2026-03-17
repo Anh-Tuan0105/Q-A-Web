@@ -46,9 +46,13 @@ export const useAuthStore = create<AuthState>()(
                 await get().fetchMe();
                 toast.success("Đăng nhập thành công");
                 return true;
-            } catch (error) {
+            } catch (error: any) {
                 console.log(error);
-                toast.error("Đăng nhập thất bại");
+                if (error.response?.status === 503) {
+                    toast.error("Hệ thống đang bảo trì. Vui lòng quay lại sau.");
+                } else {
+                    toast.error("Đăng nhập thất bại. Tài khoản hoặc mật khẩu không chính xác.");
+                }
                 return false;
             } finally {
                 set({ loading: false })

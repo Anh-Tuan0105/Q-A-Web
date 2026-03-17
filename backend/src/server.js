@@ -11,7 +11,9 @@ import notificationRoute from './routes/notificationRoute.js' // Thêm route th�
 import publicUserRoute from './routes/publicUserRoute.js'
 import similarityRoute from './routes/similarityRoute.js'
 import { connectDB } from "./lib/db.js";
-import { protectedRoute } from "./middlewares/authMiddleware.js";
+import { protectedRoute, optionalAuth } from "./middlewares/authMiddleware.js";
+import settingRoute from './routes/settingRoute.js'
+import { maintenanceMiddleware } from "./middlewares/maintenanceMiddleware.js";
 import {v2 as cloudinary} from 'cloudinary'
 import cors from "cors";
 import dns from "dns"
@@ -28,13 +30,19 @@ dns.setServers([
 dotenv.config();
 const PORT = process.env.PORT || 5000;
 
-// middlewares
-app.use(express.json());
+// Middlewares
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cookieParser());
 app.use(cors({
     origin: process.env.CLIENT_URL,
     credentials: true,
 }));
+
+// Một số route cần biết user nhưng không bắt buộc (để maintenance middleware check role)
+app.use(optionalAuth); 
+// Áp dụng maintenance middleware cho tất cả các route sau đây
+app.use(maintenanceMiddleware);
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -49,6 +57,7 @@ app.use('/api/answers', answerRoute);
 app.use('/api/tags', tagRoute);
 app.use('/api/users', publicUserRoute);
 app.use('/api/similarity', similarityRoute);
+app.use('/api/settings', settingRoute);
 
 // Private Routes
 app.use(protectedRoute);

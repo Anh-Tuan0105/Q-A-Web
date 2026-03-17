@@ -1,14 +1,18 @@
 import { Link } from "react-router";
+import { useAdminSettingsStore } from "../../stores/useAdminSettingsStore";
 
 const Footer = () => {
+    const logoUrl = useAdminSettingsStore((s) => s.logoUrl);
+    const siteName = useAdminSettingsStore((s) => s.siteName);
+
     return (
         <footer className="bg-slate-50 dark:bg-[#1e293b] border-t border-slate-200 dark:border-[#334155] mt-auto py-8">
             <div className="max-w-[1400px] w-full mx-auto px-8 flex justify-between items-center">
 
                 {/* Left Side: Logo & Copyright */}
                 <div className="flex items-center gap-3">
-                    <img src="/logo.svg" alt="DevCommunity Logo" className="w-8 h-8 object-contain dark:invert-[0.1]" />
-                    <span className="font-bold text-slate-700 dark:text-[#f8fafc] text-[15px]">DevCommunity &copy; 2026</span>
+                    <img src={logoUrl} alt={`${siteName} Logo`} className="w-8 h-8 object-contain dark:invert-[0.1]" />
+                    <span className="font-bold text-slate-700 dark:text-[#f8fafc] text-[15px]">{siteName} &copy; 2026</span>
                 </div>
 
                 {/* Right Side: Links */}

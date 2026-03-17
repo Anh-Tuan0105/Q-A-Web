@@ -26,5 +26,26 @@ export const userService = {
             params: { page, limit, keyword, sort }
         });
         return response.data;
+    },
+    // Admin Only
+    getAllUsers: async () => {
+        const response = await api.get('/users/admin/all');
+        return response.data;
+    },
+    banUser: async (userId: string) => {
+        const response = await api.put(`/users/${userId}/ban`);
+        return response.data;
+    },
+    unbanUser: async (userId: string) => {
+        const response = await api.put(`/users/${userId}/unban`);
+        return response.data;
+    },
+    updateReputation: async (userId: string, reputation: number) => {
+        const response = await api.put(`/users/${userId}/reputation`, { reputation });
+        return response.data;
+    },
+    syncReputation: async () => {
+        const response = await api.post('/users/admin/sync-reputation');
+        return response.data;
     }
 };

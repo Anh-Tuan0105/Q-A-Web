@@ -4,6 +4,7 @@ import Vote from "../models/Vote.js";
 import Notification from "../models/Notification.js";
 import mongoose from "mongoose";
 import { io } from "../lib/socket.js";
+import { updateUserReputation } from "../utils/reputation.js";
 
 // Tạo câu trả lời mới
 export const createAnswer = async (req, res) => {
@@ -169,6 +170,9 @@ export const deleteAnswer = async (req, res) => {
         // Tiến hành xóa
         await Answer.findByIdAndDelete(id);
 
+        // Cập nhật reputation cho chủ nhân câu trả lời vừa xóa
+        await updateUserReputation(answer.userId).catch(err => console.error("Reputation sync error on delete:", err));
+
         res.status(200).json({
             success: true,
             message: "Đã xóa câu trả lời thành công",
@@ -232,6 +236,10 @@ export const voteAnswer = async (req, res) => {
             if (value === -1) answer.downvoteCount += 1;
 
             await answer.save();
+
+            // Cập nhật reputation cho chủ nhân câu trả lời nhận được vote
+            await updateUserReputation(answer.userId).catch(err => console.error("Reputation sync error on vote:", err));
+
             return res.status(200).json({
                 success: true,
                 message: "Đã vote thành công",

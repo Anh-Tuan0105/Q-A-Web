@@ -2,9 +2,12 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router';
 import { Settings, Users, LogOut, FileText, Tag } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
+import { useAdminSettingsStore } from '../../stores/useAdminSettingsStore';
 
 const AdminSidebar: React.FC = () => {
     const { user, logout } = useAuthStore();
+    const logoUrl = useAdminSettingsStore((s) => s.logoUrl);
+    const siteName = useAdminSettingsStore((s) => s.siteName);
     const navigate = useNavigate();
 
     const navigation = [
@@ -24,16 +27,16 @@ const AdminSidebar: React.FC = () => {
             <div>
                 {/* Logo Area */}
                 <div className="p-6 flex items-center space-x-3 mb-4">
-                    <div className="flex-shrink-0">
+                    <div className="shrink-0">
                         <div className="flex items-center justify-center w-10 h-10 rounded-md bg-gradient-to-br from-yellow-400 to-orange-400 text-white font-bold text-lg shadow-sm">
-                            <img src="/logo.svg" alt="" className="w-full h-full object-cover" />
+                            <img src={logoUrl} alt={`${siteName} Logo`} className="w-full h-full object-cover" />
                         </div>
                     </div>
                     <div>
                         <h1 className="text-[#1A202C] font-semibold text-[15px] leading-tight flex items-center gap-1">
                             Quản trị Hệ thống
                         </h1>
-                        <span className="text-gray-500 text-xs font-medium">Dev Community</span>
+                        <span className="text-gray-500 text-xs font-medium">{siteName}</span>
                     </div>
                 </div>
 

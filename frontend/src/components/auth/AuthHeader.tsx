@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router';
+import { useAdminSettingsStore } from '../../stores/useAdminSettingsStore';
 
 interface AuthHeaderProps {
     type: 'signin' | 'signup';
@@ -7,6 +8,8 @@ interface AuthHeaderProps {
 
 const AuthHeader: React.FC<AuthHeaderProps> = ({ type }) => {
     const isSignUp = type === 'signup';
+    const logoUrl = useAdminSettingsStore((s) => s.logoUrl);
+    const siteName = useAdminSettingsStore((s) => s.siteName);
 
     return (
         <div className="w-full bg-white border-b border-slate-200/50">
@@ -14,9 +17,9 @@ const AuthHeader: React.FC<AuthHeaderProps> = ({ type }) => {
                 <header className="flex items-center justify-between py-4">
                     <Link to="/" className="flex items-center gap-x-4 cursor-pointer text-decoration-none">
                         <div className="w-8 h-8">
-                            <img src="/logo.svg" alt="DevCommunity Logo" className="object-cover" />
+                            <img src={logoUrl} alt={`${siteName} Logo`} className="object-cover" />
                         </div>
-                        <div className="font-bold text-[20px] text-[#0F172A]">DevCommunity</div>
+                        <div className="font-bold text-[20px] text-[#0F172A]">{siteName}</div>
                     </Link>
                     <div className="flex items-center gap-x-4">
                         <div className="font-normal text-[14px] text-[#475569]">
