@@ -11,6 +11,8 @@ import MarkdownViewer from "../../components/markdown/MarkdownViewer";
 import SimpleMdeReact from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
 import { useSocketStore } from "../../stores/useSocketStore";
+import CommentSection from "../../components/question/CommentSection";
+
 
 // Tái sử dụng hàm helper từ Home
 const getRelativeTime = (dateString: string) => {
@@ -384,6 +386,9 @@ const QuestionDetail = () => {
                             </div>
                         </div>
 
+                        {/* Comments for Question */}
+                        <CommentSection targetType="Question" targetId={question._id} socket={socket} />
+
                         {/* Answers Section */}
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-[20px] font-bold text-slate-800 dark:text-[#f8fafc]">{answers.length} Câu trả lời</h2>
@@ -494,6 +499,9 @@ const QuestionDetail = () => {
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* Comments cho Answer này */}
+                                    <CommentSection targetType="Answer" targetId={answer._id} socket={socket} />
                                 </div>
                             ))}
                         </div>

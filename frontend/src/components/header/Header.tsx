@@ -1,6 +1,6 @@
-import { Search, Bell, User, Settings, LogOut, Loader2 } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Search, Bell, User, Settings, LogOut, Loader2, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
-import { useState, useRef, useEffect } from 'react';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { questionService } from '../../services/questionService';
 import type { QuestionType } from '../../types/question';
@@ -208,32 +208,46 @@ const Header: React.FC = () => {
                                             {isLoading && notifications.length === 0 ? (
                                                 <div className="p-4 text-center text-slate-500 dark:text-[#94a3b8] text-sm">Đang tải...</div>
                                             ) : notifications.length > 0 ? (
-                                                notifications.map(notif => (
-                                                    <div
-                                                        key={notif._id}
-                                                        onClick={() => {
-                                                            if (!notif.isRead) markAsRead(notif._id);
-                                                            setIsNotifOpen(false);
-                                                            navigate(notif.link);
-                                                        }}
-                                                        className={`flex gap-3 p-3 border-b border-slate-50 dark:border-[#334155]/50 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#334155] transition-colors ${!notif.isRead ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''}`}
-                                                    >
-                                                        <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-[#334155] overflow-hidden shrink-0 mt-1">
-                                                            <img src={notif.senderId?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(notif.senderId?.displayName || notif.senderId?.userName || "U")}&background=random`} alt="Avatar" className="w-full h-full object-cover" />
+                                                notifications.map(notif => {
+                                                    const isSystem = notif.type === 'approved' || notif.type === 'rejected';
+                                                    return (
+                                                        <div
+                                                            key={notif._id}
+                                                            onClick={() => {
+                                                                if (!notif.isRead) markAsRead(notif._id);
+                                                                setIsNotifOpen(false);
+                                                                if (notif.link) navigate(notif.link);
+                                                            }}
+                                                            className={`flex gap-3 p-3 border-b border-slate-50 dark:border-[#334155]/50 cursor-pointer hover:bg-slate-50 dark:hover:bg-[#334155] transition-colors ${!notif.isRead ? 'bg-blue-50/30 dark:bg-blue-900/10' : ''}`}
+                                                        >
+                                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 mt-1 overflow-hidden ${
+                                                                notif.type === 'approved' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' :
+                                                                notif.type === 'rejected' ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' :
+                                                                'bg-slate-200 dark:bg-[#334155]'
+                                                            }`}>
+                                                                {notif.type === 'approved' ? (
+                                                                    <ShieldCheck className="w-5 h-5" />
+                                                                ) : notif.type === 'rejected' ? (
+                                                                    <ShieldAlert className="w-5 h-5" />
+                                                                ) : (
+                                                                    <img src={notif.senderId?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(notif.senderId?.displayName || notif.senderId?.userName || "U")}&background=random`} alt="Avatar" className="w-full h-full object-cover" />
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-1 flex flex-col justify-center">
+                                                                <p className="text-sm text-slate-800 dark:text-[#f8fafc] leading-tight">
+                                                                    {!isSystem && <span className="font-semibold">{notif.senderId?.displayName || notif.senderId?.userName} </span>}
+                                                                    {notif.message}
+                                                                </p>
+                                                                <span className="text-xs text-slate-500 dark:text-[#94a3b8] mt-1">
+                                                                    {new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(notif.createdAt))}
+                                                                </span>
+                                                            </div>
+                                                            {!notif.isRead && (
+                                                                <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 shrink-0"></div>
+                                                            )}
                                                         </div>
-                                                        <div className="flex-1 flex flex-col justify-center">
-                                                            <p className="text-sm text-slate-800 dark:text-[#f8fafc] leading-tight">
-                                                                <span className="font-semibold">{notif.senderId?.displayName || notif.senderId?.userName}</span> {notif.message}
-                                                            </p>
-                                                            <span className="text-xs text-slate-500 dark:text-[#94a3b8] mt-1">
-                                                                {new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(notif.createdAt))}
-                                                            </span>
-                                                        </div>
-                                                        {!notif.isRead && (
-                                                            <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 shrink-0"></div>
-                                                        )}
-                                                    </div>
-                                                ))
+                                                    );
+                                                })
                                             ) : (
                                                 <div className="p-6 text-center text-slate-500 dark:text-[#94a3b8] text-sm flex flex-col items-center">
                                                     <Bell className="w-8 h-8 text-slate-300 dark:text-[#94a3b8] mb-2" />

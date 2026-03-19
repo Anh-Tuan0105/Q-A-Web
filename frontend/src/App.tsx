@@ -22,6 +22,7 @@ import AdminTagManagement from './pages/admin/AdminTagManagement'
 import AdminSettings from './pages/admin/AdminSettings'
 import AdminMembers from './pages/admin/AdminMembers'
 import AdminLogin from './pages/admin/AdminLogin'
+// import AdminReports from './pages/admin/AdminReports' // Removed
 import { Toaster } from 'sonner'
 import { useAuthStore } from './stores/useAuthStore'
 import { useSocketStore } from './stores/useSocketStore'
@@ -148,6 +149,7 @@ function App() {
               <Route index element={<Navigate to="posts" replace />} />
               <Route path="posts" element={<AdminDashboard />} />
               <Route path="posts/:id" element={<DetailQuestions />} />
+              {/* <Route path="reports" element={<AdminReports />} /> */}
               <Route path="tags" element={<AdminTagManagement />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="members" element={<AdminMembers />} />

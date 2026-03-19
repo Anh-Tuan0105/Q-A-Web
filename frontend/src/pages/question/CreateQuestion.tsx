@@ -73,6 +73,12 @@ const CreateQuestion = () => {
         setIsSubmitting(true);
         try {
             const res = await questionService.createQuestion(title, content, tags);
+            // Bài đăng bị gắn cờ → thông báo và về trang chủ
+            if (res.pending) {
+                import('sonner').then(({ toast }) => toast.info(res.message, { duration: 5000 }));
+                navigate("/");
+                return;
+            }
             if (res.success && res.question) {
                 import('sonner').then(({ toast }) => toast.success("Đăng câu hỏi thành công!"));
                 navigate(`/questions/${res.question._id}`);
@@ -84,6 +90,7 @@ const CreateQuestion = () => {
         }
     };
 
+
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col">
             <Header />
@@ -94,8 +101,8 @@ const CreateQuestion = () => {
                         Mô tả vấn đề cụ thể và tưởng tượng bạn đang hỏi một người khác. Cộng đồng luôn sẵn sàng giúp đỡ!
                     </p>
                 </div>
+
                 <div className="flex flex-col gap-6 mb-8">
-                    {/* Title Block */}
                     <div className="bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] rounded-xl p-6 shadow-sm">
                         <div className="flex justify-between items-start mb-2">
                             <div>
@@ -153,7 +160,7 @@ const CreateQuestion = () => {
                             onSelectTag={handleSuggestTagSelect}
                         />
                     </div>
-                </div>
+                    </div>
                 <div className="flex items-center justify-between">
                     <button onClick={() => navigate(-1)} className="px-4 py-2.5 font-bold text-slate-600 dark:text-[#94a3b8] hover:text-slate-900 dark:hover:text-[#f8fafc] transition-colors cursor-pointer" disabled={isSubmitting}>Hủy bỏ</button>
                     <button onClick={handlePostQuestion} disabled={isSubmitting} className={`px-8 py-2.5 font-bold text-white rounded-lg transition-colors shadow-sm cursor-pointer ${isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}>{isSubmitting ? "Đang xử lý..." : "Đăng câu hỏi"}</button>
