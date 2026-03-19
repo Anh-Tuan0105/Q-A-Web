@@ -54,7 +54,7 @@ const questionSchema = mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["open", "closed", "resolved"],
+            enum: ["open", "closed", "resolved", "pending"],
             default: "open",
         },
     },
