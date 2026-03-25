@@ -10,6 +10,8 @@ import tagRoute from './routes/tagRoute.js'
 import notificationRoute from './routes/notificationRoute.js' // Thêm route thông báo
 import publicUserRoute from './routes/publicUserRoute.js'
 import similarityRoute from './routes/similarityRoute.js'
+import adminRoute from './routes/adminRoute.js'
+import commentRoute from './routes/commentRoute.js'
 import { connectDB } from "./lib/db.js";
 import { protectedRoute, optionalAuth } from "./middlewares/authMiddleware.js";
 import settingRoute from './routes/settingRoute.js'
@@ -57,12 +59,17 @@ app.use('/api/answers', answerRoute);
 app.use('/api/tags', tagRoute);
 app.use('/api/users', publicUserRoute);
 app.use('/api/similarity', similarityRoute);
+<<<<<<< HEAD
 app.use('/api/settings', settingRoute);
+=======
+app.use('/api/comments', commentRoute);
+>>>>>>> origin/Duc
 
 // Private Routes
 app.use(protectedRoute);
 app.use('/api/users', userRoute);
 app.use('/api/notifications', notificationRoute); // Đăng ký route thông báo
+app.use('/api/admin/reports', adminRoute); // Đăng ký route Admin báo cáo
 
 connectDB().then(() => {
     server.listen(PORT, () => {

@@ -4,7 +4,12 @@ import Vote from "../models/Vote.js";
 import Notification from "../models/Notification.js";
 import mongoose from "mongoose";
 import { io } from "../lib/socket.js";
+<<<<<<< HEAD
 import { updateUserReputation } from "../utils/reputation.js";
+=======
+import { validateContent } from "../services/moderation.service.js";
+
+>>>>>>> origin/Duc
 
 // Tạo câu trả lời mới
 export const createAnswer = async (req, res) => {
@@ -26,6 +31,16 @@ export const createAnswer = async (req, res) => {
         const existingAnswer = await Answer.findOne({ quesId, userId });
         if (existingAnswer) {
             return res.status(400).json({ success: false, message: "Bạn đã trả lời câu hỏi này rồi. Vui lòng chỉnh sửa câu trả lời hiện tại của bạn" });
+        }
+
+        // Kiểm duyệt nội dung trước khi lưu
+        const moderation = await validateContent({ content, quesId }, 'Answer', userId);
+        if (!moderation.safe) {
+            return res.status(400).json({
+                success: false,
+                message: moderation.reason,
+                blocked: true
+            });
         }
 
         const newAnswer = new Answer({

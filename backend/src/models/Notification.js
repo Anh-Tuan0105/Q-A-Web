@@ -20,7 +20,12 @@ const notificationSchema = mongoose.Schema(
         targetType: {
             type: String,
             required: true,
-            enum: ["Question", "Answer", "Vote"],
+            enum: ["Question", "Answer", "Vote", "Comment"],
+        },
+        type: {
+            type: String,
+            enum: ["new_comment", "new_answer", "vote", "approved", "rejected"],
+            required: true,
         },
         message: {
             type: String,

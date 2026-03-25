@@ -199,6 +199,7 @@ function App() {
               <Route index element={<Navigate to="posts" replace />} />
               <Route path="posts" element={<AdminDashboard />} />
               <Route path="posts/:id" element={<DetailQuestions />} />
+              {/* <Route path="reports" element={<AdminReports />} /> */}
               <Route path="tags" element={<AdminTagManagement />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="members" element={<AdminMembers />} />
