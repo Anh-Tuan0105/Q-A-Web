@@ -59,11 +59,8 @@ app.use('/api/answers', answerRoute);
 app.use('/api/tags', tagRoute);
 app.use('/api/users', publicUserRoute);
 app.use('/api/similarity', similarityRoute);
-<<<<<<< HEAD
 app.use('/api/settings', settingRoute);
-=======
 app.use('/api/comments', commentRoute);
->>>>>>> origin/Duc
 
 // Private Routes
 app.use(protectedRoute);
