@@ -2,7 +2,7 @@ import api from '../lib/axios';
 import type { FetchedData, QuestionType } from '../types/question';
 
 export const questionService = {
-    getQuestions: async (page = 1, sort = 'interesting', tag = '', keyword = '') => {
+    getQuestions: async (page = 1, sort = 'interesting', tag = '', keyword = '', status = '') => {
         const params = new URLSearchParams();
         params.append('page', page.toString());
         params.append('limit', '4'); // Backend default is 4
@@ -12,6 +12,9 @@ export const questionService = {
         }
         if (keyword) {
             params.append('keyword', keyword);
+        }
+        if (status) {
+            params.append('status', status);
         }
 
         const response = await api.get<FetchedData>(`/questions?${params.toString()}`);

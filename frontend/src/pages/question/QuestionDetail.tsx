@@ -6,11 +6,15 @@ import Header from "../../components/header/Header";
 import Sider from "../../components/sider/Sider";
 import Footer from "../../components/footer/Footer";
 import PopularTags from "../../components/popular-tags/PopularTags";
-import { ChevronUp, ChevronDown, CheckCircle2 } from "lucide-react";
+import { ChevronUp, ChevronDown, CheckCircle2, Loader2, Flag } from "lucide-react";
 import MarkdownViewer from "../../components/markdown/MarkdownViewer";
 import SimpleMdeReact from "react-simplemde-editor";
 import "easymde/dist/easymde.min.css";
 import { useSocketStore } from "../../stores/useSocketStore";
+import CommentSection from "../../components/question/CommentSection";
+import Loading from "../../components/ui/Loading";
+import ReportDialog from "../../components/question/ReportDialog";
+
 
 // Tái sử dụng hàm helper từ Home
 const getRelativeTime = (dateString: string) => {
@@ -52,6 +56,9 @@ const QuestionDetail = () => {
     // Edit Answer state
     const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null);
     const [editAnswerContent, setEditAnswerContent] = useState("");
+
+    // Report state
+    const [reportTarget, setReportTarget] = useState<{ id: string; type: 'Question' | 'Answer' } | null>(null);
 
     const mdeOptions = useMemo(() => {
         return {
@@ -228,7 +235,7 @@ const QuestionDetail = () => {
             <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] flex flex-col transition-colors">
                 <Header />
                 <div className="flex-1 max-w-[1400px] w-full mx-auto pt-6 flex justify-center items-center">
-                    <span className="text-slate-500 dark:text-[#94a3b8] font-medium animate-pulse">Đang tải nội dung...</span>
+                    <Loading message="Đang tải nội dung..." />
                 </div>
                 <Footer />
             </div>
@@ -354,11 +361,16 @@ const QuestionDetail = () => {
                                 {/* Author Card */}
                                 <div className="flex items-start justify-between mt-auto">
                                     <div className="flex gap-4 text-[13px] text-slate-500 dark:text-[#94a3b8] font-bold">
-                                        {user?._id === question.userId._id && !isEditingQuestion && (
+                                        {(user?._id === question.userId._id || user?.role === 'admin') && !isEditingQuestion && (
                                             <>
                                                 <button onClick={handleEditQuestion} className="hover:text-slate-800 dark:hover:text-[#f8fafc] transition-colors cursor-pointer">Sửa</button>
                                                 <button onClick={handleDeleteQuestion} className="hover:text-slate-800 dark:hover:text-[#f8fafc] transition-colors cursor-pointer">Xóa</button>
                                             </>
+                                        )}
+                                        {user && user._id !== question.userId._id && (
+                                            <button onClick={() => setReportTarget({ id: question._id, type: 'Question' })} className="hover:text-red-500 transition-colors cursor-pointer flex items-center gap-1">
+                                                <Flag size={13} /> Báo cáo
+                                            </button>
                                         )}
                                     </div>
 
@@ -384,6 +396,9 @@ const QuestionDetail = () => {
                             </div>
                         </div>
 
+                        {/* Comments for Question */}
+                        <CommentSection targetType="Question" targetId={question._id} socket={socket} />
+
                         {/* Answers Section */}
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-[20px] font-bold text-slate-800 dark:text-[#f8fafc]">{answers.length} Câu trả lời</h2>
@@ -402,7 +417,7 @@ const QuestionDetail = () => {
 
                         <div className="flex flex-col gap-6 mb-12">
                             {sortedAnswers.map(answer => (
-                                <div key={answer._id} className="flex gap-4 border-[2px] border-green-100/30 dark:border-green-900/20 p-[24px] rounded-[24px] bg-white dark:bg-[#1e293b]/50 shadow-sm">
+                                <div key={answer._id} className="flex gap-4 border-2 border-green-100/30 dark:border-green-900/20 p-[24px] rounded-[24px] bg-white dark:bg-[#1e293b]/50 shadow-sm">
                                     {/* Answer Vote Column */}
                                     <div className="flex flex-col items-center gap-2 shrink-0 w-12 pt-2">
                                         <button onClick={() => handleVoteAnswer(answer._id, 1)} className="p-2 text-slate-400 dark:text-[#94a3b8] hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors cursor-pointer">
@@ -472,11 +487,16 @@ const QuestionDetail = () => {
 
                                         <div className="flex items-start justify-between mt-auto">
                                             <div className="flex gap-4 text-[13px] text-slate-500 dark:text-[#94a3b8] font-bold">
-                                                {user?._id === answer.userId._id && editingAnswerId !== answer._id && (
+                                                {(user?._id === answer.userId._id || user?.role === 'admin') && editingAnswerId !== answer._id && (
                                                     <>
                                                         <button onClick={() => handleEditAnswer(answer)} className="hover:text-slate-800 dark:hover:text-[#f8fafc] transition-colors cursor-pointer">Sửa</button>
                                                         <button onClick={() => handleDeleteAnswer(answer._id)} className="hover:text-slate-800 dark:hover:text-[#f8fafc] transition-colors cursor-pointer">Xóa</button>
                                                     </>
+                                                )}
+                                                {user && user._id !== answer.userId._id && (
+                                                    <button onClick={() => setReportTarget({ id: answer._id, type: 'Answer' })} className="hover:text-red-500 transition-colors cursor-pointer flex items-center gap-1">
+                                                        <Flag size={13} /> Báo cáo
+                                                    </button>
                                                 )}
                                             </div>
 
@@ -493,6 +513,9 @@ const QuestionDetail = () => {
                                                 </Link>
                                             </div>
                                         </div>
+
+                                        {/* Comments cho Answer này */}
+                                        <CommentSection targetType="Answer" targetId={answer._id} socket={socket} />
                                     </div>
                                 </div>
                             ))}
@@ -513,9 +536,9 @@ const QuestionDetail = () => {
                                 <button
                                     onClick={handlePostAnswer}
                                     disabled={isSubmitting}
-                                    className={`px-6 py-2.5 text-white font-bold rounded-lg transition-colors shadow-sm cursor-pointer ${isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+                                    className={`px-6 py-2.5 text-white font-bold rounded-lg transition-colors shadow-sm cursor-pointer flex items-center justify-center gap-2 ${isSubmitting ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
                                 >
-                                    {isSubmitting ? "Đang đăng..." : "Đăng câu trả lời"}
+                                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Đăng câu trả lời"}
                                 </button>
                             ) : (
                                 <div className="text-slate-600 dark:text-[#94a3b8] bg-slate-100 dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] p-4 rounded-xl flex items-center gap-4">
@@ -539,6 +562,15 @@ const QuestionDetail = () => {
             </div>
 
             <Footer />
+
+            {/* Report Dialog */}
+            {reportTarget && (
+                <ReportDialog
+                    targetId={reportTarget.id}
+                    contentType={reportTarget.type}
+                    onClose={() => setReportTarget(null)}
+                />
+            )}
         </div>
     );
 };

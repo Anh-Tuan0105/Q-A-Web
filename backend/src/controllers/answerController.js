@@ -5,6 +5,9 @@ import Notification from "../models/Notification.js";
 import mongoose from "mongoose";
 import { io } from "../lib/socket.js";
 import { updateUserReputation } from "../utils/reputation.js";
+import { validateContent } from "../services/moderation.service.js";
+import { createNotification } from "../services/notification.service.js";
+
 
 // Tạo câu trả lời mới
 export const createAnswer = async (req, res) => {
@@ -28,6 +31,16 @@ export const createAnswer = async (req, res) => {
             return res.status(400).json({ success: false, message: "Bạn đã trả lời câu hỏi này rồi. Vui lòng chỉnh sửa câu trả lời hiện tại của bạn" });
         }
 
+        // Kiểm duyệt nội dung trước khi lưu
+        const moderation = await validateContent({ content, quesId }, 'Answer', userId);
+        if (!moderation.safe) {
+            return res.status(400).json({
+                success: false,
+                message: moderation.reason,
+                blocked: true
+            });
+        }
+
         const newAnswer = new Answer({
             quesId,
             userId,
@@ -48,19 +61,15 @@ export const createAnswer = async (req, res) => {
         // --- Logic tạo thông báo ---
         // Chỉ tạo thông báo nếu người bình luận khác với người đăng câu hỏi
         if (question.userId.toString() !== userId.toString()) {
-            const newNotification = new Notification({
-                receiverId: question.userId, // Người nhận là tác giả bài viết
-                senderId: userId, // Người gửi là người vừa tạo answer
+            await createNotification({
+                receiverId: question.userId,
+                senderId: userId,
                 targetId: question._id,
-                targetType: "Answer",
-                message: `đã bình luận vào bài đăng của bạn: "${question.title ? question.title : "Câu hỏi"}"`,
+                targetType: "Question",
+                type: "new_answer",
+                message: `đã trả lời bài đăng của bạn: "${question.title ? question.title : "Câu hỏi"}"`,
                 link: `/questions/${question._id}`
             });
-
-            await newNotification.save();
-            
-            // Nếu có kết nối socket với tác giả bài viết, có thể emit realtime
-            io.to(`user_${question.userId.toString()}`).emit("new_notification", newNotification);
         }
 
         io.to(`room_question_${quesId}`).emit("new_answer", populatedAnswer);
@@ -118,8 +127,8 @@ export const updateAnswer = async (req, res) => {
             return res.status(404).json({ success: false, message: "Không tìm thấy câu trả lời" });
         }
 
-        // Chỉ tác giả mới được sửa
-        if (answer.userId.toString() !== userId.toString()) {
+        // Chỉ tác giả hoặc admin mới được sửa
+        if (answer.userId.toString() !== userId.toString() && req.user.role !== 'admin') {
             return res.status(403).json({ success: false, message: "Bạn không có quyền chỉnh sửa câu trả lời này" });
         }
 
@@ -153,7 +162,7 @@ export const deleteAnswer = async (req, res) => {
             return res.status(404).json({ success: false, message: "Không tìm thấy câu trả lời" });
         }
 
-        if (answer.userId.toString() !== userId.toString()) {
+        if (answer.userId.toString() !== userId.toString() && req.user.role !== 'admin') {
             return res.status(403).json({ success: false, message: "Bạn không có quyền xóa câu trả lời này" });
         }
 

@@ -4,8 +4,6 @@ import type { NotificationType } from '../types/notification';
 import type { NotificationStore } from '../types/store';
 
 
-
-
 export const useNotificationStore = create<NotificationStore>((set, get) => ({
     notifications: [],
     unreadCount: 0,
