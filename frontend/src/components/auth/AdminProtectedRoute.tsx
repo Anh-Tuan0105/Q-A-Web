@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from "react-router";
-import { useAuthStore } from "../../stores/useAuthStore"
+import { useAuthStore } from "../../stores/useAuthStore";
 import { useEffect, useState } from "react";
+import Loading from "../ui/Loading";
 
 const AdminProtectedRoute = () => {
     const { accessToken, user, loading, refresh, fetchMe } = useAuthStore();
@@ -27,7 +28,11 @@ const AdminProtectedRoute = () => {
     }, [])
 
     if (starting || loading) {
-        return <div className="flex h-screen items-center justify-center">Đang tải trang........</div>
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <Loading message="Đang tải trang..." />
+            </div>
+        );
     }
 
     // Chưa đăng nhập → về trang admin login

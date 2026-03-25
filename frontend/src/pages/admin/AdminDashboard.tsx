@@ -37,6 +37,9 @@ const AdminDashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
+    // For notification dropdown: separate from tab data
+    const [latestReports, setLatestReports] = useState<Report[]>([]);
+
     // Debounce search
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -45,6 +48,22 @@ const AdminDashboard: React.FC = () => {
         }, 500);
         return () => clearTimeout(handler);
     }, [searchKeyword]);
+
+    // Luôn fetch số lượng report pending khi vào trang
+    const fetchReportCount = async () => {
+        try {
+            const data = await reportService.getReports('Pending', '', '', 1, 1);
+            setRTotal(data.total);
+        } catch { /* ignore */ }
+    };
+
+    // Fetch latest reports cho notification dropdown
+    const fetchLatestReports = async () => {
+        try {
+            const data = await reportService.getReports('Pending', '', '', 1, 5);
+            setLatestReports(data.reports);
+        } catch { /* ignore */ }
+    };
 
     const fetchData = async () => {
         setLoading(true);
@@ -67,6 +86,11 @@ const AdminDashboard: React.FC = () => {
         }
     };
 
+    // Fetch report count on mount
+    useEffect(() => {
+        fetchReportCount();
+    }, []);
+
     useEffect(() => {
         fetchData();
     }, [activeTab, qPage, rPage, debouncedSearch, qStatusFilter, rTypeFilter]);
@@ -80,10 +104,9 @@ const AdminDashboard: React.FC = () => {
 
         const handleNewReport = () => {
             setUnreadReports(prev => prev + 1);
+            setRTotal(prev => prev + 1);
             if (activeTab === 'reported') {
                 fetchData(); // reload
-            } else {
-                setRTotal(prev => prev + 1);
             }
             toast('Có báo cáo vi phạm mới!');
         };
@@ -175,7 +198,10 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div className="relative">
                     <button 
-                        onClick={() => { setIsNotifOpen(!isNotifOpen); }}
+                        onClick={() => { 
+                            setIsNotifOpen(!isNotifOpen);
+                            if (!isNotifOpen) fetchLatestReports();
+                        }}
                         className="relative p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors cursor-pointer"
                     >
                         <Bell className="w-6 h-6" />
@@ -201,8 +227,8 @@ const AdminDashboard: React.FC = () => {
                             </div>
 
                             <div className="flex-1 overflow-y-auto">
-                                {reports.length > 0 ? (
-                                    reports.slice(0, 5).map((report, index) => {
+                                {latestReports.length > 0 ? (
+                                    latestReports.slice(0, 5).map((report, index) => {
                                         const isUnread = index < unreadReports;
                                         return (
                                             <div

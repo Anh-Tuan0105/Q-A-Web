@@ -32,10 +32,14 @@ export const createNotification = async ({
             link,
         });
 
-        // Emit realtime tới đúng user
-        io.to(`user_${receiverId}`).emit("new_notification", notification);
+        // Nạp đầy đủ thông tin người gửi (senderId) và biến thành plain object trước khi emit
+        const populatedNotification = await Notification.findById(notification._id)
+            .populate("senderId", "userName displayName avatarUrl");
 
-        return notification;
+        // Emit realtime tới đúng user
+        io.to(`user_${receiverId}`).emit("new_notification", populatedNotification.toJSON());
+
+        return populatedNotification;
     } catch (err) {
         console.error("Lỗi khi tạo thông báo:", err.message);
     }

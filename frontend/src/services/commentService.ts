@@ -42,4 +42,12 @@ export const commentService = {
         const response = await api.delete(`/comments/${id}`);
         return response.data;
     },
+
+    updateComment: async (id: string, content: string) => {
+        const response = await api.put<CreateCommentResponse>(
+            `/comments/${id}`,
+            { content }
+        );
+        return response.data;
+    },
 };

@@ -50,4 +50,14 @@ export const reportService = {
         const response = await api.delete(`/admin/reports/${id}`);
         return response.data;
     },
+
+    // User-facing report
+    createReport: async (targetId: string, contentType: 'Question' | 'Answer' | 'Comment', reason: string) => {
+        const response = await api.post<{ success: boolean; message: string }>('/reports', {
+            targetId,
+            contentType,
+            reason
+        });
+        return response.data;
+    },
 };

@@ -216,28 +216,65 @@ export const rejectReport = async (req, res) => {
             return res.status(404).json({ success: false, message: "Không tìm thấy báo cáo" });
         }
 
-        // === Xóa Comment vi phạm vĩnh viễn ===
-        if (report.contentType === 'Comment' && report.originalData && report.originalData.commentId) {
+        // Xác định ID nội dung cần xóa (hỗ trợ cả auto-moderation và user report)
+        const targetContentId = report.originalData?.targetId 
+            || report.originalData?.commentId 
+            || report.originalData?.questionId;
+
+        // Xác định chủ nội dung bị báo cáo
+        const contentOwnerId = report.originalData?.contentOwnerId || report.userId;
+
+        // === Xóa Comment vi phạm ===
+        if (report.contentType === 'Comment' && targetContentId) {
             const Comment = (await import('../models/Comment.js')).default;
-            await Comment.findByIdAndDelete(report.originalData.commentId);
+            await Comment.findByIdAndDelete(targetContentId);
         }
 
-        // === Xóa Question pending vi phạm ===
-        if (report.contentType === 'Question' && report.originalData && report.originalData.questionId) {
+        // === Xóa Question vi phạm ===
+        if (report.contentType === 'Question' && targetContentId) {
             const QuestionData = (await import('../models/Question.js')).default;
-            await QuestionData.findByIdAndDelete(report.originalData.questionId);
+            const AnswerData = (await import('../models/Answer.js')).default;
+            const CommentModel = (await import('../models/Comment.js')).default;
+            const VoteModel = (await import('../models/Vote.js')).default;
+
+            // Xóa answers, comments, votes liên quan
+            const answers = await AnswerData.find({ quesId: targetContentId }).select('_id');
+            const answerIds = answers.map(a => a._id);
+            await VoteModel.deleteMany({ targetType: "Answer", ansId: { $in: answerIds } });
+            await CommentModel.deleteMany({ targetType: "Answer", targetId: { $in: answerIds } });
+            await AnswerData.deleteMany({ quesId: targetContentId });
+            await CommentModel.deleteMany({ targetType: "Question", targetId: targetContentId });
+            await VoteModel.deleteMany({ targetType: "Question", quesId: targetContentId });
+            await QuestionData.findByIdAndDelete(targetContentId);
         }
 
-        // Gửi thông báo từ chối cho chủ nội dung
+        // === Xóa Answer vi phạm ===
+        if (report.contentType === 'Answer' && targetContentId) {
+            const AnswerData = (await import('../models/Answer.js')).default;
+            const CommentModel = (await import('../models/Comment.js')).default;
+            const VoteModel = (await import('../models/Vote.js')).default;
+            const QuestionData = (await import('../models/Question.js')).default;
+
+            const answer = await AnswerData.findById(targetContentId);
+            if (answer) {
+                // Giảm answersCount của câu hỏi
+                await QuestionData.findByIdAndUpdate(answer.quesId, { $inc: { answersCount: -1 } });
+                await VoteModel.deleteMany({ targetType: "Answer", ansId: targetContentId });
+                await CommentModel.deleteMany({ targetType: "Answer", targetId: targetContentId });
+                await AnswerData.findByIdAndDelete(targetContentId);
+            }
+        }
+
+        // Gửi thông báo từ chối cho chủ nội dung bị báo cáo
         const contentTypeMap = { Question: 'Bài đăng', Comment: 'Bình luận', Answer: 'Câu trả lời' };
         const contentLabel = contentTypeMap[report.contentType] || 'Nội dung';
         await createNotification({
-            receiverId: report.userId,
+            receiverId: contentOwnerId,
             senderId: req.user._id,
             targetId: report._id,
             targetType: report.contentType,
             type: 'rejected',
-            message: `${contentLabel} của bạn đã bị từ chối do vi phạm Nội quy cộng đồng.`,
+            message: `${contentLabel} của bạn đã bị xóa do vi phạm Nội quy cộng đồng.`,
         });
 
         io.emit('report_processed', report);

@@ -191,7 +191,7 @@ export const deleteComment = async (req, res) => {
             return res.status(404).json({ success: false, message: "Không tìm thấy bình luận" });
         }
 
-        if (comment.userId.toString() !== userId.toString()) {
+        if (comment.userId.toString() !== userId.toString() && req.user.role !== 'admin') {
             return res.status(403).json({ success: false, message: "Bạn không có quyền xóa bình luận này" });
         }
 
@@ -200,6 +200,51 @@ export const deleteComment = async (req, res) => {
         res.status(200).json({ success: true, message: "Đã xóa bình luận" });
     } catch (error) {
         console.error("Lỗi trong deleteComment:", error);
+        res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
+    }
+};
+
+/**
+ * Cập nhật comment (sửa bình luận)
+ * PUT /api/comments/:id
+ */
+export const updateComment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { content } = req.body;
+        const userId = req.user._id;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ success: false, message: "ID không hợp lệ" });
+        }
+
+        if (!content?.trim()) {
+            return res.status(400).json({ success: false, message: "Nội dung bình luận không được để trống" });
+        }
+
+        if (content.length > 600) {
+            return res.status(400).json({ success: false, message: "Bình luận tối đa 600 ký tự" });
+        }
+
+        const comment = await Comment.findById(id);
+        if (!comment) {
+            return res.status(404).json({ success: false, message: "Không tìm thấy bình luận" });
+        }
+
+        if (comment.userId.toString() !== userId.toString() && req.user.role !== 'admin') {
+            return res.status(403).json({ success: false, message: "Bạn không có quyền sửa bình luận này" });
+        }
+
+        comment.content = content.trim();
+        // Optional: Could reset moderation status here if we wanted to re-moderate edits
+        await comment.save();
+
+        const populatedComment = await Comment.findById(comment._id)
+            .populate('userId', 'userName displayName avatarUrl');
+
+        res.status(200).json({ success: true, message: "Đã cập nhật bình luận", comment: populatedComment });
+    } catch (error) {
+        console.error("Lỗi trong updateComment:", error);
         res.status(500).json({ success: false, message: "Lỗi máy chủ nội bộ" });
     }
 };

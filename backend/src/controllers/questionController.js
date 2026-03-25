@@ -2,11 +2,15 @@ import Question from "../models/Question.js";
 import Tag from "../models/Tag.js";
 import Vote from "../models/Vote.js";
 import Report from "../models/Report.js";
+import Answer from "../models/Answer.js";
+import Comment from "../models/Comment.js";
+import Notification from "../models/Notification.js";
 import mongoose from "mongoose";
 import { io } from "../lib/socket.js";
 import { generateEmbedding } from "../services/ai.service.js";
 import { validateContent } from "../services/moderation.service.js";
 import { createNotification } from "../services/notification.service.js";
+import { updateUserReputation } from "../utils/reputation.js";
 
 const MODERATION_PENDING_MSG =
     "Bài đăng của bạn có nội dung cần được xem xét thêm trước khi hiển thị. Chúng tôi sẽ thông báo kết quả cho bạn sớm nhất.";
@@ -130,6 +134,9 @@ export const getQuestions = async (req, res) => {
         // 0. Xử lý Status & Search keyword
         if (status && status !== 'all') {
             query.status = status;
+        } else {
+            // Mặc định không trả về các câu hỏi đang chờ duyệt (pending)
+            query.status = { $ne: 'pending' };
         }
 
         if (keyword) {
@@ -269,8 +276,8 @@ export const updateQuestion = async (req, res) => {
             return res.status(404).json({ success: false, message: "Không tìm thấy câu hỏi" });
         }
 
-        // Chỉ tác giả mới được sửa
-        if (question.userId.toString() !== userId.toString()) {
+        // Chỉ tác giả hoặc admin mới được sửa
+        if (question.userId.toString() !== userId.toString() && req.user.role !== 'admin') {
             return res.status(403).json({ success: false, message: "Bạn không có quyền chỉnh sửa câu hỏi này" });
         }
 
@@ -356,11 +363,46 @@ export const deleteQuestion = async (req, res) => {
             { $inc: { totalQuestion: -1 } }
         );
 
+        // Lấy danh sách ID các câu trả lời của câu hỏi này
+        const answers = await Answer.find({ quesId: question._id }).select('_id userId');
+        const answerIds = answers.map(ans => ans._id);
+        const uniqueUserIds = [...new Set(answers.map(ans => ans.userId?.toString()).filter(Boolean))];
+
+        // Xóa tất cả Vote liên kết với câu trả lời của câu hỏi này
+        await Vote.deleteMany({ targetType: "Answer", ansId: { $in: answerIds } });
+
+        // Xóa tất cả Comment liên kết với câu trả lời của câu hỏi này
+        await Comment.deleteMany({ targetType: "Answer", targetId: { $in: answerIds } });
+
+        // Xóa tất cả Answer của câu hỏi này
+        await Answer.deleteMany({ quesId: question._id });
+
+        // Xóa tất cả Comment liên kết với câu hỏi này
+        await Comment.deleteMany({ targetType: "Question", targetId: question._id });
+
         // Xóa tất cả Vote liên kết với câu hỏi này
         await Vote.deleteMany({ targetType: "Question", quesId: question._id });
 
+        // Xóa tất cả Notification liên kết với câu hỏi này (hoặc các câu trả lời của nó)
+        await Notification.deleteMany({
+             $or: [
+                { targetId: question._id },
+                { targetType: "Answer", targetId: { $in: answerIds } }
+             ]
+        });
+
+        // Xóa Report liên kết
+        await Report.deleteMany({ 'originalData.questionId': question._id });
+
         // Tiến hành xóa câu hỏi
         await Question.findByIdAndDelete(id);
+
+        // Cập nhật lại reputation cho các tác giả của câu trả lời đã bị xóa
+        if (uniqueUserIds.length > 0) {
+            await Promise.all(uniqueUserIds.map(uid => 
+                updateUserReputation(uid).catch(err => console.error("Reputation sync error on question delete:", err))
+            ));
+        }
 
         res.status(200).json({
             success: true,

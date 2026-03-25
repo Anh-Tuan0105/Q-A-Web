@@ -12,6 +12,7 @@ import publicUserRoute from './routes/publicUserRoute.js'
 import similarityRoute from './routes/similarityRoute.js'
 import adminRoute from './routes/adminRoute.js'
 import commentRoute from './routes/commentRoute.js'
+import reportRoute from './routes/reportRoute.js'
 import { connectDB } from "./lib/db.js";
 import { protectedRoute, optionalAuth } from "./middlewares/authMiddleware.js";
 import settingRoute from './routes/settingRoute.js'
@@ -67,6 +68,7 @@ app.use(protectedRoute);
 app.use('/api/users', userRoute);
 app.use('/api/notifications', notificationRoute); // Đăng ký route thông báo
 app.use('/api/admin/reports', adminRoute); // Đăng ký route Admin báo cáo
+app.use('/api/reports', reportRoute); // Đăng ký route User báo cáo
 
 connectDB().then(() => {
     server.listen(PORT, () => {
