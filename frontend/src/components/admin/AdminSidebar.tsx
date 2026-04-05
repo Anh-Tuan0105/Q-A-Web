@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router';
-import { Settings, Users, LogOut, FileText, Tag } from 'lucide-react';
+import { Settings, Users, LogOut, FileText, Tag, Globe } from 'lucide-react';
 import { useAuthStore } from '../../stores/useAuthStore';
 import { useAdminSettingsStore } from '../../stores/useAdminSettingsStore';
 
@@ -11,6 +11,7 @@ const AdminSidebar: React.FC = () => {
     const navigate = useNavigate();
 
     const navigation = [
+        { name: 'Web Community', href: '/home', icon: Globe },
         { name: 'Bài viết', href: '/admin/posts', icon: FileText },
         { name: 'Tags', href: '/admin/tags', icon: Tag },
         { name: 'Thành viên', href: '/admin/members', icon: Users },

@@ -4,6 +4,8 @@ import type { PopularTag } from '../types/tag';
 import type { NotificationType } from '../types/notification';
 import type { AnswerType } from '../types/answer';
 import type { Socket } from 'socket.io-client';
+import type { Report } from '../services/reportService';
+import type { Comment } from '../services/commentService';
 
 
 export interface AuthState {
@@ -123,4 +125,34 @@ export interface ThemeState {
     setTheme: (theme: "light" | "dark", userId?: string) => void;
     toggleTheme: (userId?: string) => void;
     loadUserTheme: (userId: string) => void;
+}
+
+export interface CommentReportStore {
+    // Reports state
+    reports: Report[];
+    totalReports: number;
+    currentReportPage: number;
+    totalReportPages: number;
+    isLoadingReports: boolean;
+    
+    // Actions for reports
+    fetchReports: (status?: string, contentType?: string, keyword?: string, page?: number, limit?: number) => Promise<void>;
+    approveReport: (reportId: string) => Promise<void>;
+    rejectReport: (reportId: string) => Promise<void>;
+    deleteReport: (reportId: string) => Promise<void>;
+
+    // Comments state
+    // We store comments mapped by targetId (for Question or Answer)
+    commentsByTarget: Record<string, Comment[]>;
+    isLoadingComments: boolean;
+
+    // Actions for comments
+    fetchComments: (targetType: 'Question' | 'Answer', targetId: string) => Promise<void>;
+    addComment: (targetType: 'Question' | 'Answer', targetId: string, content: string) => Promise<{ success: boolean; message: string; pending?: boolean }>;
+    updateComment: (targetId: string, commentId: string, content: string) => Promise<void>;
+    deleteComment: (targetId: string, commentId: string) => Promise<void>;
+    
+    // Realtime Socket actions for comments
+    receiveNewComment: (targetId: string, comment: Comment) => void;
+    removeHiddenComment: (targetId: string, commentId: string) => void;
 }

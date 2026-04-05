@@ -1,39 +1,11 @@
 import { create } from 'zustand';
-import { reportService, type Report } from '../services/reportService';
-import { commentService, type Comment } from '../services/commentService';
+import { reportService } from '../services/reportService';
+import { commentService } from '../services/commentService';
+import type { CommentReportStore } from '../types/store';
 import { toast } from 'sonner';
 
-interface StoreState {
-    // Reports state
-    reports: Report[];
-    totalReports: number;
-    currentReportPage: number;
-    totalReportPages: number;
-    isLoadingReports: boolean;
-    
-    // Actions for reports
-    fetchReports: (status?: string, contentType?: string, keyword?: string, page?: number, limit?: number) => Promise<void>;
-    approveReport: (reportId: string) => Promise<void>;
-    rejectReport: (reportId: string) => Promise<void>;
-    deleteReport: (reportId: string) => Promise<void>;
 
-    // Comments state
-    // We store comments mapped by targetId (for Question or Answer)
-    commentsByTarget: Record<string, Comment[]>;
-    isLoadingComments: boolean;
-
-    // Actions for comments
-    fetchComments: (targetType: 'Question' | 'Answer', targetId: string) => Promise<void>;
-    addComment: (targetType: 'Question' | 'Answer', targetId: string, content: string) => Promise<{ success: boolean; message: string; pending?: boolean }>;
-    updateComment: (targetId: string, commentId: string, content: string) => Promise<void>;
-    deleteComment: (targetId: string, commentId: string) => Promise<void>;
-    
-    // Realtime Socket actions for comments
-    receiveNewComment: (targetId: string, comment: Comment) => void;
-    removeHiddenComment: (targetId: string, commentId: string) => void;
-}
-
-export const useCommentReportStore = create<StoreState>((set) => ({
+export const useCommentReportStore = create<CommentReportStore>((set) => ({
     reports: [],
     totalReports: 0,
     currentReportPage: 1,
