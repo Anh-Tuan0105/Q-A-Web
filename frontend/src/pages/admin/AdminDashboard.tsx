@@ -7,8 +7,15 @@ import { useSocketStore } from '../../stores/useSocketStore';
 import { toast } from 'sonner';
 
 // Xử lý logic hiển thị
-
-
+const getVisiblePages = (current: number, total: number, max = 5) => {
+    let start = Math.max(1, current - Math.floor(max / 2));
+    let end = start + max - 1;
+    if (end > total) {
+        end = total;
+        start = Math.max(1, end - max + 1);
+    }
+    return Array.from({ length: Math.max(0, end - start + 1) }, (_, i) => start + i);
+};
 
 const AdminDashboard: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'all' | 'reported'>('all');
@@ -486,25 +493,45 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
 
-                <div className="px-6 py-4 border-t border-gray-50 flex justify-between items-center text-xs text-gray-400">
-                    <p>Hiển thị tab {activeTab === 'reported' ? 'Báo cáo' : 'Bài viết'}</p>
-                    <div className="flex items-center gap-1">
-                        <button 
-                            onClick={() => activeTab === 'all' ? setQPage(p => Math.max(1, p-1)) : setRPage(p => Math.max(1, p-1))}
-                            disabled={activeTab === 'all' ? qPage === 1 : rPage === 1}
-                            className="p-2 hover:bg-gray-100 rounded-lg disabled:opacity-30 cursor-pointer"
-                        >
-                            <ChevronLeft size={16} />
-                        </button>
-                        <span className="px-4 font-bold text-blue-600">Trang {activeTab === 'all' ? qPage : rPage} / {Math.max(1, activeTab === 'all' ? qTotalPages : rTotalPages)}</span>
-                        <button 
-                            onClick={() => activeTab === 'all' ? setQPage(p => Math.min(qTotalPages, p+1)) : setRPage(p => Math.min(rTotalPages, p+1))}
-                            disabled={activeTab === 'all' ? qPage >= qTotalPages : rPage >= rTotalPages}
-                            className="p-2 hover:bg-gray-100 rounded-lg disabled:opacity-30 cursor-pointer"
-                        >
-                            <ChevronRight size={16} />
-                        </button>
-                    </div>
+                <div className="px-6 py-4 border-t border-gray-50 flex justify-between items-center font-medium">
+                    <span className="text-[13px] text-gray-400">
+                        Hiển thị tab {activeTab === 'reported' ? 'Báo cáo' : 'Bài viết'}
+                    </span>
+                    {(activeTab === 'all' ? qTotalPages : rTotalPages) > 1 && (
+                        <div className="flex justify-center items-center gap-2">
+                            <button
+                                onClick={() => activeTab === 'all' ? setQPage(p => Math.max(1, p-1)) : setRPage(p => Math.max(1, p-1))}
+                                disabled={activeTab === 'all' ? qPage === 1 : rPage === 1}
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] text-slate-400 dark:text-[#94a3b8] hover:text-blue-600 hover:border-blue-100 dark:hover:border-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                            >
+                                <ChevronLeft size={18} strokeWidth={2} />
+                            </button>
+
+                            <div className="flex items-center gap-1 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] rounded-xl p-1 shadow-sm">
+                                {getVisiblePages(activeTab === 'all' ? qPage : rPage, activeTab === 'all' ? qTotalPages : rTotalPages).map(page => (
+                                    <button
+                                        key={page}
+                                        onClick={() => activeTab === 'all' ? setQPage(page) : setRPage(page)}
+                                        className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-bold transition-all ${
+                                            (activeTab === 'all' ? qPage : rPage) === page 
+                                                ? "bg-blue-600 text-white shadow-sm" 
+                                                : "text-slate-600 dark:text-[#94a3b8] hover:bg-slate-50 dark:hover:bg-[#334155]"
+                                        }`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => activeTab === 'all' ? setQPage(p => Math.min(qTotalPages, p+1)) : setRPage(p => Math.min(rTotalPages, p+1))}
+                                disabled={activeTab === 'all' ? qPage >= qTotalPages : rPage >= rTotalPages}
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] text-slate-400 dark:text-[#94a3b8] hover:text-blue-600 hover:border-blue-100 dark:hover:border-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                            >
+                                <ChevronRight size={18} strokeWidth={2} />
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

@@ -1,7 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, X, Check, Trash2 } from 'lucide-react';
+import { Plus, Edit2, X, Check, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTagStore } from '../../stores/useTagStore';
 import { toast } from 'sonner';
+
+const getVisiblePages = (current: number, total: number, max = 5) => {
+    let start = Math.max(1, current - Math.floor(max / 2));
+    let end = start + max - 1;
+    if (end > total) {
+        end = total;
+        start = Math.max(1, end - max + 1);
+    }
+    return Array.from({ length: Math.max(0, end - start + 1) }, (_, i) => start + i);
+};
 
 const AdminTags = () => {
     const { tags, fetchTags, createTag, updateTag, isLoading, totalTags, currentPage, totalPages } = useTagStore();
@@ -129,45 +139,43 @@ const AdminTags = () => {
                     <div className="text-[14px] text-[#64748b]">
                         Hiển thị <span className="font-bold text-[#1e293b]">{(currentPage - 1) * 5 + 1}-{Math.min(currentPage * 5, totalTags)}</span> trên <span className="font-bold text-[#1e293b]">{totalTags}</span> thẻ.
                     </div>
-                    <div className="flex items-center gap-2">
-                        <button 
-                            onClick={() => fetchTags(currentPage - 1, 5, searchTerm)}
-                            disabled={currentPage === 1 || isLoading}
-                            className="px-4 py-2 text-[13px] font-bold text-[#64748b] bg-white border border-[#e2e8f0] rounded-lg hover:border-[#ccd6e3] disabled:opacity-50 transition-all cursor-pointer disabled:cursor-not-allowed"
-                        >
-                            Trang trước
-                        </button>
-                        
-                        <div className="flex gap-1.5 mx-2">
-                            {[...Array(totalPages)].map((_, i) => (
-                                <button
-                                    key={i + 1}
-                                    onClick={() => fetchTags(i + 1, 5, searchTerm)}
-                                    className={`w-9 h-9 flex items-center justify-center rounded-lg text-[13px] font-bold transition-all ${
-                                        currentPage === i + 1 
-                                        ? "bg-[#2563eb] text-white shadow-sm" 
-                                        : "text-[#64748b] hover:bg-[#f1f5f9]"
-                                    }`}
-                                >
-                                    {i + 1}
-                                </button>
-                            ))}
-                        </div>
+                    {totalPages > 1 && (
+                        <div className="flex justify-center items-center gap-2">
+                            <button
+                                onClick={() => fetchTags(Math.max(1, currentPage - 1), 5, searchTerm)}
+                                disabled={currentPage === 1 || isLoading}
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] text-slate-400 dark:text-[#94a3b8] hover:text-blue-600 hover:border-blue-100 dark:hover:border-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                            >
+                                <ChevronLeft size={18} strokeWidth={2} />
+                            </button>
 
-                        <button 
-                            onClick={() => fetchTags(currentPage + 1, 5, searchTerm)}
-                            disabled={currentPage === totalPages || isLoading}
-                            className="px-4 py-2 text-[13px] font-bold text-[#64748b] bg-white border border-[#e2e8f0] rounded-lg hover:border-[#ccd6e3] disabled:opacity-50 transition-all cursor-pointer disabled:cursor-not-allowed"
-                        >
-                            Trang sau
-                        </button>
-                    </div>
+                            <div className="flex items-center gap-1 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] rounded-xl p-1 shadow-sm">
+                                {getVisiblePages(currentPage, totalPages).map(page => (
+                                    <button
+                                        key={page}
+                                        onClick={() => fetchTags(page, 5, searchTerm)}
+                                        className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-bold transition-all ${currentPage === page ? "bg-blue-600 text-white shadow-sm" : "text-slate-600 dark:text-[#94a3b8] hover:bg-slate-50 dark:hover:bg-[#334155]"}`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => fetchTags(Math.min(totalPages, currentPage + 1), 5, searchTerm)}
+                                disabled={currentPage === totalPages || isLoading}
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] text-slate-400 dark:text-[#94a3b8] hover:text-blue-600 hover:border-blue-100 dark:hover:border-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                            >
+                                <ChevronRight size={18} strokeWidth={2} />
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
             {/* Add Modal */}
             {isAddModalOpen && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-100 p-4">
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                             <h2 className="text-xl font-bold text-gray-900">Thêm Tag Mới</h2>
@@ -219,7 +227,7 @@ const AdminTags = () => {
 
             {/* Edit Modal */}
             {editingTag && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4">
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-100 p-4">
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
                             <div className="flex items-center gap-2">

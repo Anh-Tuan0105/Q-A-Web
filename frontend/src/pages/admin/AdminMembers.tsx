@@ -1,10 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Search, SlidersHorizontal, Star, ShieldAlert, ShieldCheck, Loader2, Edit2, Check, X, RefreshCw } from 'lucide-react';
+import { Search, SlidersHorizontal, Star, ShieldAlert, ShieldCheck, Loader2, Edit2, Check, X, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { userService } from '../../services/userService';
 import type { User } from '../../types/user';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+
+const getVisiblePages = (current: number, total: number, max = 5) => {
+    let start = Math.max(1, current - Math.floor(max / 2));
+    let end = start + max - 1;
+    if (end > total) {
+        end = total;
+        start = Math.max(1, end - max + 1);
+    }
+    return Array.from({ length: Math.max(0, end - start + 1) }, (_, i) => start + i);
+};
 
 const AdminMembers = () => {
   const [members, setMembers] = useState<User[]>([]);
@@ -307,37 +317,35 @@ const AdminMembers = () => {
               Đang hiển thị {startIndex + 1} - {Math.min(startIndex + itemsPerPage, totalItems)} trên tổng số {totalItems} kết quả
             </span>
             {totalPages > 1 && (
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="px-4 py-1.5 border border-gray-200 rounded-md text-[13px] font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-                >
-                  Trước
-                </button>
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                <div className="flex justify-center items-center gap-2">
                     <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`w-8 h-8 rounded-md text-[13px] font-medium transition-colors ${
-                        currentPage === page 
-                        ? 'bg-blue-600 text-white shadow-sm' 
-                        : 'text-gray-600 hover:bg-gray-100'
-                      }`}
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] text-slate-400 dark:text-[#94a3b8] hover:text-blue-600 hover:border-blue-100 dark:hover:border-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
                     >
-                      {page}
+                        <ChevronLeft size={18} strokeWidth={2} />
                     </button>
-                  ))}
+
+                    <div className="flex items-center gap-1 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] rounded-xl p-1 shadow-sm">
+                        {getVisiblePages(currentPage, totalPages).map(page => (
+                            <button
+                                key={page}
+                                onClick={() => setCurrentPage(page)}
+                                className={`w-10 h-10 flex items-center justify-center rounded-lg text-sm font-bold transition-all ${currentPage === page ? "bg-blue-600 text-white shadow-sm" : "text-slate-600 dark:text-[#94a3b8] hover:bg-slate-50 dark:hover:bg-[#334155]"}`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+                    </div>
+
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-[#334155] text-slate-400 dark:text-[#94a3b8] hover:text-blue-600 hover:border-blue-100 dark:hover:border-blue-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+                    >
+                        <ChevronRight size={18} strokeWidth={2} />
+                    </button>
                 </div>
-                <button 
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-1.5 border border-gray-200 rounded-md text-[13px] font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors bg-white shadow-sm"
-                >
-                  Tiếp theo
-                </button>
-              </div>
             )}
           </div>
         </div>

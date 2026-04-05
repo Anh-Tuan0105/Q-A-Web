@@ -84,7 +84,10 @@ const SignInForm = () => {
                             )}
                         </div>
                     </div>
-                    {errors.password && <p className="text-red-500 text-[12px]">{errors.password.message}</p>}
+                    <div className="flex justify-between items-center text-[12px] mt-1">
+                        {errors.password ? <p className="text-red-500">{errors.password.message}</p> : <div></div>}
+                        <a href="/forgot-password" className="text-[#137FEC] font-bold hover:underline transition-all">Quên mật khẩu?</a>
+                    </div>
                 </div>
 
                 {/* Submit Button */}

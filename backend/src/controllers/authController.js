@@ -360,3 +360,98 @@ export const adminLogin = async (req, res) => {
         return res.status(500).json({ message: "Lỗi hệ thống" });
     }
 };
+
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({ message: "Vui lòng cung cấp email." });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "Người dùng không tồn tại." });
+        }
+
+        const otp = generateOTP();
+        const expiresAt = new Date(Date.now() + 1 * 60 * 1000); // 1 phút
+
+        await EmailVerification.deleteMany({ userId: user._id, newEmail: email });
+
+        await EmailVerification.create({
+            userId: user._id,
+            newEmail: email, // Dùng field này để lưu email nhận request
+            otp,
+            expiresAt
+        });
+
+        // Gửi email
+        const displayName = user.displayName || user.userName;
+        const emailHtml = getOTPTemplate(otp, displayName);
+        await sendMail(email, "[DevCommunity] Mã xác nhận Quên Mật Khẩu", emailHtml);
+
+        return res.status(200).json({ success: true, message: "Mã OTP đã được gửi đến email của bạn." });
+    } catch (error) {
+        console.error("Lỗi khi gửi yêu cầu quên mật khẩu:", error);
+        return res.status(500).json({ message: "Lỗi hệ thống" });
+    }
+};
+
+export const verifyForgotOTP = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        if (!email || !otp) {
+            return res.status(400).json({ message: "Thiếu email hoặc mã OTP." });
+        }
+
+        const record = await EmailVerification.findOne({
+            newEmail: email,
+            otp,
+            expiresAt: { $gt: new Date() }
+        });
+
+        if (!record) {
+            return res.status(400).json({ message: "Mã OTP không hợp lệ hoặc đã hết hạn." });
+        }
+
+        return res.status(200).json({ success: true, message: "Mã OTP hợp lệ." });
+    } catch (error) {
+        console.error("Lỗi xác minh OTP:", error);
+        return res.status(500).json({ message: "Lỗi hệ thống" });
+    }
+};
+
+export const resetPassword = async (req, res) => {
+    try {
+        const { email, otp, newPassword } = req.body;
+        if (!email || !otp || !newPassword) {
+            return res.status(400).json({ message: "Thiếu thông tin yêu cầu." });
+        }
+
+        const record = await EmailVerification.findOne({
+            newEmail: email,
+            otp,
+            expiresAt: { $gt: new Date() }
+        });
+
+        if (!record) {
+            return res.status(400).json({ message: "Mã OTP không hợp lệ hoặc đã hết hạn." });
+        }
+
+        const user = await User.findById(record.userId);
+        if (!user) {
+            return res.status(404).json({ message: "Người dùng không tồn tại." });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.hashedPassword = hashedPassword;
+        await user.save();
+
+        await EmailVerification.deleteMany({ userId: user._id });
+
+        return res.status(200).json({ success: true, message: "Mật khẩu đã được thay đổi thành công." });
+    } catch (error) {
+        console.error("Lỗi đổi mật khẩu:", error);
+        return res.status(500).json({ message: "Lỗi hệ thống" });
+    }
+};

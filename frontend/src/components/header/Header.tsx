@@ -313,6 +313,20 @@ const Header: React.FC = () => {
                                             <span className="font-medium">Cài đặt</span>
                                         </Link>
 
+                                        {user?.role === 'admin' && (
+                                            <>
+                                                <div className="h-px bg-slate-100 dark:bg-[#334155] my-1"></div>
+                                                <Link
+                                                    to="/admin"
+                                                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 dark:text-[#94a3b8] hover:bg-slate-50 dark:hover:bg-[#334155] hover:text-slate-900 dark:hover:text-[#f8fafc] transition-colors"
+                                                    onClick={() => setIsDropdownOpen(false)}
+                                                >
+                                                    <ShieldCheck className="w-[18px] h-[18px] text-emerald-500" />
+                                                    <span className="font-medium">Quản trị website</span>
+                                                </Link>
+                                            </>
+                                        )}
+
                                         <div className="h-px bg-slate-100 dark:bg-[#334155] my-2"></div>
 
                                         <button

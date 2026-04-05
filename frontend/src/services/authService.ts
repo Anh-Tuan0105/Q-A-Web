@@ -63,5 +63,17 @@ export const authService = {
             password
         }, { withCredentials: true });
         return res.data;
+    },
+    forgotPassword: async (email: string) => {
+        const res = await api.post("/auth/forgot-password", { email });
+        return res.data;
+    },
+    verifyForgotOTP: async (email: string, otp: string) => {
+        const res = await api.post("/auth/verify-forgot-otp", { email, otp });
+        return res.data;
+    },
+    resetPassword: async (email: string, otp: string, newPassword: string) => {
+        const res = await api.post("/auth/reset-password", { email, otp, newPassword });
+        return res.data;
     }
 }

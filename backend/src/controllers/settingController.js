@@ -1,4 +1,5 @@
 import Setting from "../models/Setting.js";
+import { io } from "../lib/socket.js";
 
 export const getSettings = async (req, res) => {
     try {
@@ -25,7 +26,10 @@ export const updateSettings = async (req, res) => {
         if (siteName !== undefined) settings.siteName = siteName;
         if (systemEmail !== undefined) settings.systemEmail = systemEmail;
         if (metaDescription !== undefined) settings.metaDescription = metaDescription;
-        if (maintenanceMode !== undefined) settings.maintenanceMode = maintenanceMode;
+        if (maintenanceMode !== undefined) {
+            settings.maintenanceMode = maintenanceMode;
+            io.emit("maintenance_mode_changed", maintenanceMode);
+        }
         if (logoUrl !== undefined) settings.logoUrl = logoUrl;
         if (faviconUrl !== undefined) settings.faviconUrl = faviconUrl;
 
